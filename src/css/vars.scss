@@ -1,0 +1,48 @@
+//pallet colours
+//-shades of grey
+$grey0: #FFF;
+$grey10: #FAFAFA;
+$grey20: #F5F5F5;
+$grey30: #EBEBEB;
+$grey35: #E0E0E0;
+$grey40: #b7b7b7;
+$grey50: #7F7F7F;
+$grey60: #737373;
+$grey70: #6A6A6A;
+$grey80: #666;
+$grey90: #333;
+$grey100: #000;
+
+
+//-purpose colours
+$cKeyboard: #EEBB11;
+$cOK: #33DD33;
+$cWarning: #FFAA22;
+$cError: #EE3333;
+$cSuccess: #33EE33;
+
+
+//text colours
+$fontCol: $grey90;
+
+//-interaction colours
+$textMouseInteractionCol: $grey80;
+$blockMouseInteractionCol: $grey90;
+
+$textKeyboardInteractionCol: $cKeyboard;
+$blockKeyboardInteractionCol: $grey90;
+
+$textMouseInteractionBg: null;
+$blockMouseInteractionBg: $grey10;
+
+$textKeyboardInteractionBg: null;
+$blockKeyboardInteractionBg: $cKeyboard;
+
+//block colours
+$borderCol: $grey40;
+
+
+$basePadding: 1.6rem;
+
+
+$fontSize: 1.4rem;

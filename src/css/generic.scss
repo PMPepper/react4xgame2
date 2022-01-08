@@ -1,0 +1,18 @@
+.responsive {
+  max-width: 100%;
+  overflow-x: auto;
+}
+
+.offscreen {
+  position: absolute;
+  top: -9999px;
+  left: -9999px;
+}
+
+.alignStart {
+  text-align: left;
+}
+
+.alignEnd {
+  text-align: right;
+}

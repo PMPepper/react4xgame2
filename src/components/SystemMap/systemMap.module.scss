@@ -1,0 +1,76 @@
+@import '../../css/shared';
+
+.systemMapWrapper {
+  height: 100%;
+}
+
+.systemMap {
+  display: block;
+  width: 100%;
+  height: 100%;
+  background: transparent url(../../assets/images/bg.png) repeat;
+  outline: 0!important;
+  overflow: hidden;
+
+  &:focus {
+    outline: 0!important;
+  }
+}
+
+//svg styles
+.systemBody {
+  &.star {
+    fill: #FDFF00;
+  }
+
+  &.gasGiant {
+    fill: #6666CC;
+  }
+
+  &.planet {
+    fill: #3333FF;
+  }
+
+  &.dwarfPlanet {
+    fill: #4444FF;
+  }
+
+  &.moon {
+    fill: #4444FF;
+  }
+
+  &.asteroid {
+    fill: #999;
+  }
+}
+
+.systemBodyLabel {
+  fill: #FFF;
+  font: normal 20px sans-serif;
+  text-anchor: middle;
+
+  pointer-events: none;
+
+  dominant-baseline: text-before-edge;
+
+  &.asteroid {
+    font-size: 15px;
+  }
+
+  //filter: url(#textShadow);
+}
+
+.orbit {
+  stroke: #FFF;
+  stroke-width: 1px;
+  stroke-opacity: 0.25;
+  fill: none;
+
+  pointer-events: none;
+}
+
+.colonyHighlight {
+  stroke: #3D3;
+  stroke-width: 1.5px;
+  fill: none;
+}

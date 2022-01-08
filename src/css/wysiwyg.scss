@@ -1,0 +1,14 @@
+@import 'shared';
+
+:global(.wysiwyg) {
+  color: $fontCol;
+
+  p {
+    margin: 0 0 $basePadding/2;
+    font-size: $fontSize;
+  }
+
+  :last-child {
+    margin-bottom: 0;
+  }
+}
