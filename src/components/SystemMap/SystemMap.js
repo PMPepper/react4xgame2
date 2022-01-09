@@ -154,14 +154,12 @@ export default function SystemMap({
 
   const onClick = useCallback(
     (e) => {
-      const target = e.target;
-
       const clickX = e.clientX;
       const clickY = e.clientY
 
       const clickedEntity = ref.current.entityScreenPositions.find(position => {
         if(position.r === 0) {
-          return;
+          return false;
         }
 
         const dx = position.x - clickX;
@@ -185,7 +183,7 @@ export default function SystemMap({
         ref.current.tzoom *= (1 / wheelZoomSpeed);
       }
     },
-    [options.controls.fast]
+    [options.controls.fast, isKeyDown]
   );
 
   const onFrameUpdate = useCallback(
@@ -331,7 +329,7 @@ export default function SystemMap({
         forceUpdate();
       }
     },
-    [options, setFollowing, cx, cy]
+    [options, setFollowing, cx, cy, forceUpdate, isKeyDown, screenToWorld]
   )
 
   //update on each frame
@@ -345,12 +343,13 @@ export default function SystemMap({
         ref.current.tzoom = Math.max(ref.current.tzoom, getSystemBodyVisibleMaxZoom(clientState.entities[following]));
       }
     },
-    [following]
+    //I explicitly do NOT want this to execute every time clientState.entities changes. 
+    [following]//eslint-disable-line react-hooks/exhaustive-deps
   );
 
   useEffect(() => {
     return endDragging;//tidy up on unload
-  }, []);
+  }, [endDragging]);
 
 
   const elementProps = useMemo(
@@ -367,7 +366,8 @@ export default function SystemMap({
         onContextMenu && onContextMenu(e, ref.current.entityScreenPositions);
       }
     }),
-    [onContextMenu]
+    // all the other props are 100% memoised, so will never become 'stale'
+    [onContextMenu]//eslint-disable-line react-hooks/exhaustive-deps
   );
 
   //Render

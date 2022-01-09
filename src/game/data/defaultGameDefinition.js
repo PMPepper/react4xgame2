@@ -1,6 +1,6 @@
 //includes stuff that usually won't change between games (minerals, tech tree, structure build times, costs, minerals, etc)
 
-export default {
+const config = {
   baseSpecies: {
     growthRate: 1.05,
     production: 1,
@@ -459,3 +459,6 @@ export default {
     },
   }
 };
+
+
+export default config;

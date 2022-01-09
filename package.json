@@ -10,6 +10,7 @@
     "@testing-library/user-event": "^13.5.0",
     "classnames": "^2.3.1",
     "core-js": "^3.20.2",
+    "mathjs": "^10.0.2",
     "modern-normalize": "^1.1.0",
     "objectpool": "^0.0.2",
     "react": "^17.0.2",

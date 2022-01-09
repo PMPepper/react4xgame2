@@ -159,7 +159,7 @@ export default function createWorldFromDefinition(server, definition) {
               systemBodyId: systemBodiesBySystemBodyDefinitionName[bodyDefinition.name].id,
               factionSystemId: factionSystem.id,
               factionSystemBody: {
-                name: factionStartingSystemDefinition.bodyNamesMap && factionStartingSystemDefinition.bodyNamesMap[bodyDefinition.name] || bodyDefinition.name,
+                name: factionStartingSystemDefinition.bodyNamesMap?.[bodyDefinition.name] || bodyDefinition.name,
                 isSurveyed: false,
               }
             });
@@ -173,6 +173,8 @@ export default function createWorldFromDefinition(server, definition) {
           factionSystem.factionSystemBodyIds = factionSystemBodies.map(entity => entity.id);
 
           break;
+        default:
+          throw new Error('Unknown value for factionStartingSystemDefinition.type');
       }
     });
 
@@ -182,8 +184,6 @@ export default function createWorldFromDefinition(server, definition) {
 
       //Create the colony
       const colony = server.createColony(systemBody.id, faction.id, map(definition.minerals, () => (0)));//, structures, populationIds.filter(id => (id !== null))
-
-      const structures = {};
 
       //Create the populations
       startingColonyDefinition.populations.forEach(populationDefinition => {

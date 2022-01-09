@@ -11,7 +11,7 @@ export default function calculatePopulationProductionCapabilites(colony, populat
   };
 
   if(populationStructures) {
-    let population = null;
+    //let population = null;
     let species = null;
     let labourEfficiency = 0;
     let totalRequiredWorkforce = 0;
@@ -50,7 +50,7 @@ export default function calculatePopulationProductionCapabilites(colony, populat
 
       //for every type of thing (capability) this structure can do (e.g. mining, reseach, etc)...
       forEach(structureDefinition.capabilities, (value, capability) => {
-        const speciesModifier = species && species.species[capability] || 1;
+        const speciesModifier = species?.species[capability] || 1;
         const technologyModifier = technologyModifiers[capability] || 1;
 
         //...boilerplate to create objects to store the values in...

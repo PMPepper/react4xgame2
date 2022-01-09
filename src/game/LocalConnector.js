@@ -71,6 +71,7 @@ function clone(data) {
       return data;
     case 'function':
     case 'symbol':
+    default:
       throw new Error('Cannot clone, unsupported variable type');
   }
 }
