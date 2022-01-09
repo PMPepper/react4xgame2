@@ -399,7 +399,7 @@ export default function SystemMap({
 
   //Get new primitives + screen positions
   getRenderableEntities(clientState, systemId)
-    .forEach(entity => EntityRenderers[entity.render.type]?.(renderPrimitives, entityScreenPositions, windowSize, x, y, zoom, entity, clientState.entities, colonies, options.display));
+    .forEach(entity => EntityRenderers[entity.render.type]?.(renderPrimitives, entityScreenPositions, windowSize, x, y, zoom, entity, clientState.entities, clientState.factionEntities, colonies, options.display));
 
   //Output rendered content
   return <RenderComponent

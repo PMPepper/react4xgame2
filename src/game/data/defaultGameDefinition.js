@@ -1,6 +1,11 @@
 //includes stuff that usually won't change between games (minerals, tech tree, structure build times, costs, minerals, etc)
 
 const config = {
+  //TODO define equations here
+  equations: {
+    
+  },
+
   baseSpecies: {
     growthRate: 1.05,
     production: 1,

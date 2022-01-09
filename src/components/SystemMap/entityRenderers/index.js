@@ -1,8 +1,8 @@
-import factionSystemBody from "./factionSystemBody";
+import systemBody from "./systemBody";
 
 
 const allRenderers = {
-    factionSystemBody
+    systemBody
 };
 
 

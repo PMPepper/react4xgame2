@@ -1,7 +1,6 @@
 import map from 'helpers/object/map';
 import forEach from 'helpers/object/forEach';
 import isEmpty from 'helpers/object/isEmpty';
-import getFactionSystemBodyFromFactionAndSystemBody from 'helpers/app/getFactionSystemBodyFromFactionAndSystemBody';
 
 import createWorldFromDefinition from './createWorldFromDefinition';
 //import * as entityCacheTypes from './entityCacheTypes';
@@ -50,6 +49,9 @@ export default class Server {
   entityIds = null;
   entitiesLastUpdated = null;
 
+  factionEntities = null;
+  factionEntitiesLastUpdated = null;
+
   entityProcessorFactories = [movementFactory, colonyFactory];
 
   clientLastUpdatedTime = null
@@ -79,6 +81,8 @@ export default class Server {
     this.entityIds = [];
     this.clientLastUpdatedTime = {};
     this.entitiesLastUpdated = {};
+    this.factionEntities = {};
+    this.factionEntitiesLastUpdated = {};
     createWorldFromDefinition(this, definition);
 
     this.gameConfig = {
@@ -395,6 +399,23 @@ export default class Server {
     return ids.map(id => (entities[id]));
   }
 
+  createFaction(name) {
+    const faction = this._newEntity('faction', {faction: {
+      name,
+      colonyIds: [],
+      research: {},
+      technology: {}
+    }});
+
+    this.factionEntities[faction.id] = {};
+    this.factionEntitiesLastUpdated[faction.id] = {};
+
+    //record factions separately (in addition to being an entity)
+    this.factions[faction.id] = faction;
+
+    return faction;
+  }
+
   createColony(systemBodyId, factionId, minerals = {}, structures = {}, populationIds = []) {
     const systemBody = this.entities[systemBodyId];
     const faction = this.entities[factionId];
@@ -403,7 +424,6 @@ export default class Server {
       factionId,
       systemId: systemBody.systemId,
       systemBodyId: systemBody.id,
-      factionSystemBodyId: getFactionSystemBodyFromFactionAndSystemBody(faction, systemBody, this.entities).id,
       researchGroupIds: [],//groups performing research
       populationIds,
       colony: {
@@ -595,7 +615,7 @@ export default class Server {
       processors = this._getEntityProcessors(this.gameTime, this.gameTime, true);
 
       for(let j = 0; j < numEntities; ++j) {
-        processors(entities[entityIds[j]], entities);
+        processors(entities[entityIds[j]], entities, this.factionEntities);
       }
 
       return;
@@ -617,7 +637,7 @@ export default class Server {
       //for each entity
       for(let i = 0; i < numEntities; ++i) {
         let entityId = entityIds[i];
-        result = processors(entities[entityId], entities);
+        result = processors(entities[entityId], entities, this.factionEntities);
 
         if(result) {
           //this entity was mutated
@@ -640,11 +660,11 @@ export default class Server {
 
     //create composed function for processing all entities
     //called for each entity - any processor the mutates the entity must return true
-    return (entity, entities) => {
+    return (entity, entities, factionEntities) => {
       let entityWasMutated = false;
 
       for(let i = 0, l = entityProcessors.length; i < l;++i) {
-        entityWasMutated = entityProcessors[i](entity, entities, this.gameConfig) || entityWasMutated;
+        entityWasMutated = entityProcessors[i](entity, entities, factionEntities, this.gameConfig) || entityWasMutated;
       }
 
       return entityWasMutated;
@@ -658,24 +678,33 @@ export default class Server {
     const client = this.clients[clientId];
     const factionId = client.factionId;
 
+    const factionEntities = this.factionEntities[factionId];
+    const factionEntitiesLastUpdated = this.factionEntitiesLastUpdated[factionId];
+
     const entityIds = this.entityIds;
     const clientLastUpdated = this.clientLastUpdatedTime[clientId];
 
     //if no clientLastUpdatedTime, then get full state
     full = full || !clientLastUpdated;
 
-    //entities to be sent
+    //entities & faction entities to be sent
     const clientEntities = {};
+    const clientFactionEntities = {};
 
     for(let i = 0, l = entityIds.length; i < l; ++i) {
       let entityId = entityIds[i];
       let entity = entities[entityId];
-      let entityLastUpdatedTime = entitiesLastUpdated[entityId];
 
-      if(full || (entityLastUpdatedTime > clientLastUpdated)) {
+      if(full || (entitiesLastUpdated[entityId] > clientLastUpdated)) {
         //Filter to just entities that do not have a factionId AND entities that have the clients faction id
         if(!entity.factionId || entity.factionId === factionId) {
-          clientEntities[entity.id] = entity;
+          clientEntities[entityId] = entity;
+        }
+      }
+
+      if(factionEntities[entityId]) {
+        if(full || (factionEntitiesLastUpdated[entityId] > clientLastUpdated)) {
+          clientFactionEntities[entityId] = factionEntities[entityId];
         }
       }
     }
@@ -684,7 +713,10 @@ export default class Server {
     this.clientLastUpdatedTime[clientId] = gameTime;
 
     //output state to client
-    return {entities: clientEntities, gameTime, gameSpeed: this.gameSpeed, desiredGameSpeed: client.gameSpeed, isPaused: this.isPaused, factionId: client.factionId};
+    return {
+      entities: clientEntities, 
+      factionEntities: clientFactionEntities,
+      gameTime, gameSpeed: this.gameSpeed, desiredGameSpeed: client.gameSpeed, isPaused: this.isPaused, factionId: client.factionId};
   }
 
   _newEntity(type, props) {
@@ -700,7 +732,7 @@ export default class Server {
 
     //automatically add ref to this entity in linked entities
     //-props to check for links
-    const idProps = ['factionId', 'speciesId', 'systemBodyId', 'systemId', 'speciesId', 'factionSystemId', 'factionSystemBodyId', 'colonyId'];
+    const idProps = ['factionId', 'speciesId', 'systemBodyId', 'systemId', 'speciesId', 'colonyId'];
 
     for(let i = 0; i < idProps.length; i++) {
       const prop = idProps[i];
@@ -728,15 +760,34 @@ export default class Server {
     return newEntity;
   }
 
+  _addFactionEntity(factionId, entityId, props) {
+    //record that this factionEntity needs to be supplied to the client for this faction
+    this.factionEntitiesLastUpdated[factionId][entityId] = this.gameTime + 1;
+
+    return this.factionEntities[factionId][entityId] = {
+      intel: {},//what we believe about what other factions know about this entity
+      id: entityId,
+
+      ...props
+    };
+  }
+
   _removeEntity(entity) {
-    if(typeof(entity) === 'object') {
-      entity = entity.id;
-    }
+    const entityId = typeof(entity) === 'object' ? entity.id : entity;
 
-    if(this.entities[entity]) {
-      this.entityIds.splice(this.entityIds.indexOf(entity), 1);
+    if(this.entities[entityId]) {
+      this.entityIds.splice(this.entityIds.indexOf(entityId), 1);
 
-      delete this.entities[entity];
+      //remove factionEntity(s)
+      Object.keys(this.factions).forEach(factionId => {
+        if(this.factionEntities[factionId][entityId]) {
+          delete this.factionEntities[factionId][entityId];
+        }
+      });
+
+      //TODO record and report that entity (and factionEntity) no longer exists to clients
+
+      delete this.entities[entityId];
     }
   }
 

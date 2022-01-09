@@ -129,36 +129,6 @@ export function getColoniesBySystemBody(clientState, systemId) {
   return colonies;
 }
 
-// export function getFactionSystemFromSystem(system) {
-//   const entities = this.entities;
-//   const factionId = this.factionId;
-
-//   system = toEntity(system, entities);
-
-//   if(system && system.factionSystemIds) {
-//     const factionSystemId = system.factionSystemIds.find(factionSystemId => (entities[factionSystemId].factionId === factionId));
-
-//     return factionSystemId ? entities[factionSystemId] : null;
-//   }
-
-//   return null;
-// }
-
-// export function getFactionSystemBodyFromSystemBody(systemBody) {
-//   const entities = this.entities;
-//   const factionId = this.factionId;
-
-//   systemBody = toEntity(systemBody, entities);
-
-//   if(systemBody && systemBody.factionSystemBodyIds) {
-//     const factionSystemBodyId = systemBody.factionSystemBodyIds.find(factionSystemBodyId => (entities[factionSystemBodyId].factionId === factionId));
-
-//     return factionSystemBodyId ? entities[factionSystemBodyId] : null;
-//   }
-
-//   return null;
-// }
-
 // export function getColoniesForSystemBody(systemBody) {
 //   systemBody = +(systemBody.id || systemBody);//convert to id, if needed
 
@@ -191,6 +161,7 @@ export function fromState(state, initialGameState) {
   clientState.initialGameState = initialGameState;
   clientState.factionId = state.factionId;
   clientState.entities = state.entities;
+  clientState.factionEntities = state.factionEntities;
   clientState.gameTime = state.gameTime;
   clientState.desiredGameSpeed = state.desiredGameSpeed;
   clientState.gameSpeed = state.gameSpeed;
@@ -216,9 +187,21 @@ export function mergeState(oldState, newData) {
     }
   }
 
+  const factionEntities = newData.factionEntities;
+  const stateFactionEntities = oldState.factionEntities;
+
+  for(let i = 0, keys = Object.keys(stateFactionEntities), l = keys.length; i < l; ++i) {
+    let key = keys[i];
+
+    if(!factionEntities[key]) {//if not in new faction entities, copy from old state
+      factionEntities[key] = stateFactionEntities[key]
+    }
+  }
+
   clientState.initialGameState = oldState.initialGameState;
   clientState.factionId = newData.factionId;
   clientState.entities = entities;
+  clientState.factionEntities = factionEntities;
   clientState.gameTime = newData.gameTime;
   clientState.desiredGameSpeed = newData.desiredGameSpeed;
   clientState.gameSpeed = newData.gameSpeed;

@@ -1,7 +1,7 @@
-import {set as setGameState, update as updateGameState} from 'redux/game';
 import {set as setSelectedSystemId} from 'redux/selectedSystemId';
 
 import find from 'helpers/object/find';
+import { fromState, mergeState } from './ClientState';
 
 
 export default class Client {
@@ -22,6 +22,15 @@ export default class Client {
     return Object.keys(this.initialGameState.factions).map(id => (+id));
   }
 
+  get gameState() {
+    return this._gameState;
+  }
+
+  set gameState(gameState) {
+    if(gameState !== this._gameState) {
+      this._gameState = gameState;
+    }
+  }
 
   ////////////////////////////////////
   // Client -> server comms methods //
@@ -76,21 +85,21 @@ export default class Client {
   // Server -> Client message handlers //
   ///////////////////////////////////////
   message_startingGame(gameState) {
-    this.gameState = gameState;
+    this.store.dispatch(setSelectedSystemId(+find(gameState.entities, entity => (entity.type === 'system')).id));//TODO base on starting systems
 
-    this.store.dispatch(setSelectedSystemId(+find(gameState.entities, entity => (entity.type === 'factionSystem')).systemId));//TODO base on starting systems
-
-    this.store.dispatch(setGameState({newGameState: gameState, initialGameState: this.initialGameState}))
+    this.gameState = fromState(gameState, this.initialGameState);
   }
 
-  message_updatingGame(gameState) {
-    this.gameState = gameState;
-
-    this.store.dispatch(updateGameState(gameState))
+  message_updatingGame(newGameState) {
+    this.gameState = mergeState(this.gameState, newGameState);
   }
 
-  //
-
+  //////////////////
+  // Client -> UI //
+  //////////////////
+  setUpdateStateCallback(callback) {
+    this._updateStateCallback = callback;
+  }
 
 
   ////////////////////////////

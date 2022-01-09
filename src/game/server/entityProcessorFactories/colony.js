@@ -12,14 +12,14 @@ export default function colonyFactory(lastTime, time, init) {
 
   //only update once a day
   if(lastDay !== today || init) {
-    return function colony(colony, entities, gameConfig) {
+    return function colony(colony, entities, factionEntities, gameConfig) {
       if(colony.type === 'colony') {
         let i, l, totalPopulation = 0, totalEffectiveWorkers = 0, totalSupportWorkers = 0;
 
         const faction = entities[colony.factionId];
         const technologyModifiers = calculateTechnologyModifiers(faction.faction.technology)
         const systemBody = entities[colony.systemBodyId];
-        const factionSystemBody = entities[colony.factionSystemBodyId];
+        const factionSystemBody = factionEntities[colony.factionId][colony.systemBodyId];
         const additionalModifiedEntityIDs = [];
 
         const structureDefinitions = gameConfig.structures;
@@ -66,7 +66,7 @@ export default function colonyFactory(lastTime, time, init) {
         colony.colony.structuresWithCapability = structuresWithCapability;
 
         //mining
-        if(capabilityProductionTotals.mining && factionSystemBody.factionSystemBody.isSurveyed) {
+        if(capabilityProductionTotals.mining && factionSystemBody.isSurveyed) {
           //can mine
           //-how much you can mine per year
           const miningProduction = capabilityProductionTotals.mining;//calculateProduction('mining', capabilityProductionTotals.mining, technologyModifiers.miningMod, gameConfig);//totalStructureCapabilities.mining * labourEfficiency * technologyModifiers.miningMod * 1;//TODO include species mining rate here + any other adjustments (morale etc)

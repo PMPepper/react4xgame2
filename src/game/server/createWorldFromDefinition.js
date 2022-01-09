@@ -63,6 +63,7 @@ export default function createWorldFromDefinition(server, definition) {
           children: [],
           position: null,
         },
+        render: {type: 'systemBody'},
         availableMinerals: generateAvailableMinerals(bodyDefinition, definition)
       });
 
@@ -97,17 +98,9 @@ export default function createWorldFromDefinition(server, definition) {
 
   //create the factions
   definition.factions.forEach(factionDefinition => {
-    const faction = server._newEntity('faction', {faction: {
-      name: factionDefinition.name,
-      colonyIds: [],
-      research: {},
-      technology: {}
-    }});
+    const faction = server.createFaction(factionDefinition.name, factionDefinition.startingResearch);
 
     factionsByDefinitionName[factionDefinition.name] = faction;
-
-    //record factions separately (in addition to being an entity)
-    server.factions[faction.id] = faction;
 
     //assign initial research and technology
     factionDefinition.startingResearch.forEach(researchId => {
@@ -140,37 +133,58 @@ export default function createWorldFromDefinition(server, definition) {
 
       switch(factionStartingSystemDefinition.type) {
         case 'known':
-          //create faction system entity, and apply name
-          const factionSystem = server._newEntity('factionSystem', {
-            systemId: system.id,
-            factionId: faction.id,
-            factionSystem: {
-              name: factionStartingSystemDefinition.name || systemDefinitionId//if faction has defined it's own name, use that
-            },
+          server._addFactionEntity(
+            faction.id, 
+            system.id, 
+            {
+              name: factionStartingSystemDefinition.name || systemDefinitionId
+            }
+          );
 
+          systemDefinition.bodies.map(bodyDefinition => {
+            const factionSystemBody = server._addFactionEntity(
+              faction.id, 
+              systemBodiesBySystemBodyDefinitionName[bodyDefinition.name].id, 
+              {
+                name: factionStartingSystemDefinition.bodyNamesMap?.[bodyDefinition.name] || bodyDefinition.name,
+                isSurveyed: false
+              }
+            );
+
+            factionSystemBodyBySystemBodyId[factionSystemBody.id] = factionSystemBody;
           });
 
-          //Now repeat for the system bodies
-          const factionSystemBodies = systemDefinition.bodies.map(bodyDefinition => {
-            const factionSystemBody = server._newEntity('factionSystemBody', {
-              render: {type: 'factionSystemBody'},
-              systemId: system.id,
-              factionId: faction.id,
-              systemBodyId: systemBodiesBySystemBodyDefinitionName[bodyDefinition.name].id,
-              factionSystemId: factionSystem.id,
-              factionSystemBody: {
-                name: factionStartingSystemDefinition.bodyNamesMap?.[bodyDefinition.name] || bodyDefinition.name,
-                isSurveyed: false,
-              }
-            });
+          // //create faction system entity, and apply name
+          // const factionSystem = server._newEntity('factionSystem', {
+          //   systemId: system.id,
+          //   factionId: faction.id,
+          //   factionSystem: {
+          //     name: factionStartingSystemDefinition.name || systemDefinitionId//if faction has defined it's own name, use that
+          //   },
 
-            factionSystemBodyBySystemBodyId[factionSystemBody.systemBodyId] = factionSystemBody;
+          // });
 
-            return factionSystemBody;
-          })
+          // //Now repeat for the system bodies
+          // const factionSystemBodies = systemDefinition.bodies.map(bodyDefinition => {
+          //   const factionSystemBody = server._newEntity('factionSystemBody', {
+          //     render: {type: 'factionSystemBody'},
+          //     systemId: system.id,
+          //     factionId: faction.id,
+          //     systemBodyId: systemBodiesBySystemBodyDefinitionName[bodyDefinition.name].id,
+          //     factionSystemId: factionSystem.id,
+          //     factionSystemBody: {
+          //       name: factionStartingSystemDefinition.bodyNamesMap?.[bodyDefinition.name] || bodyDefinition.name,
+          //       isSurveyed: false,
+          //     }
+          //   });
 
-          //record ID's of factionSystemBodies in factionSystem
-          factionSystem.factionSystemBodyIds = factionSystemBodies.map(entity => entity.id);
+          //   factionSystemBodyBySystemBodyId[factionSystemBody.systemBodyId] = factionSystemBody;
+
+          //   return factionSystemBody;
+          // })
+
+          // //record ID's of factionSystemBodies in factionSystem
+          // factionSystem.factionSystemBodyIds = factionSystemBodies.map(entity => entity.id);
 
           break;
         default:
@@ -205,13 +219,7 @@ export default function createWorldFromDefinition(server, definition) {
 
       //mark system body as surveyed
       if(startingColonyDefinition.isSurveyed) {
-        const factionSystemBody = find(server.entities, (entity, id) => {
-          return entity.type === 'factionSystemBody' && entity.factionId === faction.id && entity.systemBodyId === systemBody.id;
-        });
-
-        if(factionSystemBody) {
-          factionSystemBody.factionSystemBody.isSurveyed = true;
-        }
+        factionSystemBodyBySystemBodyId[systemBody.id].isSurveyed = true;
       }
     });
   })

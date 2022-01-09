@@ -7,21 +7,20 @@ import {
 } from 'components/game/GameConsts';;
 
 
-export default function factionSystemBodyRenderer(renderPrimitives, entityScreenPositions, windowSize, x, y, zoom, entity, entities, colonies, options) {
+export default function systemBodyRenderer(renderPrimitives, entityScreenPositions, windowSize, x, y, zoom, entity, entities, factionEntities, colonies, options) {
   const id = entity.id;
-  const systemBodyEntity = entities[entity.systemBodyId];
-  const systemBody = systemBodyEntity.systemBody;
+  const systemBody = entity.systemBody;
   const systemBodyDisplayOptions = options.bodies[systemBody.type];
   //const style = styles[systemBody.type];
 
-  const parent = systemBodyEntity.movement && systemBodyEntity.movement.orbitingId && entities[systemBodyEntity.movement.orbitingId];
+  const parent = entity.movement && entity.movement.orbitingId && entities[entity.movement.orbitingId];
 
   const hasMinerals = false;
-  const hasColony = !!colonies[systemBodyEntity.id];
+  const hasColony = !!colonies[entity.id];
 
   const baseRadius = zoom * systemBody.radius;
-  const cx = (systemBodyEntity.position.x - x) * zoom;
-  const cy = (systemBodyEntity.position.y - y) * zoom;
+  const cx = (entity.position.x - x) * zoom;
+  const cy = (entity.position.y - y) * zoom;
   const r = Math.max(systemBodyTypeMinRadius[systemBody.type], baseRadius);
   let opacity = 1;
 
@@ -58,7 +57,7 @@ export default function factionSystemBodyRenderer(renderPrimitives, entityScreen
   let orbitY;
 
   if(parent) {
-    orbitRadius = systemBodyEntity.movement.radius * zoom;
+    orbitRadius = entity.movement.radius * zoom;
     orbitX = (parent.position.x - x) * zoom;
     orbitY = (parent.position.y - y) * zoom;
 
@@ -104,9 +103,12 @@ export default function factionSystemBodyRenderer(renderPrimitives, entityScreen
   }
 
   if(displayLabel) {
-    renderPrimitives.push(text(`${id}-label`, entity.factionSystemBody.name, cx, cy + r + 4, opacity, 'systemBodyLabel', systemBody.type));
+    const name = factionEntities[id]?.name || 'Unknown??';
+    
+    // render name
+    name && renderPrimitives.push(text(`${id}-label`, name, cx, cy + r + 4, opacity, 'systemBodyLabel', systemBody.type));
   }
 
   //record position
-  entityScreenPositions.push(position(entity.systemBodyId, cx, cy, displayBody ? r : 0));
+  entityScreenPositions.push(position(entity.id, cx, cy, displayBody ? r : 0));
 }

@@ -1,4 +1,4 @@
-import { useCallback } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux'
 
 import styles from './Game.module.scss';
@@ -16,12 +16,14 @@ export default function Game({
   client
 }) {
   //Redux
-  const clientState = useSelector(state => state.game);
   const selectedSystemId = useSelector(state => state.selectedSystemId);
   const systemMapFollowing = useSelector(state => state.systemMapFollowing);
   const systemMapOptions = useSelector(state => state.systemMapOptions);
 
   const dispatch = useDispatch();
+
+  //Internal state
+  const [clientState, setClientState] = useState(() => client.gameState);
 
   //Callbacks
   const setFollowing = useCallback(
@@ -29,7 +31,17 @@ export default function Game({
     [dispatch]
   )
 
+  useEffect(
+    () => {
+      client.setUpdateStateCallback(setClientState);
+
+      return () => client.setUpdateStateCallback(null);
+    },
+    [client]
+  )
+
   if(!clientState) {
+    debugger;
     return <div className={styles.game}>No client state</div>
   }
 
