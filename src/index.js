@@ -7,6 +7,8 @@ import './dom/track-focus';
 import polyfills from './polyfills';
 import 'css/core.scss';
 
+
+
 //App specific
 //import root from '@/redux/root';
 import Game from 'components/game/Game';
@@ -21,20 +23,13 @@ import baseGameDefinition from 'game/data/baseGameDefinition';//TEMP CODE
 
 import store from 'redux/index';
 
-//vars
 
+//i18n
+import { i18n } from "@lingui/core";
+import { messages } from './locales/en/messages.js'
 
-// var store;
-
-// if(process.env.NODE_ENV !== 'production') {
-//   store = createStore(root, window.__REDUX_DEVTOOLS_EXTENSION__ && window.__REDUX_DEVTOOLS_EXTENSION__())
-
-//   window.store = store;
-// } else {
-//   store = createStore(root)
-// }
-
-//REAL TEMP CODE!
+i18n.load('en', messages)
+i18n.activate('en')
 
 
 //TODO list:
@@ -46,14 +41,14 @@ import store from 'redux/index';
 polyfills.then(() => {
   console.log('[MAIN] post polyfills');
   //TEMP CODE
-  const gameServer = GameEngine.startGame(baseGameDefinition, new Client('local', store, new LocalConnector())).then((client) => {
+  GameEngine.startGame(baseGameDefinition, new Client('local', store, new LocalConnector())).then((client) => {
       console.log('[MAIN] render');
 
       ReactDOM.render(
         <Provider store={store}>
-          {/*<I18nProvider language="en-GB">*/}
+          <I18nProvider i18n={i18n}>
             <Game client={client} />
-          {/*</Provider></I18nProvider>*/}
+          </I18nProvider>
         </Provider>,
         document.getElementById('app')
       );

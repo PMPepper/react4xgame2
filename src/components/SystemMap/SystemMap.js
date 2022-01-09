@@ -18,7 +18,7 @@ import flatten from 'helpers/array/flatten';
 import {getColoniesBySystemBody, getRenderableEntities} from 'game/ClientState';
 
 //constants
-import {startFadeRadius, fullyFadeRadius, startFadeOrbitRadius, fullyFadeOrbitRadius} from 'components/game/GameConsts';
+import {startFadeRadius, startFadeOrbitRadius} from 'components/game/GameConsts';
 
 const normalScrollSpeed = 200;//pixels per second
 const fastScrollSpeed = 500;//pixels per second
@@ -86,17 +86,17 @@ export default function SystemMap({
     [cx, cy]
   );
 
-  const worldToScreen = useCallback(
-    (worldX, worldY) => {
-      const {x, y, zoom, windowSize} = ref.current;
+  // const worldToScreen = useCallback(
+  //   (worldX, worldY) => {
+  //     const {x, y, zoom, windowSize} = ref.current;
 
-      return {
-        x: ((worldX - x) * zoom) + (windowSize.width * cx),
-        y: ((worldY - y) * zoom) + (windowSize.height * cy)
-      };
-    },
-    [cx, cy]
-  );
+  //     return {
+  //       x: ((worldX - x) * zoom) + (windowSize.width * cx),
+  //       y: ((worldY - y) * zoom) + (windowSize.height * cy)
+  //     };
+  //   },
+  //   [cx, cy]
+  // );
 
   //event handlers
   const onDragMove = useCallback(
@@ -111,23 +111,16 @@ export default function SystemMap({
     []
   );
 
-  const onDragUp = useCallback(
-    (e) => {
-      e.preventDefault();
-
-      endDragging()
-    },
-    []
-  );
-
   const endDragging = useCallback(
-    () => {
+    (e) => {
+      e?.preventDefault();
+
       ref.current.isMouseDragging = false;
 
       window.removeEventListener('mousemove', onDragMove);
-      window.removeEventListener('mouseup', onDragUp);
+      window.removeEventListener('mouseup', endDragging);
     },
-    []
+    [onDragMove]
   );
 
   const onMouseDown = useCallback(
@@ -138,9 +131,9 @@ export default function SystemMap({
       ref.current.mouseDownWorldCoords = screenToWorld(e.clientX, e.clientY);
 
       window.addEventListener('mousemove', onDragMove);
-      window.addEventListener('mouseup', onDragUp);
+      window.addEventListener('mouseup', endDragging);
     },
-    [screenToWorld, onDragMove, onDragUp]
+    [screenToWorld, onDragMove, endDragging]
   )
 
   const onMouseMove = useCallback(
@@ -428,7 +421,6 @@ export function getSystemBodyVisibleMaxZoom(systemBodyEntity) {
   const parent = systemBodyEntity.movement && systemBodyEntity.movement.orbitingId;
   const systemBodyRadius = systemBodyEntity.systemBody.radius;
 
-  //opacity = (systemBodyRadius - fullyFadeRadius) / (startFadeRadius - fullyFadeRadius);
   const radiusMaxZoom = startFadeRadius / systemBodyRadius;
 
   //if you're orbiting something, check the max zoom before this starts to fade

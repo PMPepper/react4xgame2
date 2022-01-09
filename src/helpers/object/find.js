@@ -1,4 +1,4 @@
-export default function(obj, findFunc) {
+export default function find(obj, findFunc) {
   const keys = Object.keys(obj);
 
   for(let i = 0, l = keys.length; i < l; ++i) {

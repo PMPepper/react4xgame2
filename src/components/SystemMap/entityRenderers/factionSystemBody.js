@@ -30,7 +30,7 @@ export default function factionSystemBodyRenderer(renderPrimitives, entityScreen
   //Which parts should be rendered?
   let displayBody = (systemBodyDisplayOptions.body & RenderFlags.ALL) || (hasColony && systemBodyDisplayOptions.body & RenderFlags.COLONY) || (hasMinerals && systemBodyDisplayOptions.body & RenderFlags.MINERALS)
   let displayLabel = (systemBodyDisplayOptions.label & RenderFlags.ALL) || (hasColony && systemBodyDisplayOptions.label & RenderFlags.COLONY) || (hasMinerals && systemBodyDisplayOptions.label & RenderFlags.MINERALS)
-  let displayOrbit = parent && (systemBodyDisplayOptions.orbit & RenderFlags.ALL) || (hasColony && systemBodyDisplayOptions.orbit & RenderFlags.COLONY) || (hasMinerals && systemBodyDisplayOptions.orbit & RenderFlags.MINERALS)
+  let displayOrbit = parent && ((systemBodyDisplayOptions.orbit & RenderFlags.ALL) || (hasColony && systemBodyDisplayOptions.orbit & RenderFlags.COLONY) || (hasMinerals && systemBodyDisplayOptions.orbit & RenderFlags.MINERALS))
 
   //is visible on the screen?
   if(

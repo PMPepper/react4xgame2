@@ -191,9 +191,6 @@ export default class Server {
 
     this._checkValidClient(clientId);
 
-    const client = this.clients[clientId];
-
-
     //c/onsole.log('[Server] startGame');
     this.phase = RUNNING;
 
@@ -348,7 +345,7 @@ export default class Server {
       throw new Error('Client required a name');
     }
 
-    Object.values(this.clients).some(client => {
+    Object.values(this.clients).forEach(client => {
       if(client.id !== clientId && client.name === name) {
         throw new Error('Client name already in use by another client');
       }
@@ -561,6 +558,8 @@ export default class Server {
         this.timeMultiplier = 7 * 86400;
         this.gameSecondsPerStep = 360;
         break;
+      default:
+        throw new Error('Unknown speed value');
     }
 
     this.gameSpeed = newGameSpeed;

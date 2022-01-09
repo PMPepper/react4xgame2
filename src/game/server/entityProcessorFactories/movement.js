@@ -54,6 +54,9 @@ export default function movementFactory(lastTime, time) {
     switch(entity.movement.type) {
       case 'orbitRegular':
         result = regularOrbitPositionAtTime(entity, entities);
+        break;
+      default:
+        return;//TODO handle other orbit types
     }
 
     //record the result to prevent repeat processing

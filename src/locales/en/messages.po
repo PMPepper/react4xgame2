@@ -14,79 +14,79 @@ msgstr ""
 "Plural-Forms: \n"
 
 #: src/components/Game.js:125
-msgid "Body info"
-msgstr "Body info"
+#~ msgid "Body info"
+#~ msgstr "Body info"
 
 #: src/components/Game.js:114
-msgid "Create colony"
-msgstr "Create colony"
+#~ msgid "Create colony"
+#~ msgstr "Create colony"
 
 #: src/components/Test.js:28
 #: src/components/WindowResearch.js:111
-msgid "Create research project"
-msgstr "Create research project"
+#~ msgid "Create research project"
+#~ msgstr "Create research project"
 
 #: src/components/WindowResearch.js:50
-msgid "Total research facilities: {totalNumResearchFacilities}"
-msgstr "Total research facilities: {totalNumResearchFacilities}"
+#~ msgid "Total research facilities: {totalNumResearchFacilities}"
+#~ msgstr "Total research facilities: {totalNumResearchFacilities}"
 
 #: src/components/Game.js:278
-msgid "coloniesWindow.title"
-msgstr "Colonies"
+#~ msgid "coloniesWindow.title"
+#~ msgstr "Colonies"
 
 #: src/components/Game.js:281
-msgid "fleetsWindow.title"
-msgstr "Fleets"
+#~ msgid "fleetsWindow.title"
+#~ msgstr "Fleets"
 
 #: src/components/Game.js:275
-msgid "optionsPanel.title"
-msgstr "Options"
+#~ msgid "optionsPanel.title"
+#~ msgstr "Options"
 
 #: src/components/Game.js:282
-msgid "shipDesignWindow.title"
-msgstr "Ship design"
+#~ msgid "shipDesignWindow.title"
+#~ msgstr "Ship design"
 
 #: src/components/Game.js:216
-msgid "toolbar.colonies"
-msgstr "Colonies"
+#~ msgid "toolbar.colonies"
+#~ msgstr "Colonies"
 
 #: src/components/Game.js:217
-msgid "toolbar.fleets"
-msgstr "Fleets"
+#~ msgid "toolbar.fleets"
+#~ msgstr "Fleets"
 
 #: src/components/Game.js:231
-msgid "toolbar.realTime"
-msgstr "Play at real time"
+#~ msgid "toolbar.realTime"
+#~ msgstr "Play at real time"
 
 #: src/components/Game.js:218
-msgid "toolbar.shipDesign"
-msgstr "Ship design"
+#~ msgid "toolbar.shipDesign"
+#~ msgstr "Ship design"
 
 #: src/components/Game.js:226
-msgid "toolbar.togglePaused"
-msgstr "Toggle paused game"
+#~ msgid "toolbar.togglePaused"
+#~ msgstr "Toggle paused game"
 
 #: src/components/Game.js:242
-msgid "toolbar.x3600"
-msgstr "Play at 1 hour per second"
+#~ msgid "toolbar.x3600"
+#~ msgstr "Play at 1 hour per second"
 
 #: src/components/Game.js:236
-msgid "toolbar.x60"
-msgstr "Play at 1 minute per second"
+#~ msgid "toolbar.x60"
+#~ msgstr "Play at 1 minute per second"
 
 #: src/components/Game.js:249
 #: src/components/Game.js:257
-msgid "toolbar.x86400"
-msgstr "Play at 1 day per second"
+#~ msgid "toolbar.x86400"
+#~ msgstr "Play at 1 day per second"
 
 #: src/components/WindowResearch.js:53
-msgid "windowResearch.groups.create"
-msgstr "Create"
+#~ msgid "windowResearch.groups.create"
+#~ msgstr "Create"
 
 #: src/components/WindowResearch.js:54
-msgid "windowResearch.groups.edit"
-msgstr "Edit"
+#~ msgid "windowResearch.groups.edit"
+#~ msgstr "Edit"
 
 #: src/components/WindowResearch.js:55
-msgid "windowResearch.groups.remove"
-msgstr "Remove"
+#~ msgid "windowResearch.groups.remove"
+#~ msgstr "Remove"

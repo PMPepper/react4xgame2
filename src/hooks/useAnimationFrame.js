@@ -5,17 +5,20 @@ export default function useAnimationFrame(callback) {
     // without triggering a re-render on their change
     const requestRef = useRef();
     const previousTimeRef = useRef();
+    const callbackRef = useRef();
     
-    const animate = time => {
-      if (previousTimeRef.current !== undefined) {
-        const deltaTime = time - previousTimeRef.current;
-        callback(deltaTime/1000)
-      }
-      previousTimeRef.current = time;
-      requestRef.current = requestAnimationFrame(animate);
-    }
+    callbackRef.current = callback;
     
     useEffect(() => {
+      const animate = time => {
+        if (previousTimeRef.current !== undefined) {
+          const deltaTime = time - previousTimeRef.current;
+          callbackRef.current(deltaTime/1000)
+        }
+        previousTimeRef.current = time;
+        requestRef.current = requestAnimationFrame(animate);
+      }
+
       requestRef.current = requestAnimationFrame(animate);
       return () => cancelAnimationFrame(requestRef.current);
     }, []); // Make sure the effect runs only once

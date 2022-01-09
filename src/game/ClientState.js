@@ -1,5 +1,5 @@
 //Helpers
-import toEntity from 'helpers/app/toEntity';
+//import toEntity from 'helpers/app/toEntity';
 //import deepFreeze from 'helpers/object/deepFreeze';//useful for debugging
 
 ////////////////////

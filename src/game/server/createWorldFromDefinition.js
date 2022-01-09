@@ -34,12 +34,10 @@ export default function createWorldFromDefinition(server, definition) {
 
     const systemBodiesBySystemBodyDefinitionName = systemBodiesBySystemDefinitionIdBySystemBodyDefinitionName[systemDefinitionId];
 
-    let systemBodyPosition = [1];
-
     //now create the bodies
     const bodies = systemDefinition.bodies.map(bodyDefinition => {
       const bodyMass = bodyDefinition.mass || 1;
-      const orbitingId = bodyDefinition.parent && systemBodiesBySystemBodyDefinitionName[bodyDefinition.parent] && systemBodiesBySystemBodyDefinitionName[bodyDefinition.parent].id || null;
+      const orbitingId = bodyDefinition.parent && systemBodiesBySystemBodyDefinitionName[bodyDefinition.parent] && (systemBodiesBySystemBodyDefinitionName[bodyDefinition.parent].id || null);
 
       const body = server._newEntity('systemBody', {
         systemId: system.id,

@@ -26,7 +26,7 @@ export default function Game({
   //Callbacks
   const setFollowing = useCallback(
     following => dispatch(setSystemMapFollowing(following)),
-    []
+    [dispatch]
   )
 
   if(!clientState) {
