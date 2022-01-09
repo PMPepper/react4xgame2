@@ -15,6 +15,7 @@ import useForceUpdate from 'hooks/useForceUpdate';
 
 //Helpers
 import flatten from 'helpers/array/flatten';
+import {getColoniesBySystemBody, getRenderableEntities} from 'game/ClientState';
 
 //constants
 import {startFadeRadius, fullyFadeRadius, startFadeOrbitRadius, fullyFadeOrbitRadius} from 'components/game/GameConsts';
@@ -378,7 +379,7 @@ export default function SystemMap({
 
   //Render
   let {x, y, zoom, entityScreenPositions, renderPrimitives} = ref.current;
-  const colonies = clientState.getColoniesBySystemBody(systemId);
+  const colonies = getColoniesBySystemBody(clientState, systemId);
 
   //center in window
   x -= (windowSize.width * cx) / zoom;
@@ -404,8 +405,7 @@ export default function SystemMap({
   entityScreenPositions.length = 0;
 
   //Get new primitives + screen positions
-  clientState
-    .getRenderableEntities(systemId)
+  getRenderableEntities(clientState, systemId)
     .forEach(entity => EntityRenderers[entity.render.type]?.(renderPrimitives, entityScreenPositions, windowSize, x, y, zoom, entity, clientState.entities, colonies, options.display));
 
   //Output rendered content

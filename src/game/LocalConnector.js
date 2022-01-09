@@ -15,7 +15,9 @@ export default class LocalConnector {
   }
 
   sendMessageToServer(messageType, data) {
-    return this.server.onMessage(messageType, data, 1);
+    const response = this.server.onMessage(messageType, data, 1);
+    
+    return response ? response.then(clone) : undefined;
   }
 
 

@@ -1,4 +1,5 @@
 import { createSlice } from '@reduxjs/toolkit'
+import {set as setSelectedSystemId} from './selectedSystemId'
 
 
 export const slice = createSlice({
@@ -8,6 +9,8 @@ export const slice = createSlice({
         set: (state, {payload}) => {
             return payload;
         },
+        //If we change system, clear the value of systemMapFollowing
+        [setSelectedSystemId]: () => null,
     },
 });
 
