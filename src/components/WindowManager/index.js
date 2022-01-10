@@ -27,6 +27,8 @@ export default function WindowManager({children, styles = defaultStyles}) {
     const [ref, {width, height}] = useElementSize();
     const windowStateRef = useRef(BLANK);
     const windowsRef = useRef();
+    const windowKeyToIndexRef = useRef();
+
     const forceUpdate = useForceUpdate();
 
     //Callbacks
@@ -35,7 +37,13 @@ export default function WindowManager({children, styles = defaultStyles}) {
             const state = windowStateRef.current[key];
 
             state.position.translateBy(dx, dy);
+
+            //TODO enforce bounds
+
             state.element = makeElement(state, onWindowClose, onWindowDrag, onWindowResize);
+
+            //rebuild windows array
+            windowsRef.current[windowKeyToIndexRef.current[key]] = state.element;
 
             forceUpdate();
         },
@@ -95,7 +103,7 @@ export default function WindowManager({children, styles = defaultStyles}) {
 
     windowsRef.current = useMemo(
         () => {
-            return sortElements(windowStateRef.current);
+            return sortElements(windowStateRef.current, windowKeyToIndexRef);
         },
         [windowStateRef.current]
     );
@@ -127,10 +135,19 @@ function makeElement(state, onWindowClose, onWindowDrag, onWindowResize) {
     );
 }
 
-function sortElements(windowState) {
-    return mapToSortedArray(
+function sortElements(windowState, windowKeyToIndexRef) {
+    const windows = mapToSortedArray(
         windowState,
         ({element}) => element,
         sortOnInteractionTime
     );
+
+    //generate key to sorted index lookup
+    windowKeyToIndexRef.current = windows.reduce((output, {key}, index) => {
+        output[key] = index;
+
+        return output
+    }, {})
+
+    return windows;
 }

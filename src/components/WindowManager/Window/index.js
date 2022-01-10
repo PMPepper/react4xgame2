@@ -8,6 +8,7 @@ import cn from 'classnames';
 import Spreader from "components/layout/Spreader";
 
 //Hooks
+import useDraggable from "hooks/useDraggable";
 
 //Helpers
 
@@ -33,28 +34,42 @@ export default function Window({
     //Labels
     closeLbl = defaultCloseLbl
 }) {
+    const dragProps = useDraggable(onDrag);
+
     const style = useMemo(
         () => {
             return {
-                left: `${x}px`,
-                top: `${y}px`,
-                width: `${width}px`,
-                height: `${height}px`,
+                "--window-x": `${x}px`,
+                "--window-y": `${y}px`,
+                "--window-width": `${width}px`,
+                "--window-height": `${height}px`,
             };
         },
         [x, y, width, height]
     );
 
     return <Component style={style} className={styles.root}>
-        <HeaderComponent className={cn(styles.header, onDrag && style.drag)}>
-            <Spreader
-                left={title && <TitleComponent className={styles.title}>{title}</TitleComponent>}
-                right={onRequestClose && <button className={styles.closeBtn} type="button" onClick={onRequestClose}>
-                    <FontAwesomeIcon icon={solid('rectangle-xmark')} />
-                    <span className="offscreen">{closeLbl}</span>
-                </button>}
-            />
-        </HeaderComponent>
-        {children}
+        <div className={styles.content}>
+            <HeaderComponent className={cn(styles.header, onDrag && styles.drag, onResize && styles.onResize)} {...dragProps}>
+                <Spreader
+                    left={title && <TitleComponent className={styles.title}>{title}</TitleComponent>}
+                    right={onRequestClose && <button className={styles.closeBtn} type="button" onClick={onRequestClose}>
+                        <FontAwesomeIcon icon={solid('rectangle-xmark')} />
+                        <span className="offscreen">{closeLbl}</span>
+                    </button>}
+                />
+            </HeaderComponent>
+            <div className={styles.body}>{children}</div>
+        </div>
+        {onResize && <>
+            <div className={styles.resizeN} />
+            <div className={styles.resizeNE} />
+            <div className={styles.resizeE} />
+            <div className={styles.resizeSE} />
+            <div className={styles.resizeS} />
+            <div className={styles.resizeSW} />
+            <div className={styles.resizeW} />
+            <div className={styles.resizeNW} />
+        </>}
     </Component>
 }

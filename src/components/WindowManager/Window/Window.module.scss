@@ -1,18 +1,40 @@
 @import '../../../css/shared';
 
-
 .root {
+    --dragWidth: #{$basePadding4};
+    --window-x: 0;
+    --window-y: 0;
+    --window-width: 100px;
+    --window-height: 100px;
+
     position: absolute;
+    left: calc(var(--window-x) - var(--dragWidth));
+    top: calc(var(--window-y) - var(--dragWidth));
+    width: calc(var(--window-width) + calc(2 * var(--dragWidth)));
+    height: calc(var(--window-height) + calc(2 * var(--dragWidth)));
+    
+    display: grid;
+    grid-template-columns: [col-start] var(--dragWidth) [col-content-start] 1fr [col-content-end] var(--dragWidth) [col-end];
+    grid-template-rows: [row-start] var(--dragWidth) [row-content-start] 1fr [row-content-end] var(--dragWidth) [row-end];
+}
+
+.content {
+    grid-area: row-content-start / col-content-start;
+
     background: $bgCol;
     border: 1px solid $borderCol;
     box-shadow: 3px 3px 3px 0px rgba(0,0,0,0.3);
+
+    display: flex;
+    flex-flow: column nowrap;
 }
 
 
 .header {
+    flex: 0 0 auto;
     background: $grey30;
     padding: $basePadding4;
-
+    
     &.drag {
         cursor: move;
     }
@@ -28,4 +50,49 @@
 
     color: $fontCol;
     font-size: 20px;
+}
+
+.body {
+    flex: 1 1 auto;
+}
+
+//resize classes
+.resizeN {
+    cursor: n-resize;
+    grid-area: row-start / col-content-start;
+}
+
+.resizeNE {
+    cursor: ne-resize;
+    grid-area: row-start / col-content-end;
+}
+
+.resizeE {
+    cursor: e-resize;
+    grid-area: row-content-start / col-content-end;
+}
+
+.resizeSE {
+    cursor: se-resize;
+    grid-area: row-content-end / col-content-end;
+}
+
+.resizeS {
+    cursor: s-resize;
+    grid-area: row-content-end / col-content-start;
+}
+
+.resizeSW {
+    cursor: sw-resize;
+    grid-area: row-content-end / col-start;
+}
+
+.resizeW {
+    cursor: w-resize;
+    grid-area: row-content-start / col-start;
+}
+
+.resizeNW {
+    cursor: nw-resize;
+    grid-area: row-start / col-start;
 }
