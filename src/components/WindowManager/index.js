@@ -60,8 +60,26 @@ export default function WindowManager({children, styles = defaultStyles}) {
     );
 
     const onWindowResize = useCallback(
-        () => {
-            //TODO
+        (key, top, right, bottom, left) => {
+            if(top === 0 && right === 0 && bottom === 0 && left === 0) {
+                return;//nothing has changed
+            }
+
+            const state = windowStateRef.current[key];
+
+            top !== 0 && (state.position.top += top);
+            right !== 0 && (state.position.right += right);
+            bottom !== 0 && (state.position.bottom += bottom);
+            left !== 0 && (state.position.left += left);
+
+            //TODO enforce size limits
+
+            state.element = makeElement(state, onWindowClose, onWindowDrag, onWindowResize);
+
+            //rebuild windows array
+            windowsRef.current[windowKeyToIndexRef.current[key]] = state.element;
+
+            forceUpdate();
         },
         []
     );
