@@ -1,0 +1,31 @@
+@import '../../../css/shared';
+
+
+.root {
+    position: absolute;
+    background: $bgCol;
+    border: 1px solid $borderCol;
+    box-shadow: 3px 3px 3px 0px rgba(0,0,0,0.3);
+}
+
+
+.header {
+    background: $grey30;
+    padding: $basePadding4;
+
+    &.drag {
+        cursor: move;
+    }
+}
+
+.title {
+    margin: 0;
+    padding: 0;
+}
+
+.closeBtn {
+    @include blankBtn;
+
+    color: $fontCol;
+    font-size: 20px;
+}

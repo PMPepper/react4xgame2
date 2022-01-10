@@ -1,15 +1,27 @@
 import { useCallback, useEffect, useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux'
+import { Trans } from '@lingui/macro';
 
 import styles from './Game.module.scss';
 
 //Components
-import SystemMap from 'components/SystemMap/SystemMap';
+import WindowManager from 'components/WindowManager';
+import SystemMap from 'components/SystemMap';
 //import FPSStats from 'components/dev/FPSStats';
 
 //reducers
 import{set as setSystemMapFollowing} from 'redux/systemMapFollowing';
 
+//Constants
+const windowManager = <WindowManager>
+  <WindowManager.Window key="colony" x={100} y={220} width={300} height={200} title={<Trans>Hello World?</Trans>}>
+    <p>TODO content for this window</p>
+  </WindowManager.Window>
+
+  <WindowManager.Window key="technology" x={300} y={100} width={350} height={150} title="Foo Bar">
+    <p>TODO content for this window</p>
+  </WindowManager.Window>
+</WindowManager>
 
 //The component
 export default function Game({
@@ -40,12 +52,8 @@ export default function Game({
     [client]
   )
 
-  if(!clientState) {
-    debugger;
-    return <div className={styles.game}>No client state</div>
-  }
-
   return <div className={styles.game}>
+    {windowManager}
     <SystemMap
       clientState={clientState}
       options={systemMapOptions}

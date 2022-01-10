@@ -19,7 +19,7 @@ export function startGame(gameDefinition, client) {
                 console.log('[Game] server started, ', client);
 
                 client.setIsPaused(false);
-                client.setDesiredSpeed(1);
+                client.setDesiredSpeed(2);
 
                 return client;
               });

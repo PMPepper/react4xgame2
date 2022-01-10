@@ -1,6 +1,5 @@
 import orbitPeriod from 'helpers/physics/orbit-period';
 import map from 'helpers/object/map';
-import find from 'helpers/object/find';
 import defaultGameDefinition from '../data/defaultGameDefinition';
 
 export default function createWorldFromDefinition(server, definition) {
@@ -141,7 +140,7 @@ export default function createWorldFromDefinition(server, definition) {
             }
           );
 
-          systemDefinition.bodies.map(bodyDefinition => {
+          systemDefinition.bodies.forEach(bodyDefinition => {
             const factionSystemBody = server._addFactionEntity(
               faction.id, 
               systemBodiesBySystemBodyDefinitionName[bodyDefinition.name].id, 

@@ -29,6 +29,8 @@ export default class Client {
   set gameState(gameState) {
     if(gameState !== this._gameState) {
       this._gameState = gameState;
+
+      this._updateStateCallback?.(gameState);
     }
   }
 
@@ -88,6 +90,7 @@ export default class Client {
     this.store.dispatch(setSelectedSystemId(+find(gameState.entities, entity => (entity.type === 'system')).id));//TODO base on starting systems
 
     this.gameState = fromState(gameState, this.initialGameState);
+
   }
 
   message_updatingGame(newGameState) {

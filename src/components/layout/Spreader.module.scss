@@ -1,0 +1,13 @@
+@import '../../css/shared';
+
+
+.root {
+    display: flex;
+    flex-flow: row nowrap;
+    align-items: center;
+    justify-content: space-between;
+
+     & > * {
+        flex: 0 0 auto;
+     }
+}

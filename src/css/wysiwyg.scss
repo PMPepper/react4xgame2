@@ -1,10 +1,11 @@
+@use 'sass:math';
 @import 'shared';
 
-:global(.wysiwyg) {
+.wysiwyg {
   color: $fontCol;
 
   p {
-    margin: 0 0 $basePadding/2;
+    margin: 0 0 math.div($basePadding, 2);
     font-size: $fontSize;
   }
 

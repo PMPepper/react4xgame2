@@ -1,10 +1,10 @@
 import * as RenderFlags from '../renderFlags';
-import {circle, text, position} from '../SystemMap';
+import {circle, text, position} from '..';
 import {
   outOfBoundsVCull, outOfBoundsHCull, startFadeRadius, fullyFadeRadius,
   startFadeOrbitRadius, fullyFadeOrbitRadius, startFadeLargeOrbit,
   fullyFadeLargeOrbit, systemBodyTypeMinRadius
-} from 'components/game/GameConsts';;
+} from 'components/game/GameConsts';
 
 
 export default function systemBodyRenderer(renderPrimitives, entityScreenPositions, windowSize, x, y, zoom, entity, entities, factionEntities, colonies, options) {

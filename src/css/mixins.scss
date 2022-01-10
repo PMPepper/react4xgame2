@@ -1,3 +1,5 @@
+@use 'sass:math';
+
 @mixin triangle($direction, $sizeH, $sizeV, $color) {
     content: '';
     display: block;
@@ -6,19 +8,19 @@
     border-style: solid;
 
   @if $direction == top {
-    border-width: 0 $sizeH/2 $sizeV $sizeH/2;
+    border-width: 0 math.div($sizeH, 2) $sizeV math.div($sizeH, 2);
     border-color: transparent transparent $color transparent;
   }
   @if $direction == bottom {
-    border-width: $sizeV $sizeH/2 0 $sizeH/2;
+    border-width: $sizeV math.div($sizeH, 2) 0 math.div($sizeH, 2);
     border-color: $color transparent transparent transparent;
   }
   @if $direction == left {
-    border-width: $sizeV/2 $sizeH $sizeV/2 0;
+    border-width: math.div($sizeV, 2) $sizeH math.div($sizeV, 2) 0;
     border-color: transparent $color transparent transparent;
   }
   @if $direction == right {
-    border-width: $sizeV/2 0 $sizeV/2 $sizeH;
+    border-width: math.div($sizeV, 2) 0 math.div($sizeV, 2) $sizeH;
     border-color: transparent transparent transparent $color;
   }
   // @if $direction == topright {
@@ -63,7 +65,7 @@
     cursor: pointer;
   }
 
-  :global(.focus_keyboard) &:focus {
+  .focus_keyboard &:focus {
     color: $keyboardCol;
     background-color: $keyboardBg;
   }
@@ -71,7 +73,6 @@
 
 @mixin offscreen() {
   position: absolute;
-  //top: -9999px;
   left: -9999px;
 }
 
@@ -80,4 +81,14 @@
     content: ' ';
     display: table;
   }
+}
+
+@mixin blankBtn {
+  padding: 0;
+  margin: 0;
+  display: inline-block;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+  font: inherit;
 }
