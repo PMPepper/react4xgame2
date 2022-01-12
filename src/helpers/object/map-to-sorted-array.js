@@ -1,4 +1,4 @@
-export default function mapToSortedArray(obj, mapFunc, sortFunc, sortOnMapped = false) {
+export default function mapToSortedArray(obj, mapFunc, sortFunc, filterFunc = null, sortOnMapped = false) {
   const mapped = {};
   const keys = [];
 
@@ -6,8 +6,10 @@ export default function mapToSortedArray(obj, mapFunc, sortFunc, sortOnMapped = 
     const key = k[i];
     const value = obj[key];
 
-    keys.push(key);
-    mapped[key] = mapFunc(value, key, obj);
+    if(!filterFunc || filterFunc(value, key, obj)) {
+      keys.push(key);
+      mapped[key] = mapFunc(value, key, obj);
+    }
   }
 
   const mappedSortFunc = sortOnMapped ?

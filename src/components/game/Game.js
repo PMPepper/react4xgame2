@@ -13,15 +13,14 @@ import SystemMap from 'components/SystemMap';
 import{set as setSystemMapFollowing} from 'redux/systemMapFollowing';
 
 //Constants
-const windowManager = <WindowManager>
-  <WindowManager.Window key="colony" x={100} y={220} width={300} height={200} title={<Trans>Hello World?</Trans>}>
+const windows = [
+  <WindowManager.Window key="colony" x={100} y={220} width={300} height={200} minWidth={250} maxWidth={500} minHeight={150} maxHeight={300} title={<Trans>Colony</Trans>}>
+    <p>TODO content for this window</p>
+  </WindowManager.Window>,
+  <WindowManager.Window key="technology" x={300} y={100} width={350} height={150} minWidth={200} maxWidth={700} title={<Trans>Technology</Trans>}>
     <p>TODO content for this window</p>
   </WindowManager.Window>
-
-  <WindowManager.Window key="technology" x={300} y={100} width={350} height={150} title="Foo Bar">
-    <p>TODO content for this window</p>
-  </WindowManager.Window>
-</WindowManager>
+]
 
 //The component
 export default function Game({
@@ -53,14 +52,16 @@ export default function Game({
   )
 
   return <div className={styles.game}>
-    {windowManager}
-    <SystemMap
-      clientState={clientState}
-      options={systemMapOptions}
-      following={systemMapFollowing}
-      systemId={selectedSystemId}
-      setFollowing={setFollowing}
-    />
+    <WindowManager>
+      {windows}
+      <SystemMap
+        clientState={clientState}
+        options={systemMapOptions}
+        following={systemMapFollowing}
+        systemId={selectedSystemId}
+        setFollowing={setFollowing}
+      />
+    </WindowManager>
   </div>
 }
 

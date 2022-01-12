@@ -23,7 +23,7 @@ export default function Window({
     children,
     title,
     x, y, width, height,
-    onRequestClose, onDrag, onResize,
+    onInteract, onRequestClose, onDrag, onResize,
     styles = defaultStyles,
 
     //Components
@@ -34,7 +34,7 @@ export default function Window({
     //Labels
     closeLbl = defaultCloseLbl
 }) {
-    const dragProps = useDraggable(onDrag);
+    const dragProps = useDraggable(onDrag, getAbsoluteOffsetTopLeft);
 
     const style = useMemo(
         () => {
@@ -48,7 +48,7 @@ export default function Window({
         [x, y, width, height]
     );
 
-    return <Component style={style} className={styles.root}>
+    return <Component style={style} className={styles.root} onMouseDown={onInteract}>
         <div className={styles.content}>
             <HeaderComponent className={cn(styles.header, onDrag && styles.drag, onResize && styles.onResize)} {...dragProps}>
                 <Spreader
@@ -66,14 +66,14 @@ export default function Window({
 }
 
 const WindowResizeHandler = memo(function WindowResizeHandler({styles, onResize}) {
-    const dragPropsN = useDraggable((dx, dy) => onResize(dy, 0, 0, 0));
-    const dragPropsNE = useDraggable((dx, dy) => onResize(dy, dx, 0, 0));
-    const dragPropsE = useDraggable((dx, dy) => onResize(0, dx, 0, 0));
-    const dragPropsSE = useDraggable((dx, dy) => onResize(0, dx, dy, 0));
-    const dragPropsS = useDraggable((dx, dy) => onResize(0, 0, dy, 0));
-    const dragPropsSW = useDraggable((dx, dy) => onResize(0, 0, dy, dx));
-    const dragPropsW = useDraggable((dx, dy) => onResize(0, 0, 0, dx));
-    const dragPropsNW = useDraggable((dx, dy) => onResize(dy, 0, 0, dx));
+    const dragPropsN = useDraggable((x, y) => onResize(y, null, null, null), getAbsoluteOffsetBottomRight);
+    const dragPropsNE = useDraggable((x, y) => onResize(y, x, null, null), getAbsoluteOffsetBottomLeft);
+    const dragPropsE = useDraggable((x, y) => onResize(null, x, null, null), getAbsoluteOffsetBottomLeft);
+    const dragPropsSE = useDraggable((x, y) => onResize(null, x, y, null), getAbsoluteOffsetTopLeft);
+    const dragPropsS = useDraggable((x, y) => onResize(null, null, y, null), getAbsoluteOffsetTopLeft);
+    const dragPropsSW = useDraggable((x, y) => onResize(null, null, y, x), getAbsoluteOffsetTopRight);
+    const dragPropsW = useDraggable((x, y) => onResize(null, null, null, x), getAbsoluteOffsetTopRight);
+    const dragPropsNW = useDraggable((x, y) => onResize(y, null, null, x), getAbsoluteOffsetBottomRight);
 
     return <>
         <div className={styles.resizeN} {...dragPropsN} />
@@ -86,3 +86,28 @@ const WindowResizeHandler = memo(function WindowResizeHandler({styles, onResize}
         <div className={styles.resizeNW} {...dragPropsNW} />
     </>
 });
+
+//Internal helpers
+function getAbsoluteOffsetTopLeft(e, clientX, clientY) {
+    const rect = e.currentTarget.getBoundingClientRect();
+
+    return {x: clientX - rect.x, y: clientY - rect.y};
+}
+
+function getAbsoluteOffsetTopRight(e, clientX, clientY) {
+    const rect = e.currentTarget.getBoundingClientRect();
+
+    return {x: clientX - rect.right, y: clientY - rect.y};
+}
+
+function getAbsoluteOffsetBottomRight(e, clientX, clientY) {
+    const rect = e.currentTarget.getBoundingClientRect();
+
+    return {x: clientX - rect.right, y: clientY - rect.bottom};
+}
+
+function getAbsoluteOffsetBottomLeft(e, clientX, clientY) {
+    const rect = e.currentTarget.getBoundingClientRect();
+
+    return {x: clientX - rect.x, y: clientY - rect.bottom};
+}

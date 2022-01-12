@@ -1,13 +1,20 @@
-import React from 'react';
+import {Children} from 'react';
 
 
 export default function childrenToArray(children, preserveKeys = false) {
-  return children ?
-    (preserveKeys ?
-      React.Children.map(children, child => (child))
-      :
-      React.Children.toArray(children) || []
-    )
-    :
-    [];
+  if(!children) {
+    return [];
+  }
+
+  if(preserveKeys) {
+    const output = [];
+
+    Children.forEach(children, child => {
+      output.push(child);
+    })
+
+    return output;
+  }
+
+  return Children.toArray(children);
 }
