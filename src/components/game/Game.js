@@ -17,7 +17,7 @@ import useWindowSize from 'hooks/useWindowSize';
 
 //Constants
 const windows = [
-  <WindowManager.Window key="colony" x={100} y={220} width={300} height={200} minWidth={250} maxWidth={500} minHeight={150} maxHeight={300} title={<Trans>Colony</Trans>}>
+  <WindowManager.Window key="colony" x={1300} y={220} width={300} height={200} minWidth={250} maxWidth={500} minHeight={150} maxHeight={300} title={<Trans>Colony</Trans>}>
     <p>TODO content for this window</p>
   </WindowManager.Window>,
   <WindowManager.Window key="technology" x={300} y={100} width={350} height={150} minWidth={200} maxWidth={700} title={<Trans>Technology</Trans>}>

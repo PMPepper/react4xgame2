@@ -37,7 +37,6 @@ const sortOnInteractionTime = sortOnPropNumeric('interactionTime');
 
 
 //The component
-//TODO enforce bounds on area change
 const WindowManager = memo(function WindowManager({children, area, getBounds = defaultGetBounds, styles = defaultStyles}) {
     const ref = useRef({
         windowState: BLANK,
@@ -71,17 +70,7 @@ const WindowManager = memo(function WindowManager({children, area, getBounds = d
             const {getBounds, area, windowState, windows, windowKeyToIndex} = ref.current;
             const state = windowState[key];
 
-            state.position.x = x;
-            state.position.y = y;
-
-            //enforce bounds
-            if(getBounds) {
-                const windowPositionBoundsRect = getBounds(area, state.position);
-
-                //is window within this
-                state.position.x = clamp(x, windowPositionBoundsRect.x, windowPositionBoundsRect.right);
-                state.position.y = clamp(y, windowPositionBoundsRect.y, windowPositionBoundsRect.bottom);
-            }
+            positionWindow(x, y, state, area, getBounds)
 
             state.element = makeElement(state, onWindowInteract, onWindowClose, onWindowDrag, onWindowResize);
 
@@ -212,7 +201,7 @@ const WindowManager = memo(function WindowManager({children, area, getBounds = d
     //-If windows change, initialise them
     const nonWindowContent = useMemo(
         () => {
-            const {windowState: currentWindowState} = ref.current;
+            const {windowState: currentWindowState, area, bounds} = ref.current;
             const nonWindowContent = [];
 
             const windowsState = childrenToArray(children, true).reduce((output, child) => {
@@ -241,6 +230,9 @@ const WindowManager = memo(function WindowManager({children, area, getBounds = d
                         interactionTime: Date.now(),
                         open: true,
                     };
+                
+                // enforce bounds
+                positionWindow(output[key].position.x, output[key].position.y, output[key], area, getBounds);
 
                 output[key].element = makeElement(output[key], onWindowInteract, onWindowClose, onWindowDrag, onWindowResize);
 
@@ -255,6 +247,19 @@ const WindowManager = memo(function WindowManager({children, area, getBounds = d
         },
         [children]
     );
+
+    useMemo(
+        () => {//continue to enforce bounds as area changes, or getBounds rules change
+            const {windowState} = ref.current;
+
+            Object.keys(windowState).forEach(key => {
+                const state = windowState[key];
+
+                positionWindow(state.position.x, state.position.y, state, area, getBounds);
+            })
+        },
+        [area, getBounds]
+    )
 
     //Render
     return <>
@@ -273,6 +278,20 @@ WindowManager.Window = Window;
 //Internal helper methods
 function isWindow(elem) {
     return elem.type === WindowManager.Window;
+}
+
+function positionWindow(nx, ny, windowState, area, getBounds) {
+    // //enforce bounds
+    if(getBounds) {
+        const windowPositionBoundsRect = getBounds(area, windowState.position);
+
+        //is window within this
+        windowState.position.x = clamp(nx, windowPositionBoundsRect.x, windowPositionBoundsRect.right);
+        windowState.position.y = clamp(ny, windowPositionBoundsRect.y, windowPositionBoundsRect.bottom);
+    } else {
+        windowState.position.x = nx;
+        windowState.position.y = ny;
+    }
 }
 
 function makeElement(state, onWindowInteract, onWindowClose, onWindowDrag, onWindowResize) {
