@@ -62,4 +62,9 @@ export default class Rectangle{
         this.x += dx;
         this.y += dy;
     }
+
+    //Static methods
+    static fromEdges(top, left, bottom, right) {
+        return new Rectangle(left, top, right - left, bottom - top);
+    }
 }

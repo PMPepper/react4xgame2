@@ -1,4 +1,4 @@
-import {useMemo, useRef, useCallback, cloneElement} from 'react';
+import {useMemo, useRef, useCallback, cloneElement, memo} from 'react';
 
 //Components
 import Window from "./Window";
@@ -7,54 +7,86 @@ import Window from "./Window";
 import Rectangle from 'classes/Rectangle';
 
 //Hooks
-import useElementSize from "hooks/useElementSize"
 import useForceUpdate from 'hooks/useForceUpdate';
 
 //Helpers
 import mapToSortedArray from 'helpers/object/map-to-sorted-array';
 import sortOnPropNumeric from 'helpers/sorting/sort-on-prop-numeric';
 import childrenToArray from 'helpers/react/children-to-array';
+import clamp from 'helpers/math/clamp';
 
 //Other
 import defaultStyles from './WindowManager.module.scss';
 
 //Consts
 const BLANK = {};
+
+//given the defined area of the window manager, and the size of the window, return
+//a rectangle object that defines teh bounds that the windows x/y may occupy
+const defaultGetBounds = (area, windowBoundsRect) => {
+    const {x = 0, y = 0, width, height} = area;
+
+    return Rectangle.fromEdges(
+        y - 10,//top
+        x - windowBoundsRect.width + 10,//left
+        y + height - 10,//bottom
+        x + width - 10//right
+    );
+}
 const sortOnInteractionTime = sortOnPropNumeric('interactionTime');
 
 
 //The component
-export default function WindowManager({children, styles = defaultStyles}) {
-    const [ref, {width, height}] = useElementSize();
-    const windowStateRef = useRef(BLANK);
-    const windowsRef = useRef();
-    const windowKeyToIndexRef = useRef();
+//TODO enforce bounds on area change
+const WindowManager = memo(function WindowManager({children, area, getBounds = defaultGetBounds, styles = defaultStyles}) {
+    const ref = useRef({
+        windowState: BLANK,
+        windows: null,
+        windowKeyToIndex: {},
+        getBounds,
+        area
+    });
+
+    ref.current.getBounds = getBounds;
+    ref.current.area = area;
 
     const forceUpdate = useForceUpdate();
 
     //Callbacks
     const onWindowInteract = useCallback(
         (key) => {
-            windowStateRef.current[key].interactionTime = Date.now();
-            windowsRef.current = sortElements(windowStateRef.current, windowKeyToIndexRef);
+            const {windowState} = ref.current;
+
+            windowState[key].interactionTime = Date.now();
+            sortElements(ref.current);
+
+            
             forceUpdate();
         },
         []
     );
 
     const onWindowDrag = useCallback(
-        (key, x, y, initialX, initialY) => {
-            const state = windowStateRef.current[key];
+        (key, x, y) => {
+            const {getBounds, area, windowState, windows, windowKeyToIndex} = ref.current;
+            const state = windowState[key];
 
             state.position.x = x;
             state.position.y = y;
 
-            //TODO enforce bounds
+            //enforce bounds
+            if(getBounds) {
+                const windowPositionBoundsRect = getBounds(area, state.position);
+
+                //is window within this
+                state.position.x = clamp(x, windowPositionBoundsRect.x, windowPositionBoundsRect.right);
+                state.position.y = clamp(y, windowPositionBoundsRect.y, windowPositionBoundsRect.bottom);
+            }
 
             state.element = makeElement(state, onWindowInteract, onWindowClose, onWindowDrag, onWindowResize);
 
             //update windows array
-            windowsRef.current[windowKeyToIndexRef.current[key]] = state.element;
+            windows[windowKeyToIndex[key]] = state.element;
 
             forceUpdate();
         },
@@ -63,12 +95,12 @@ export default function WindowManager({children, styles = defaultStyles}) {
 
     const onWindowClose = useCallback(
         (key) => {
-            const state = windowStateRef.current[key];
-
-            state.open = false;
+            const {windowState, windows, windowKeyToIndex} = ref.current;
+            
+            windowState[key].open = false;
 
             //update windows array
-            windowsRef.current[windowKeyToIndexRef.current[key]] = null;
+            windows[windowKeyToIndex[key]] = null;
 
             forceUpdate();
         },
@@ -89,7 +121,10 @@ export default function WindowManager({children, styles = defaultStyles}) {
                 throw new Error('supply left OR right, not both at once');
             }
 
-            const state = windowStateRef.current[key];
+            const {windowState, windows, windowKeyToIndex} = ref.current;
+
+            //Enforce size limits
+            const state = windowState[key];
             const props = state.original.props;
 
             const minWidth = props.minWidth ?? null;
@@ -127,7 +162,6 @@ export default function WindowManager({children, styles = defaultStyles}) {
                 }
             }
 
-            //TODO
             if(top) {
                 if(top < state.position.top && maxHeight !== null) {
                     const newHeight = state.position.bottom - top;
@@ -157,21 +191,17 @@ export default function WindowManager({children, styles = defaultStyles}) {
                     }
                 }
             }
-
-
-            //TODO height
+            //End enforce size limits
 
             top !== null && (state.position.top = top);
             right !== null && (state.position.right = right);
             bottom !== null && (state.position.bottom = bottom);
             left !== null && (state.position.left = left);
 
-            //TODO enforce size limits
-
             state.element = makeElement(state, onWindowInteract, onWindowClose, onWindowDrag, onWindowResize);
 
             //update windows array
-            windowsRef.current[windowKeyToIndexRef.current[key]] = state.element;
+            windows[windowKeyToIndex[key]] = state.element;
 
             forceUpdate();
         },
@@ -182,7 +212,7 @@ export default function WindowManager({children, styles = defaultStyles}) {
     //-If windows change, initialise them
     const nonWindowContent = useMemo(
         () => {
-            const currentWindowState = windowStateRef.current;
+            const {windowState: currentWindowState} = ref.current;
             const nonWindowContent = [];
 
             const windowsState = childrenToArray(children, true).reduce((output, child) => {
@@ -218,8 +248,8 @@ export default function WindowManager({children, styles = defaultStyles}) {
             }, {});
 
             //store values in ref
-            windowStateRef.current = windowsState;
-            windowsRef.current = sortElements(windowsState, windowKeyToIndexRef);
+            ref.current.windowState = windowsState;
+            sortElements(ref.current);
 
             return nonWindowContent;
         },
@@ -228,12 +258,14 @@ export default function WindowManager({children, styles = defaultStyles}) {
 
     //Render
     return <>
-        <div className={styles.root} ref={ref}>
-            {windowsRef.current}
+        <div className={styles.root}>
+            {ref.current.windows}
         </div>
         {nonWindowContent}
     </>
-}
+});
+
+export default WindowManager;
 
 WindowManager.Window = Window;
 
@@ -260,7 +292,9 @@ function makeElement(state, onWindowInteract, onWindowClose, onWindowDrag, onWin
     );
 }
 
-function sortElements(windowState, windowKeyToIndexRef) {
+function sortElements(current) {
+    const {windowState} = current;
+
     const windows = mapToSortedArray(
         windowState,
         ({element}) => element,
@@ -268,13 +302,13 @@ function sortElements(windowState, windowKeyToIndexRef) {
     );
 
     //generate key to sorted index lookup
-    windowKeyToIndexRef.current = windows.reduce((output, {key}, index) => {
+    current.windowKeyToIndex = windows.reduce((output, {key}, index) => {
         output[key] = index;
 
         return output
     }, {})
 
-    return windows.map(window => {
+    current.windows = windows.map(window => {
         return windowState[window.key].open ?
             window
             :

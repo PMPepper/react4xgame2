@@ -12,6 +12,9 @@ import SystemMap from 'components/SystemMap';
 //reducers
 import{set as setSystemMapFollowing} from 'redux/systemMapFollowing';
 
+//Hooks
+import useWindowSize from 'hooks/useWindowSize';
+
 //Constants
 const windows = [
   <WindowManager.Window key="colony" x={100} y={220} width={300} height={200} minWidth={250} maxWidth={500} minHeight={150} maxHeight={300} title={<Trans>Colony</Trans>}>
@@ -33,6 +36,8 @@ export default function Game({
 
   const dispatch = useDispatch();
 
+  const windowSize = useWindowSize();
+
   //Internal state
   const [clientState, setClientState] = useState(() => client.gameState);
 
@@ -49,10 +54,11 @@ export default function Game({
       return () => client.setUpdateStateCallback(null);
     },
     [client]
-  )
+  );
 
+    //TODO provide clientState via context & memoise children
   return <div className={styles.game}>
-    <WindowManager>
+    <WindowManager area={windowSize}>
       {windows}
       <SystemMap
         clientState={clientState}
