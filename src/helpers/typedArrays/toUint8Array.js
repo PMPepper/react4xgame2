@@ -1,13 +1,14 @@
-
-// export default function toUint8Array(value) {
-//     return Uint8Array.from(JSON.stringify(value));
-// }
-
 import convertTypedArray from './convert-typed-array';
+
 
 //Constants
 import {typeVals} from './constants';
 var enc = new TextEncoder(); // always utf-8
+
+//About 2 - 2.5x faster, but produces about 20-25% larger output
+export function toUint8ArrayJSON(value) {
+    return Uint8Array.from(JSON.stringify(value));
+}
 
 
 export default function toUint8Array(value) {
@@ -62,8 +63,8 @@ const convertType = {
     string: (output, value) => {
         const data = enc.encode(value);
 
-        addLengthToOutput(output, data.length)
-        output.push(...data);
+        //addLengthToOutput(output, data.length)
+        output.push(...data, 0);
     },
     symbol: (output, value) => {
         throw new Error('Not implemented: bigint' );
@@ -101,8 +102,17 @@ const convertType = {
             convertToUintData(value, data);
         });
 
-        addLengthToOutput(output, data.length)
-        output.push(...data)
+        addLengthToOutput(output, data.length);
+        
+        if(data.length < 0xFFFF) {
+            output.push(...data)
+        } else {
+            //TODO push in chunks?
+            for(let i = 0; i < data.length; i++) {
+                output.push(data[i]);
+            }
+        }
+        
     },
     //TODO maps? sets? typed arrays?
 };

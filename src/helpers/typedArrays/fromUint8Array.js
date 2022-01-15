@@ -74,12 +74,18 @@ const convertTypeByType = {
         throw new Error('Not implemented: bigint');
     },
     string: (array, indexRef) => {
-        const length = getLength(array, indexRef);
-        const endIndex = indexRef.index + length;
+        //const length = getLength(array, indexRef);
+        //findNext null byte
+        
+        let endIndex = indexRef.index;
+        
+        while(array[endIndex] !== 0) {
+            endIndex++;
+        };
 
         const strArr = new Uint8Array(array.buffer.slice(indexRef.index, endIndex));
 
-        indexRef.index = endIndex;
+        indexRef.index = endIndex+1;
         return dec.decode(strArr);
     },
     symbol: (array, indexRef) => {
