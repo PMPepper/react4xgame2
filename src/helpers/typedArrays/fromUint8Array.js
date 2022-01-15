@@ -101,7 +101,20 @@ const convertTypeByType = {
         return output;
     },
     object: (array, indexRef) => {
-        //TODO
+        const length = getLength(array, indexRef);
+        const endIndex = indexRef.index + length;
+
+        const output = {};
+        
+        while(indexRef.index < endIndex) {
+            
+            const key = convertTypeByType.string(array, indexRef);
+            const value = convertType(array, indexRef);
+            output[key] = value;
+        }
+
+
+        return output;
     },
     //TODO maps? sets? typed arrays?
 }

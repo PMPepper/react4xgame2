@@ -66,20 +66,20 @@ const convertType = {
         output.push(...data);
     },
     symbol: (output, value) => {
+        throw new Error('Not implemented: bigint' );
+        // const data = [];
+        // //TODO get data
 
-        const data = [];
-        //TODO get data
-
-        addLengthToOutput(output, data.length)
-        output.push(...data)
+        // addLengthToOutput(output, data.length)
+        // output.push(...data)
     },
     function: (output, value) => {
-
-        const data = [];
-        //TODO get data
-        addLengthToOutput(output, data.length)
+        throw new Error('Not implemented: bigint' );
+        // const data = [];
+        // //TODO get data
+        // addLengthToOutput(output, data.length)
         
-        output.push(...data)
+        // output.push(...data)
     },
     array: (output, value) => {
 
@@ -95,7 +95,11 @@ const convertType = {
     object: (output, value) => {
 
         const data = [];
-        //TODO get data
+        Object.entries(value).forEach(([key, value]) => {
+            convertType.string(data, key);
+
+            convertToUintData(value, data);
+        });
 
         addLengthToOutput(output, data.length)
         output.push(...data)

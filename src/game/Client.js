@@ -105,7 +105,8 @@ export default class Client {
 
     //console.log(toUint8Array(this.gameState));
 
-    const data = [5, -5, null, undefined, true, false, 12345, 123456, -12345, -123456, [], 1.2, 'Flibble dibble bobble Lorem ipsum dolor šit amét, šůmmo mundi eloquenťíam eum id?, Лорем ипсум долор. 境招正毎属協谷石見舞追航記際小応芸面防'];
+    //const data = [5, -5, null, undefined, true, false, 12345, 123456, -12345, -123456, [], 1.2, 'Flibble dibble bobble Lorem ipsum dolor šit amét, šůmmo mundi eloquenťíam eum id?, Лорем ипсум долор. 境招正毎属協谷石見舞追航記際小応芸面防'];
+    const data = {a: 1, b: null, c: 'string'};
     const uint8array = toUint8Array(data);
     const data2 = fromUint8Array(uint8array);
 
