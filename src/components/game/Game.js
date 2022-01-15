@@ -72,7 +72,6 @@ export default function Game({
     [systemMapOptions, systemMapFollowing, selectedSystemId, setFollowing]
   )
 
-    //TODO provide clientState via context & memoise children
   return <div className={styles.game}>
     <SelectableContext value={clientState}>
       <WindowManager area={windowSize}>
