@@ -45,6 +45,7 @@ const WindowManager = memo(function WindowManager({children, area, getBounds = d
         getBounds,
         area
     });
+    console.log('WM render');
 
     ref.current.getBounds = getBounds;
     ref.current.area = area;

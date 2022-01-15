@@ -442,7 +442,7 @@ export default class Server {
 
     //update faction
     faction.faction.colonyIds.push(colony.id);
-    this.entitiesLastUpdated[factionId] = this.gameTime + 1;//mark faction as updated
+    this.entitiesLastUpdated[factionId] = this.gameTime;//mark faction as updated
 
     return colony;
   }
@@ -510,8 +510,8 @@ export default class Server {
     population.colonyId = colony.id;
 
     //mark as updated
-    this.entitiesLastUpdated[colonyId] = this.gameTime + 1;//mark faction as updated
-    this.entitiesLastUpdated[populationId] = this.gameTime + 1;//mark faction as updated
+    this.entitiesLastUpdated[colonyId] = this.gameTime;//mark faction as updated
+    this.entitiesLastUpdated[populationId] = this.gameTime;//mark faction as updated
   }
 
   addStructuresToColony(colonyId, populationId, structures) {
@@ -540,7 +540,7 @@ export default class Server {
       currentStructures[structureId] = Math.max(0, currentStructures[structureId]);
     });
 
-    this.entitiesLastUpdated[colonyId] = this.gameTime + 1;//mark as updated
+    this.entitiesLastUpdated[colonyId] = this.gameTime;//mark as updated
   }
 
 
@@ -728,7 +728,7 @@ export default class Server {
 
     this.entities[newEntity.id] = newEntity;
     this.entityIds.push(newEntity.id);
-    this.entitiesLastUpdated[newEntity.id] = this.gameTime + 1;
+    this.entitiesLastUpdated[newEntity.id] = this.gameTime;
 
     //automatically add ref to this entity in linked entities
     //-props to check for links
@@ -752,7 +752,7 @@ export default class Server {
           //record ref to this entity...
           linkedEntity[linkedIdsProp].push(newEntity.id);
           //...and update last updated time
-          this.entitiesLastUpdated[linkedEntity.id] = this.gameTime + 1;
+          this.entitiesLastUpdated[linkedEntity.id] = this.gameTime;
         }
       }
     }
@@ -762,7 +762,7 @@ export default class Server {
 
   _addFactionEntity(factionId, entityId, props) {
     //record that this factionEntity needs to be supplied to the client for this faction
-    this.factionEntitiesLastUpdated[factionId][entityId] = this.gameTime + 1;
+    this.factionEntitiesLastUpdated[factionId][entityId] = this.gameTime;
 
     return this.factionEntities[factionId][entityId] = {
       intel: {},//what we believe about what other factions know about this entity

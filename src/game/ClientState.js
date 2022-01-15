@@ -1,3 +1,5 @@
+import produce from "immer"
+
 //Helpers
 //import toEntity from 'helpers/app/toEntity';
 //import deepFreeze from 'helpers/object/deepFreeze';//useful for debugging
@@ -174,40 +176,32 @@ export function fromState(state, initialGameState) {
 
 
 export function mergeState(oldState, newData) {
-  const clientState = {};
+  return produce(oldState, (draft) => {
+    const {entities, factionEntities} = newData;
 
-  const entities = newData.entities;
-  const stateEntities = oldState.entities;
+    draft.desiredGameSpeed = newData.desiredGameSpeed;
+    draft.factionId = newData.factionId;
+    draft.gameSpeed = newData.gameSpeed;
+    draft.gameTime = newData.gameTime;
+    draft.isPaused = newData.isPaused;
 
-  for(let i = 0, keys = Object.keys(stateEntities), l = keys.length; i < l; ++i) {
-    let key = keys[i];
+    let haveEntitiesChanged = false;
 
-    if(!entities[key]) {//if not in new entities, copy from old state
-      entities[key] = stateEntities[key]
+    for(let i = 0, keys = Object.keys(entities), l = keys.length; i < l; ++i) {
+      let key = keys[i];
+
+      draft.entities[key] = entities[key];
+      haveEntitiesChanged = true;
     }
-  }
 
-  const factionEntities = newData.factionEntities;
-  const stateFactionEntities = oldState.factionEntities;
-
-  for(let i = 0, keys = Object.keys(stateFactionEntities), l = keys.length; i < l; ++i) {
-    let key = keys[i];
-
-    if(!factionEntities[key]) {//if not in new faction entities, copy from old state
-      factionEntities[key] = stateFactionEntities[key]
+    if(haveEntitiesChanged) {
+      draft.entityIds = Object.keys(draft.entities);
     }
-  }
 
-  clientState.initialGameState = oldState.initialGameState;
-  clientState.factionId = newData.factionId;
-  clientState.entities = entities;
-  clientState.factionEntities = factionEntities;
-  clientState.gameTime = newData.gameTime;
-  clientState.desiredGameSpeed = newData.desiredGameSpeed;
-  clientState.gameSpeed = newData.gameSpeed;
-  clientState.isPaused = newData.isPaused;
+    for(let i = 0, keys = Object.keys(factionEntities), l = keys.length; i < l; ++i) {
+      let key = keys[i];
 
-  clientState.entityIds = Object.keys(clientState.entities);
-
-  return clientState;
+      draft.factionEntities[key] = factionEntities[key];
+    }
+  });
 }

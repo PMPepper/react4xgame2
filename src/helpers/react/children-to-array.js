@@ -1,4 +1,4 @@
-import {Children} from 'react';
+import {Children, Fragment} from 'react';
 
 
 export default function childrenToArray(children, preserveKeys = false) {
@@ -10,7 +10,11 @@ export default function childrenToArray(children, preserveKeys = false) {
     const output = [];
 
     Children.forEach(children, child => {
-      output.push(child);
+      if(child.type === Fragment) {
+        output.push(...childrenToArray(child.props.children, true));
+      } else {
+        output.push(child);
+      }
     })
 
     return output;

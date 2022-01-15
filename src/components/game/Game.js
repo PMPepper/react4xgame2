@@ -1,10 +1,11 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useState, useMemo } from 'react';
 import { useSelector, useDispatch } from 'react-redux'
 import { Trans } from '@lingui/macro';
 
 import styles from './Game.module.scss';
 
 //Components
+import SelectableContext from 'components/SelectableContext';
 import WindowManager from 'components/WindowManager';
 import SystemMap from 'components/SystemMap';
 //import FPSStats from 'components/dev/FPSStats';
@@ -56,18 +57,29 @@ export default function Game({
     [client]
   );
 
+  const content = useMemo(
+    () => {
+      return <>
+        {windows}
+        <SystemMap
+            options={systemMapOptions}
+            following={systemMapFollowing}
+            systemId={selectedSystemId}
+            setFollowing={setFollowing}
+          />
+      </>
+    },
+    [systemMapOptions, systemMapFollowing, selectedSystemId, setFollowing]
+  )
+
     //TODO provide clientState via context & memoise children
   return <div className={styles.game}>
-    <WindowManager area={windowSize}>
-      {windows}
-      <SystemMap
-        clientState={clientState}
-        options={systemMapOptions}
-        following={systemMapFollowing}
-        systemId={selectedSystemId}
-        setFollowing={setFollowing}
-      />
-    </WindowManager>
+    <SelectableContext value={clientState}>
+      <WindowManager area={windowSize}>
+        {content}
+      </WindowManager>
+    </SelectableContext>
+    
   </div>
 }
 

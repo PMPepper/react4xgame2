@@ -18,7 +18,7 @@ export default function useSubscribeToDataSource(subscribe, getState, selector, 
     const {lastState, lastSelectedState, lastSelector, lastEqualityFn} = ref.current;
 
     if(selector !== lastSelector || equalityFn !== lastEqualityFn || state != lastState) {
-        const newSelectedState = selector(storeState);
+        const newSelectedState = selector(state);
 
         if (lastSelectedState === undefined || !equalityFn(newSelectedState, lastSelectedState)) {
             selectedState = newSelectedState

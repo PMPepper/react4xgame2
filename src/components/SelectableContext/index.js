@@ -1,11 +1,16 @@
 //TODO test to find out if any of this works
 import { createContext, useContext, useRef, useEffect } from "react"
 
+//Hooks
+import useSubscribeToDataSource from 'hooks/useSubscribeToDataSource';
+
+//Contants
 const defaultContext = createContext(null);
 defaultContext.displayName = 'SelectableContext';
 
 
-export default function Provider({children, value, context = defaultContext}) {
+//The component
+export default function SelectableContext({children, value, context = defaultContext}) {
     const ref = useRef(null);
 
     if(ref.current === null) {
@@ -33,12 +38,12 @@ class ContextState {
         this.subscribers = [];
     }
 
-    getState() {
+    getState = () => {
         return this.state;
     }
 
 
-    setState(newState) {
+    setState = (newState) => {
         if(newState !== this.state) {
             this.state = newState;
 
@@ -47,8 +52,8 @@ class ContextState {
         }
     }
 
-    subscribe(callback) {
-        subscribers.push(callback);
+    subscribe = (callback) => {
+        this.subscribers.push(callback);
 
         //returns unsubscribe method
         return () => {
@@ -72,8 +77,8 @@ export function useContextSelector(selector, equalityFn = refEquality, context =
     }
 
     const selectedState = useSubscribeToDataSource(
-        store.subscribe,
-        store.getState,
+        state.subscribe,
+        state.getState,
         selector,
         equalityFn,
     )
@@ -84,7 +89,7 @@ export function useContextSelector(selector, equalityFn = refEquality, context =
 export function useGetContextState(context = defaultContext) {
     const state = useContext(context);
 
-    return state?.value;
+    return state?.getState;
 }
 
 

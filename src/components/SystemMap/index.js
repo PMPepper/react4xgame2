@@ -1,5 +1,5 @@
 //TODO set limits on zoom/scroll
-import {useRef, useCallback, useMemo, useEffect} from 'react';
+import {useRef, useCallback, useMemo, useEffect, memo} from 'react';
 import objectpool from 'objectpool';
 
 
@@ -12,6 +12,7 @@ import useWindowSize from 'hooks/useWindowSize';
 import useKeyboardInput from 'hooks/useKeyboardInput';
 import useAnimationFrame from 'hooks/useAnimationFrame';
 import useForceUpdate from 'hooks/useForceUpdate';
+import {useGetContextState} from 'components/SelectableContext';
 
 //Helpers
 import flatten from 'helpers/array/flatten';
@@ -40,14 +41,17 @@ const followExtraEaseTime = 0.5;
 
 
 //The component
-export default function SystemMap({
-  options, clientState, systemId, following, setFollowing, initialX = 0, initialY = 0, initialZoom = 1/1000000000, cx = 0.5, cy = 0.5, 
+export default memo(function SystemMap({
+  options, systemId, following, setFollowing, initialX = 0, initialY = 0, initialZoom = 1/1000000000, cx = 0.5, cy = 0.5, 
   onContextMenu = null, 
   renderComponent:RenderComponent = SystemMapSVGRenderer, styles = defaultStyles
 }) {
+  const getClientState = useGetContextState();
+  const clientState = getClientState();
+
   const ref = useRef({
     x: initialX, y: initialY, zoom: initialZoom, tx: initialX, ty: initialY, tzoom: initialZoom, 
-    following: null, followingTime: 0, lastFollowing: null, isMouseDragging: false, clientState,
+    following: null, followingTime: 0, lastFollowing: null, isMouseDragging: false, lastClientState: null,
     entityScreenPositions: [], renderPrimitives: [], mouseClientX: null, mouseClientY: null,
     mouseDownWorldCoords: {x: 0, y: 0}, dragMouseX: 0, dragMouseY: 0
   });
@@ -62,7 +66,6 @@ export default function SystemMap({
   const {props: keyboardInputProps, isKeyDown} = useKeyboardInput(controls);
 
   //update state
-  ref.current.clientState = clientState;
   ref.current.following = following;
   ref.current.windowSize = windowSize;
 
@@ -188,8 +191,10 @@ export default function SystemMap({
 
   const onFrameUpdate = useCallback(
     (elapsedTime) => {
+      const clientState = getClientState();
+
       //const {props, state, mouseClientX, mouseClientY, isMouseDragging} = this;
-      const {clientState, windowSize, mouseClientX, mouseClientY, isMouseDragging, x, y, zoom, following, mouseDownWorldCoords, dragMouseX, dragMouseY} = ref.current;
+      const {lastClientState, windowSize, mouseClientX, mouseClientY, isMouseDragging, x, y, zoom, following, mouseDownWorldCoords, dragMouseX, dragMouseY} = ref.current;
 
       const newState = {x: x, y: y, zoom: zoom};
       let hasScrolled = false;//has moved camera left/right/up/down, doesn't care about zooming < used to determine if we should stop following
@@ -319,12 +324,14 @@ export default function SystemMap({
         newState.y += ((ref.current.ty - newState.y) * easeFactor);
       }
 
-      //If any state changes, update the state
-      if(newState.x !== x || newState.y !== y || newState.zoom !== zoom) {
+      //If anything changes, force a re-render
+      if(lastClientState !== clientState || newState.x !== x || newState.y !== y || newState.zoom !== zoom) {
         ref.current.x = newState.x;
         ref.current.y = newState.y;
         ref.current.zoom = newState.zoom;
 
+        ref.current.lastClientState = clientState;
+        
         //force re-render
         forceUpdate();
       }
@@ -412,7 +419,7 @@ export default function SystemMap({
     {...windowSize}
     {...elementProps}
   />
-}
+});
 
 
 
