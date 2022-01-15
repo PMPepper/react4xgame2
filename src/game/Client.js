@@ -4,6 +4,17 @@ import find from 'helpers/object/find';
 import { fromState, mergeState } from './ClientState';
 
 
+import toUint8Array from 'helpers/typedArrays/toUint8Array';
+import fromUint8Array from 'helpers/typedArrays/fromUint8Array';
+
+
+function equal(a, b) {
+  // console.log(JSON.stringify(a));
+  // console.log(JSON.stringify(b));
+  return JSON.stringify(a) === JSON.stringify(b)
+}
+
+
 export default class Client {
   constructor(name, store, connector) {
     this.name = name;
@@ -86,10 +97,22 @@ export default class Client {
   ///////////////////////////////////////
   // Server -> Client message handlers //
   ///////////////////////////////////////
+
   message_startingGame(gameState) {
     this.store.dispatch(setSelectedSystemId(+find(gameState.entities, entity => (entity.type === 'system')).id));//TODO base on starting systems
 
     this.gameState = fromState(gameState, this.initialGameState);
+
+    //console.log(toUint8Array(this.gameState));
+
+    const data = [5, -5, null, undefined, true, false, 12345, 123456, -12345, -123456, [], 1.2, 'Flibble dibble bobble Lorem ipsum dolor šit amét, šůmmo mundi eloquenťíam eum id?, Лорем ипсум долор. 境招正毎属協谷石見舞追航記際小応芸面防'];
+    const uint8array = toUint8Array(data);
+    const data2 = fromUint8Array(uint8array);
+
+    console.log(data);
+    console.log(uint8array);
+    console.log(data2);
+    console.log(equal(data, data2));
 
   }
 
