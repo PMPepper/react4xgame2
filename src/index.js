@@ -15,6 +15,7 @@ import Game from 'components/game/Game';
 import * as GameEngine from 'game/Game';
 import Client from 'game/Client';
 import LocalConnector from 'game/LocalConnector';
+import WorkerConnector from 'game/WorkerConnector';
 
 import baseGameDefinition from 'game/data/baseGameDefinition';//TEMP CODE
 
@@ -33,11 +34,17 @@ i18n.activate('en')
 //-add tooltips
 //-add forms support
 
+const useWorker = false;
+const connector = useWorker ?
+  new WorkerConnector()
+  :
+  new LocalConnector();
+
 
 polyfills.then(() => {
   console.log('[MAIN] post polyfills');
   //TEMP CODE
-  GameEngine.startGame(baseGameDefinition, new Client('local', store, new LocalConnector())).then((client) => {
+  GameEngine.startGame(baseGameDefinition, new Client('local', store, connector)).then((client) => {
       console.log('[MAIN] render');
 
       ReactDOM.render(

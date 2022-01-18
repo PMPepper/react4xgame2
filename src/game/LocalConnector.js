@@ -1,5 +1,7 @@
 import Server from 'game/server/Server';
 
+import clone from 'helpers/app/fastSimpleClone';
+
 
 export default class LocalConnector {
   server = null;
@@ -29,7 +31,7 @@ export default class LocalConnector {
   }
 
   sendMessageToClient(connectionId, messageType, data) {
-    if(!connectionId === 1) {
+    if(!connectionId === 1) {//This connector only supports a single player
       throw new Error('Invalid connectionId');
     }
 
@@ -40,40 +42,3 @@ export default class LocalConnector {
   }
 }
 
-
-//Is this faster than just JSON based cloning?
-function clone(data) {
-  switch(typeof(data)) {
-    case 'object':
-      if(data === null) {
-        return null;
-      } else if(data instanceof Array) {
-        const clonedArr = new Array(data.length);
-
-        for(let i = 0, l = data.length; i < l; ++i) {
-          clonedArr[i] = clone(data[i]);
-        }
-
-        return clonedArr;
-      }
-
-      const clonedObj = {};
-
-      for(let i = 0, keys = Object.keys(data), l = keys.length; i < l; ++i) {
-        let key = keys[i];
-
-        clonedObj[key] = clone(data[key]);
-      }
-
-      return clonedObj
-    case 'undefined':
-    case 'boolean':
-    case 'number':
-    case 'string':
-      return data;
-    case 'function':
-    case 'symbol':
-    default:
-      throw new Error('Cannot clone, unsupported variable type');
-  }
-}
