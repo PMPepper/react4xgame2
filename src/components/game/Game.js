@@ -8,7 +8,7 @@ import styles from './Game.module.scss';
 import SelectableContext from 'components/SelectableContext';
 import WindowManager from 'components/WindowManager';
 import SystemMap from 'components/SystemMap';
-//import FPSStats from 'components/dev/FPSStats';
+import FPSStats from 'components/dev/FPSStats';
 
 //reducers
 import{set as setSystemMapFollowing} from 'redux/systemMapFollowing';
@@ -73,6 +73,7 @@ export default function Game({
   )
 
   return <div className={styles.game}>
+    <FPSStats />
     <SelectableContext value={clientState}>
       <WindowManager area={windowSize}>
         {content}

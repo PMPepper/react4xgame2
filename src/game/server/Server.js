@@ -207,7 +207,7 @@ export default class Server {
 
       this._lastTime = Date.now();
 
-      if(global && global.requestAnimationFrame) {
+      if(false && global && global.requestAnimationFrame) {
         const play = () => {
           //stop if no longer in running phase
           if(this.phase !== RUNNING) {

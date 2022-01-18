@@ -40,6 +40,8 @@ export default class LocalConnector {
   }
 }
 
+
+//Is this faster than just JSON based cloning?
 function clone(data) {
   switch(typeof(data)) {
     case 'object':

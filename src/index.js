@@ -7,12 +7,9 @@ import './dom/track-focus';
 import polyfills from './polyfills';
 import 'css/core.scss';
 
-
-
 //App specific
 //import root from '@/redux/root';
 import Game from 'components/game/Game';
-
 
 //Game engine
 import * as GameEngine from 'game/Game';
@@ -22,7 +19,6 @@ import LocalConnector from 'game/LocalConnector';
 import baseGameDefinition from 'game/data/baseGameDefinition';//TEMP CODE
 
 import store from 'redux/index';
-
 
 //i18n
 import { i18n } from "@lingui/core";
