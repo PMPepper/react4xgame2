@@ -119,5 +119,4 @@ export default class Client {
 
     console.log('Unknown message from server: ', messageType, data);
   }
-
 }
