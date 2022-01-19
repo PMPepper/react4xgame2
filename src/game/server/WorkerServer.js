@@ -41,7 +41,7 @@ export default class WorkerServer {
 const enc = new TextEncoder();
 
 function toBinary(data) {
-    if(data && data !== true && data !== false) {
+    if(data && data !== true && data !== false && !(data instanceof ArrayBuffer)) {
         const encData = enc.encode(JSON.stringify(data));
 
         return encData.buffer;

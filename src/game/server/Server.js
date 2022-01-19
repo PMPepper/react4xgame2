@@ -1,3 +1,5 @@
+import { isObject } from 'lodash';
+
 import map from 'helpers/object/map';
 import forEach from 'helpers/object/forEach';
 import isEmpty from 'helpers/object/isEmpty';
@@ -510,6 +512,8 @@ export default class Server {
     population.colonyId = colony.id;
 
     //mark as updated
+    colony.colony.lastUpdateTime = this.gameTime;
+
     this.entitiesLastUpdated[colonyId] = this.gameTime;//mark faction as updated
     this.entitiesLastUpdated[populationId] = this.gameTime;//mark faction as updated
   }
@@ -526,6 +530,8 @@ export default class Server {
     if(!colony.colony.structures[populationId]) {
       colony.colony.structures[populationId] = {}
     }
+
+    colony.colony.lastUpdateTime = this.gameTime;
 
     const currentStructures = colony.colony.structures[populationId];
 
@@ -698,7 +704,17 @@ export default class Server {
       if(full || (entitiesLastUpdated[entityId] > clientLastUpdated)) {
         //Filter to just entities that do not have a factionId AND entities that have the clients faction id
         if(!entity.factionId || entity.factionId === factionId) {
-          clientEntities[entityId] = entity;
+
+          if(full) {
+            clientEntities[entityId] = entity;
+          } else {
+            //just changed facets
+            const updatedFacets = getUpdatedFacets(entity, clientLastUpdated);
+
+            if(updatedFacets) {
+              clientEntities[entityId] = updatedFacets;
+            }
+          }
         }
       }
 
@@ -733,29 +749,44 @@ export default class Server {
     //automatically add ref to this entity in linked entities
     //-props to check for links
     const idProps = ['factionId', 'speciesId', 'systemBodyId', 'systemId', 'speciesId', 'colonyId'];
+    const skipProps = ['id', 'type'];
 
-    for(let i = 0; i < idProps.length; i++) {
-      const prop = idProps[i];
+    const facets = [];
 
-      if(prop in props) {
-        const linkedEntityId = props[prop];
-        const linkedEntity = this.entities[linkedEntityId];
+    const keys = Object.keys(props);
 
-        if(linkedEntity) {
-          const linkedIdsProp = type+'Ids';
+    for(let i = 0; i < keys.length; i++) {
+      const prop = keys[i];
 
-          //if cross reference doesn't exist, add it
-          if(!linkedEntity[linkedIdsProp]) {
-            linkedEntity[linkedIdsProp] = [];
+      if(prop.endsWith('Id')) {
+        if(idProps.includes(prop)) {
+          const linkedEntityId = props[prop];
+          const linkedEntity = this.entities[linkedEntityId];
+
+          if(linkedEntity) {
+            const linkedIdsProp = type+'Ids';
+
+            //if cross reference doesn't exist, add it
+            if(!linkedEntity[linkedIdsProp]) {
+              linkedEntity[linkedIdsProp] = [];
+            }
+
+            //record ref to this entity...
+            linkedEntity[linkedIdsProp].push(newEntity.id);
+            //...and update last updated time
+            this.entitiesLastUpdated[linkedEntity.id] = this.gameTime;
           }
-
-          //record ref to this entity...
-          linkedEntity[linkedIdsProp].push(newEntity.id);
-          //...and update last updated time
-          this.entitiesLastUpdated[linkedEntity.id] = this.gameTime;
         }
+      } else if(prop.endsWith('Ids')) {
+        //hmm.. I don't think I need to do anythin
+      } else if(newEntity[prop] && !skipProps.includes(prop) && isObject(newEntity[prop])) {
+        //is a facet - record last update time
+        newEntity[prop].lastUpdateTime = this.gameTime;
+        facets.push(prop);
       }
     }
+
+    newEntity.facets = facets;
 
     return newEntity;
   }
@@ -802,4 +833,23 @@ export default class Server {
       return output;
     }, [])
   }
+}
+
+
+
+
+function getUpdatedFacets(entity, clientLastUpdated) {
+  let output = null;
+
+  entity.facets.forEach(facetName => {
+    const facet = entity[facetName];
+
+    if(facet && facet.lastUpdateTime > clientLastUpdated) {
+      output = output || {};
+
+      output[facetName] = facet;
+    }
+  })
+
+  return output;
 }

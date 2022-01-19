@@ -30,6 +30,7 @@ export default function movementFactory(lastTime, time) {
     if(position.x !== newPositionX || position.y !== newPositionY) {
       position.x = newPositionX;
       position.y = newPositionY;
+      position.lastUpdateTime = time;
 
       return true;
     }

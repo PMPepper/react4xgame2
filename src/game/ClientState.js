@@ -190,7 +190,18 @@ export function mergeState(oldState, newData) {
     for(let i = 0, keys = Object.keys(entities), l = keys.length; i < l; ++i) {
       let key = keys[i];
 
-      draft.entities[key] = entities[key];
+      const newEntityData = entities[key];
+
+      if(newEntityData.id) {
+        draft.entities[key] = newEntityData;
+      } else {
+        for(let j = 0, facetNames = Object.keys(newEntityData), jl = facetNames.length; j < jl; ++j) {
+          let facetName = facetNames[j];
+  
+          draft.entities[key][facetName] = newEntityData[facetName];
+        }
+      }
+
       haveEntitiesChanged = true;
     }
 

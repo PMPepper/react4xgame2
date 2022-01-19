@@ -40,13 +40,15 @@ export default function createWorldFromDefinition(server, definition) {
 
       const body = server._newEntity('systemBody', {
         systemId: system.id,
-        mass: bodyMass,
+        mass: {
+          value: bodyMass
+        },
         movement: bodyDefinition.orbit ?
           {
             ...bodyDefinition.orbit,
             type: 'orbitRegular',
             orbitingId: orbitingId,
-            period: orbitPeriod(bodyDefinition.orbit.radius, bodyMass, orbitingId ? systemBodiesBySystemBodyDefinitionName[bodyDefinition.parent].mass : 0)//orbitRadius, orbitingBodyMass, orbitedBodyMass
+            period: orbitPeriod(bodyDefinition.orbit.radius, bodyMass, orbitingId ? systemBodiesBySystemBodyDefinitionName[bodyDefinition.parent].mass.value : 0)//orbitRadius, orbitingBodyMass, orbitedBodyMass
           }
           :
           null,
