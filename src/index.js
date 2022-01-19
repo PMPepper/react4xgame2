@@ -34,7 +34,7 @@ i18n.activate('en')
 //-add tooltips
 //-add forms support
 
-const useWorker = false;
+const useWorker = true;
 const connector = useWorker ?
   new WorkerConnector()
   :

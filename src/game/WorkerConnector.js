@@ -18,7 +18,7 @@ export default class WorkerConnector {
             return;//ignore replies
         }
 
-        this.client.onMessageFromServer(type, data);
+        this.client.onMessageFromServer(type, fromBinary(data));
     }
 
     //client comms methods
@@ -34,7 +34,7 @@ export default class WorkerConnector {
             const handler = ({data: {type, data, clientId, messageId: replyMessageId}}) => {
                 if(type === 'reply' && messageId === replyMessageId) {
                     this.worker.removeEventListener('message', handler)
-                    resolve(data);
+                    resolve(fromBinary(data));
                 }
             };
 
@@ -54,8 +54,17 @@ export default class WorkerConnector {
 }
 
 
-// worker.addEventListener('message', (message) => {
-//   console.log('[Worker] New Message: ', message.data)
-// })
 
-// worker.postMessage([500, 10000000])
+const dec = new TextDecoder();
+
+function fromBinary(data) {
+    if(data instanceof ArrayBuffer) {
+        //const start = performance.now();
+        const decoded = JSON.parse(dec.decode(new Uint8Array(data)));
+        //const end = performance.now();
+
+        return decoded;
+    }
+
+    return data;
+}

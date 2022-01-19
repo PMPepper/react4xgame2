@@ -20,7 +20,12 @@ export default class WorkerServer {
             throw new Error('Invalid connectionId');
         }
 
-        global.postMessage({type, data, messageId});
+        const binaryData = toBinary(data);
+
+        binaryData instanceof ArrayBuffer ? 
+            global.postMessage({type, data: binaryData, messageId}, [binaryData])
+            :
+            global.postMessage({type, data: binaryData, messageId});
     }
 
     //Recieving messages
@@ -31,4 +36,16 @@ export default class WorkerServer {
             this.sendMessageToClient(1, 'reply', result, messageId);
         })
     }
+}
+
+const enc = new TextEncoder();
+
+function toBinary(data) {
+    if(data && data !== true && data !== false) {
+        const encData = enc.encode(JSON.stringify(data));
+
+        return encData.buffer;
+    }
+
+    return data;
 }
