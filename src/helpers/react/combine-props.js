@@ -1,5 +1,5 @@
-import combine from '@/helpers/func/combine';
-import css from '@/helpers/css/class-list-to-string';
+import combine from 'helpers/func/combine';
+import css from 'helpers/css/class-list-to-string';
 
 //TODO handle special props like className (concatenate)
 

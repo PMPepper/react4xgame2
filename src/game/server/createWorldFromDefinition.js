@@ -43,15 +43,7 @@ export default function createWorldFromDefinition(server, definition) {
         mass: {
           value: bodyMass
         },
-        movement: bodyDefinition.orbit ?
-          {
-            ...bodyDefinition.orbit,
-            type: 'orbitRegular',
-            orbitingId: orbitingId,
-            period: orbitPeriod(bodyDefinition.orbit.radius, bodyMass, orbitingId ? systemBodiesBySystemBodyDefinitionName[bodyDefinition.parent].mass.value : 0)//orbitRadius, orbitingBodyMass, orbitedBodyMass
-          }
-          :
-          null,
+        movement: getMovementFromOrbitDefinition(bodyDefinition.orbit, bodyMass, orbitingId, orbitingId ? systemBodiesBySystemBodyDefinitionName[bodyDefinition.parent].mass.value : 0),
         position: {x: 0, y: 0},
         systemBody: {
           type: bodyDefinition.type,
@@ -249,5 +241,28 @@ function generateAvailableMinerals(bodyDefinition, definition) {
         :
         {quantity, access};
     });
+  }
+}
+
+
+
+function getMovementFromOrbitDefinition(definition, bodyMass, orbitingId, orbitingMass) {
+  if(!definition) {
+    return null;
+  }
+
+  if(definition.type === 'regular') {
+    return {
+      ...definition,
+      type: 'orbitRegular',
+      orbitingId,
+      period: orbitPeriod(definition.radius, bodyMass, orbitingMass)//orbitRadius, orbitingBodyMass, orbitedBodyMass
+    }
+  } else if(definition.type === 'elliptical') {
+    return {
+      ...definition,
+      type: 'orbitElliptical',
+      orbitingId,
+    }
   }
 }

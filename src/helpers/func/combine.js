@@ -1,4 +1,4 @@
-import add from '@/helpers/array/add';
+import add from 'helpers/array/add';
 
 export default function combine() {
   const args = [];

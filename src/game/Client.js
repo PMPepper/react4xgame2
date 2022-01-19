@@ -69,13 +69,13 @@ export default class Client {
   }
 
   //in game messages
-  setDesiredSpeed(speed) {
+  setDesiredSpeed = (speed) => {
     console.log('[CLIENT] setDesiredSpeed: ', speed);
 
     return this.connector.sendMessageToServer('setDesiredSpeed', speed)
   }
 
-  setIsPaused(isPaused) {
+  setIsPaused = (isPaused) => {
     return this.connector.sendMessageToServer('setIsPaused', isPaused)
   }
 

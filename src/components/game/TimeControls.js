@@ -1,0 +1,57 @@
+import { Trans } from '@lingui/macro';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { solid } from '@fortawesome/fontawesome-svg-core/import.macro'
+
+//Components
+import Button from 'components/ui/Button';
+import Time from 'components/format/Time';
+
+//Hooks
+import { useContextSelector } from 'components/SelectableContext';
+
+import styles from './TimeControls.module.scss';
+
+
+//The component
+export default function TimeControls({setIsPaused, setDesiredSpeed}) {
+    const isPaused = useContextSelector(state => state.isPaused);
+    const desiredGameSpeed = useContextSelector(state => state.desiredGameSpeed);
+    const gameTimeDate = useContextSelector(state => state.gameTimeDate);
+
+    return <div className={styles.root}>
+      <div className="vspaceStart">
+        <div className="hspaceStart">
+          <Button selected={!!isPaused} onClick={() => setIsPaused(!isPaused)}>
+            <span className="offscreen"><Trans id="toolbar.togglePaused">Toggle paused game</Trans></span>
+            <FontAwesomeIcon icon={solid('pause')} />
+          </Button>
+
+          <Button selected={desiredGameSpeed === 1} onClick={() => setDesiredSpeed(1)}>
+            <span className="offscreen"><Trans id="toolbar.realTime">Play at real time</Trans></span>
+            <FontAwesomeIcon icon={solid('play')} /> x 1
+          </Button>
+
+          <Button selected={desiredGameSpeed === 2} onClick={() => setDesiredSpeed(2)}>
+            <span className="offscreen"><Trans id="toolbar.x60">Play at 1 minute per second</Trans></span>
+            <FontAwesomeIcon icon={solid('play')} /> x 60
+          </Button>
+
+          <Button selected={desiredGameSpeed === 3} onClick={() => setDesiredSpeed(3)}>
+            <span className="offscreen"><Trans id="toolbar.x3600">Play at 1 hour per second</Trans></span>
+            <FontAwesomeIcon icon={solid('play')} /> x 3600
+          </Button>
+
+          <Button selected={desiredGameSpeed === 4} onClick={() => setDesiredSpeed(4)}>
+            <span className="offscreen"><Trans id="toolbar.x86400">Play at 1 day per second</Trans></span>
+            <FontAwesomeIcon icon={solid('play')} /> x 86400
+          </Button>
+
+          <Button selected={desiredGameSpeed === 5} onClick={() => setDesiredSpeed(5)}>
+            <span className="offscreen"><Trans id="toolbar.x86400">Play at 1 day per second</Trans></span>
+            <FontAwesomeIcon icon={solid('play')} /> x 86400 (chunks)
+          </Button>
+        </div>
+        <Time value={gameTimeDate} format="datetime" />
+      </div>
+    </div>
+}

@@ -1,4 +1,4 @@
-import defaultLocale from '@/helpers/browser/user-locale';
+import defaultLocale from 'helpers/browser/user-locale';
 
 export default function formatDate(date, langCode, format = null) {
   date = date instanceof Date ? date : new Date(date);

@@ -1,0 +1,15 @@
+@import '../../css/shared';
+
+$controlsWidth: 400px;
+
+.root {
+    background: $bgCol;
+    border: 1px solid $borderCol;
+    
+    padding: $basePadding/2;
+  
+    position: fixed;
+    top: $basePadding;
+    right: $basePadding;
+    width: $controlsWidth;
+  }
