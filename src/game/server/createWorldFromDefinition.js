@@ -71,6 +71,9 @@ export default function createWorldFromDefinition(server, definition) {
       }
 
       //record in lookup hash (used later for factions)
+      if(systemBodiesBySystemBodyDefinitionName[bodyDefinition.name]) {
+        debugger;
+      }
       systemBodiesBySystemBodyDefinitionName[bodyDefinition.name] = body;
 
       return body;
