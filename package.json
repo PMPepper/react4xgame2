@@ -1,6 +1,7 @@
 {
   "name": "react4xgame2",
   "version": "0.1.0",
+  "homepage": "http://localhost:3000/build/",
   "private": true,
   "dependencies": {
     "@fortawesome/fontawesome-svg-core": "^1.3.0-beta3",

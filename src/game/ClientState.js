@@ -176,7 +176,9 @@ export function fromState(state, initialGameState) {
 
 
 export function mergeState(oldState, newData) {
-  return produce(oldState, (draft) => {
+  return produce(oldState, (draft) => {//This is the area that could most benefit from optimisation right now - take approx 5ms
+    //const start = performance.now();
+
     const {entities, factionEntities} = newData;
 
     draft.desiredGameSpeed = newData.desiredGameSpeed;
@@ -214,5 +216,9 @@ export function mergeState(oldState, newData) {
 
       draft.factionEntities[key] = factionEntities[key];
     }
+
+    //const end = performance.now();
+
+    //console.log('merge: ', end - start);
   });
 }

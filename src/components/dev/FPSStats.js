@@ -1,149 +1,223 @@
-import { Component } from "react";
+import { useMemo, useCallback, useState, useEffect, useRef } from "react";
 
-var graphHeight = 29;
-var graphWidth = 70;
-var padding = 5;
+//Hooks
+import useAnimationFrame from "hooks/useAnimationFrame";
 
-var style = {
-  zIndex: 999999,
-  position: 'fixed',
-  height: '46px',
-  width: (graphWidth + 6) + 'px',
-  padding: '3px',
-  backgroundColor: '#000',
-  color: '#00ffff',
-  fontSize: '9px',
-  lineHeight: '10px',
-  fontFamily: 'Helvetica, Arial, sans-serif',
-  fontWeight: 'bold',
-  MozBoxSizing: 'border-box',
-  boxSizing: 'border-box',
-  pointerEvents: 'none'
-};
+//Other
+import defaultStyles from './FPSStats.module.scss';
 
-var graphStyle = {
-  position: 'absolute',
-  left: '3px',
-  right: '3px',
-  bottom: '3px',
-  height: graphHeight + 'px',
-  backgroundColor: '#282844',
-  MozBoxSizing: 'border-box',
-  boxSizing: 'border-box'
-};
+//Constants
+const defaultGraphWidth = 70;
+const defaultGraphHeight = 30;
 
 
-export default class FPSStats extends Component {
-  constructor(props) {
-    super(props);
+//The component
+export default function FPSStats({graphWidth = defaultGraphWidth, ...rest}) {
+  const [values, setValues] = useState([]);
 
-    var currentTime = +new Date();
+  const onAnimationFrame = useCallback(
+    (deltaTime) => {
+      //setValues
+      setValues(values => addValue(values, Math.round(1/deltaTime), graphWidth))
+    },
+    [setValues, graphWidth]
+  );
 
-    this.state = {
-      frames: 0,
-      startTime: currentTime,
-      prevTime: currentTime,
-      fps: []
-    }
+  useAnimationFrame(onAnimationFrame);
+
+  return <DisplayStats formatAvgValue={formatFPSData} values={values} graphWidth={graphWidth} {...rest} />
+}
+
+function formatFPSData(values) {
+  const curFPS = values.length === 0 ? `-` : values[values.length - 1];
+  
+  return `${curFPS} FPS`;
+}
+
+function avg(values) {
+  return Math.round(values.reduce((sum, value) => {return sum + value}, 0) / values.length);
+}
+
+function addValue(values, newValue, maxValues) {
+  const keepValues = values.length > maxValues - 1 ?
+    values.slice(-(maxValues-1))
+    :
+    values.slice()
+    
+  keepValues.push(newValue);
+
+  return keepValues;
+}
+
+// export function ValueChangeFrequencyStats({value, formatAvgValue, graphWidth = defaultGraphWidth, ...rest}) {
+  
+//   const lastTimeRef = useRef();
+
+//   useEffect(
+//     () => {
+//       const now = performance.now();
+//       const msSinceLastUpdate = (now - lastTimeRef.current);
+
+//       lastTimeRef.current && setValues(values => addValue(values, 1000 / msSinceLastUpdate, graphWidth));
+
+//       lastTimeRef.current = now;
+//     },
+//     [value]
+//   );
+
+//   return <DisplayStats formatAvgValue={formatAvgValue} values={values} graphWidth={graphWidth} {...rest} />
+// }
+
+export function useMeasureSetFrequency(setFunc, maxValues = defaultGraphWidth) {
+  const [values, setValues] = useState([]);
+  const lastTimeRef = useRef();
+
+  if(!lastTimeRef.current) {
+    lastTimeRef.current = performance.now();
   }
 
-  shouldComponentUpdate(nextProps, nextState) {
-    return this.state.fps !== nextState.fps;
-  }
+  const measuredSetFunc = useCallback(
+    (value) => {
+      const now = performance.now();
+      setValues(values => addValue(values, 1000 / (now - lastTimeRef.current), maxValues));
+      lastTimeRef.current = now;
 
-  componentWillMount() {
-    style.top = this.props.top;
-    style.right = this.props.right;
-    style.bottom = this.props.bottom;
-    style.left = this.props.left;
-  }
+      return setFunc(value);
+    },
+    [setFunc, setValues, maxValues]
+  )
 
-  componentDidMount() {
-    if (!this.props.isActive) {
-      return;
-    }
+  return [measuredSetFunc, values]
+}
 
-    var that = this;
 
-    var onRequestAnimationFrame = function() {
-      that.calcFPS();
+export function DisplayStats({formatAvgValue, values, styles = defaultStyles, graphWidth = defaultGraphWidth, graphHeight = defaultGraphHeight, style, ...rest}) {
+  const graphItems = useMemo(
+    () => {
+      const maxValue = Math.max(...values);
 
-      window.requestAnimationFrame(onRequestAnimationFrame);
-    };
+      return values.map((value, index) => {
+        const height = (graphHeight * value) / maxValue;
 
-    window.requestAnimationFrame(onRequestAnimationFrame);
-  }
+        var graphItemStyle = {
+          right: (values.length -1 - index) + 'px',
+          height: height + 'px',
+        };
 
-  calcFPS() {
-    var currentTime = +new Date();
-
-    this.setState({
-      frames: this.state.frames + 1
-    });
-
-    if (currentTime > this.state.prevTime + 1000) {
-      var fps = Math.round(
-        (this.state.frames * 1000) / (currentTime - this.state.prevTime)
-      );
-
-      fps = this.state.fps.concat(fps);
-      var sliceStart = fps.length - graphWidth;
-
-      if (sliceStart < 0) {
-        sliceStart = 0;
-      }
-
-      fps = fps.slice(sliceStart, fps.length);
-
-      this.setState({
-        fps: fps,
-        frames: 0,
-        prevTime: currentTime
+        return <div key={`item-${index}`} className={styles.graphItem} style={graphItemStyle} />;
       });
-    }
-  }
+    },
+    [values, styles]
+  );
 
-  render() {
-    if (!this.props.isActive) {
-      return null;
-    }
+  const _style = useMemo(
+    () => ({...style, "--graphWidth": `${graphWidth}px`, "--graphHeight": `${graphHeight}px`}),
+    [graphWidth, graphHeight, style]
+  )
 
-    var that = this;
-
-    var maxFps = Math.max.apply(Math.max, that.state.fps);
-
-    var graphItems = this.state.fps.map(function(fps, i) {
-      var height = (graphHeight * fps) / maxFps;
-
-      var graphItemStyle = {
-        position: 'absolute',
-        bottom: '0',
-        right: (that.state.fps.length -1 - i) + 'px',
-        height: height + 'px',
-        width: '1px',
-        backgroundColor: '#00ffff',
-        MozBoxSizing: 'border-box',
-        boxSizing: 'border-box'
-      };
-
-      return (
-        <div key={`fps-${i}`} style={graphItemStyle} />
-      );
-    });
-
-    return <div style={style}>
-      {this.state.fps[this.state.fps.length - 1]} FPS
-      <div style={graphStyle}>
-        {graphItems}
-      </div>
+  return <div className={styles.root} style={_style} {...rest}>
+    {formatAvgValue(values)}
+    <div className={styles.graph}>
+      {graphItems}
     </div>
-  }
-};
+  </div>
+}
 
-FPSStats.defaultProps = {
-  isActive: true,
-  top: 'auto',
-  bottom: '5px',
-  right: '5px',
-  left: 'auto'
-};
+// const graphHeight = 29;
+// const graphWidth = 70;
+
+
+// export default class FPSStats extends Component {
+//   constructor(props) {
+//     super(props);
+
+//     var currentTime = +new Date();
+
+//     this.state = {
+//       frames: 0,
+//       startTime: currentTime,
+//       prevTime: currentTime,
+//       fps: []
+//     }
+//   }
+
+//   shouldComponentUpdate(nextProps, nextState) {
+//     return this.state.fps !== nextState.fps;
+//   }
+
+//   componentDidMount() {
+//     if (!this.props.isActive) {
+//       return;
+//     }
+
+//     var onRequestAnimationFrame = () => {
+//       this.calcFPS();
+
+//       window.requestAnimationFrame(onRequestAnimationFrame);
+//     };
+
+//     window.requestAnimationFrame(onRequestAnimationFrame);
+//   }
+
+//   calcFPS() {
+//     var currentTime = +new Date();
+
+//     this.setState({
+//       frames: this.state.frames + 1
+//     });
+
+//     if (currentTime > this.state.prevTime + 1000) {
+//       var fps = Math.round(
+//         (this.state.frames * 1000) / (currentTime - this.state.prevTime)
+//       );
+
+//       fps = this.state.fps.concat(fps);
+//       var sliceStart = fps.length - graphWidth;
+
+//       if (sliceStart < 0) {
+//         sliceStart = 0;
+//       }
+
+//       fps = fps.slice(sliceStart, fps.length);
+
+//       this.setState({
+//         fps: fps,
+//         frames: 0,
+//         prevTime: currentTime
+//       });
+//     }
+//   }
+
+//   render() {
+//     if (!this.props.isActive) {
+//       return null;
+//     }
+
+//     var maxFps = Math.max.apply(Math.max, this.state.fps);
+
+//     var graphItems = this.state.fps.map((fps, i) => {
+//       var height = (graphHeight * fps) / maxFps;
+
+//       var graphItemStyle = {
+//         right: (this.state.fps.length -1 - i) + 'px',
+//         height: height + 'px',
+//       };
+
+//       return (
+//         <div key={`fps-${i}`} className={styles.graphItem} style={graphItemStyle} />
+//       );
+//     });
+
+//     return <div className={styles.root} styles={{"--graphWidth": `${graphWidth}px`, "--graphHeight": `${graphHeight}px`}}>
+//       {this.state.fps[this.state.fps.length - 1]} FPS
+//       <div className={styles.graph}>
+//         {graphItems}
+//       </div>
+//     </div>
+//   }
+// };
+
+// FPSStats.defaultProps = {
+//   isActive: true,
+  
+// };

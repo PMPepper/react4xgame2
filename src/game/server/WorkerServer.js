@@ -19,7 +19,7 @@ export default class WorkerServer {
         if(!connectionId === 1) {//This connector only supports a single player
             throw new Error('Invalid connectionId');
         }
-
+        
         const binaryData = toBinary(data);
 
         binaryData instanceof ArrayBuffer ? 

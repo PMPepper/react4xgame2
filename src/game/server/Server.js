@@ -212,27 +212,22 @@ export default class Server {
       const targetIntervalMs = 1000/this.targetTickRate;//ms
       const targetInterval = targetIntervalMs/1000;
 
-      const onInterval = () => {
-        if(this.phase !== RUNNING) {
-          this._tickId = null;
-        } else {
-          const start = Date.now();
-          this._onTick(targetInterval);
-          const end = Date.now();
+      this._tickId = setInterval(
+        () => {
+          if(this.phase !== RUNNING) {
+            clearInterval(this._tickId);
+            this._tickId = null;
+          } else {
+            const start = Date.now();
+            
+            this._onTick(targetInterval);
+            const end = Date.now();
 
-          //try and keep the tick rate stable
-          this._tickId = setTimeout(
-            onInterval,
-
-            Math.max(0, (this._lastTime + targetIntervalMs) - end)
-          )
-
-          this._lastTime = start;
-        }
-      };
-
-      this._tickId = setTimeout(onInterval, targetIntervalMs);
-
+            this._lastTime = start;
+          }
+        },
+        targetIntervalMs
+      );
       return Promise.resolve(true);
     }
 

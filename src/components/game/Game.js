@@ -8,7 +8,7 @@ import styles from './Game.module.scss';
 import SelectableContext from 'components/SelectableContext';
 import WindowManager from 'components/WindowManager';
 import SystemMap from 'components/SystemMap';
-import FPSStats from 'components/dev/FPSStats';
+import FPSStats, {useMeasureSetFrequency, DisplayStats} from 'components/dev/FPSStats';
 import TimeControls from './TimeControls';
 
 //reducers
@@ -41,7 +41,9 @@ export default function Game({
   const windowSize = useWindowSize();
 
   //Internal state
-  const [clientState, setClientState] = useState(() => client.gameState);
+  const [clientState, _setClientState] = useState(() => client.gameState);
+
+  const [setClientState, setClientStateValues] = useMeasureSetFrequency(_setClientState);//intercept calls to setClientState to meansure their frequency
 
   //Callbacks
   const setFollowing = useCallback(
@@ -79,6 +81,7 @@ export default function Game({
 
   return <div className={styles.game}>
     <FPSStats />
+    <DisplayStats formatAvgValue={values => `${values.length > 1 ? avg(values) : '-'} Ticks/s`} values={setClientStateValues} style={{right: '80px'}} />
     <SelectableContext value={clientState}>
       <WindowManager area={windowSize}>
         {content}
@@ -91,7 +94,9 @@ export default function Game({
 
 
 
-
+function avg(values) {
+  return Math.round(values.reduce((sum, value) => {return sum + value}, 0) / values.length);
+}
 
 
 

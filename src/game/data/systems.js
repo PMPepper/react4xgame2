@@ -496,7 +496,30 @@ const systems = {
           "radius": 10.166e12,
           "offset": 0.83
         }
-      }
+      },
+
+
+      //Comets
+      // {
+      //   "name": "Halley's Comet",
+      //   "type": "comet",
+      //   "parent": "Sol A",
+      //   "mass": 2.2e14,
+      //   "radius": 5500,
+      //   "day": 190080,
+      //   "axialTilt": 0,
+      //   "tidalLock": false,
+      //   "albedo": 0.04,
+      //   "orbit": {
+      //     "type": "elliptical",
+      //     "aphelion": 0,
+      //     "perihelion": 0,
+      //     "semiMajorAxis": 2667927676630.53,
+      //     "eccentricity": 0.96714,
+      //     "period": 2376918432,
+      //     "meanAnomaly": 38.38,
+      //   }
+      // }
     ]
   }
 };

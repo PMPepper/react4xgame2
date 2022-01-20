@@ -59,10 +59,7 @@ const dec = new TextDecoder();
 
 function fromBinary(data) {
     if(data instanceof ArrayBuffer) {
-        //const start = performance.now();
         const decoded = JSON.parse(dec.decode(new Uint8Array(data)));
-        //const end = performance.now();
-
         return decoded;
     }
 
