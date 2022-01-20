@@ -12,7 +12,6 @@ import movementFactory from './entityProcessorFactories/movement';
 //import populationFactory from './entityProcessorFactories/population';
 import colonyFactory from './entityProcessorFactories/colony';
 
-
 import calculatePopulationWorkers from 'game/server/entityProcessorFactories/colony/calculatePopulationWorkers';
 
 
@@ -31,7 +30,8 @@ export default class Server {
 
   gameTime = null;
   totalElapsedTime = null;
-  timeMultiplier = 60;//3 * 24 * 3600;//time multiplyer
+  targetTickRate = 60;
+  timeMultiplier = 60;//3 * 24 * 3600;//time multiplier
   gameSecondsPerStep = 1;//60;//game seconds to process per step - higher = less processing, but risks resolution based issues
   isPaused = false;
 
@@ -209,48 +209,29 @@ export default class Server {
 
       this._lastTime = Date.now();
 
-      if(false && global && global.requestAnimationFrame) {
-        const play = () => {
-          //stop if no longer in running phase
-          if(this.phase !== RUNNING) {
-            return;
-          }
+      const targetIntervalMs = 1000/this.targetTickRate;//ms
+      const targetInterval = targetIntervalMs/1000;
 
-          const now = Date.now();
-          const elapsedTime = Math.min(0.5, (now - this._lastTime)/1000);//limit max elapsed time to prevent issues with the game when it does not have focus
+      const onInterval = () => {
+        if(this.phase !== RUNNING) {
+          this._tickId = null;
+        } else {
+          const start = Date.now();
+          this._onTick(targetInterval);
+          const end = Date.now();
 
-          this._onTick(elapsedTime);
+          //try and keep the tick rate stable
+          this._tickId = setTimeout(
+            onInterval,
 
-          this._lastTime = now;
+            Math.max(0, (this._lastTime + targetIntervalMs) - end)
+          )
 
-          //keep running
-          global.requestAnimationFrame(play);
+          this._lastTime = start;
         }
+      };
 
-        global.requestAnimationFrame(play);
-      } else {
-        this._tickIId = setInterval(() => {
-          //stop if no longer in running phase
-          if(this.phase !== RUNNING) {
-            if(this._tickIId) {
-              clearInterval(this._tickIId);
-              this._tickIId = null;
-            } else {
-              debugger;//This should never happen!
-            }
-
-            return;//stop if no longer in running phase
-          }
-
-          const now = Date.now();
-          const elapsedTime = (now - this._lastTime) / 1000;
-
-          this._onTick(elapsedTime);
-
-          this._lastTime = now;
-        }, 1000 / 60);
-      }
-
+      this._tickId = setTimeout(onInterval, targetIntervalMs);
 
       return Promise.resolve(true);
     }
