@@ -15,7 +15,7 @@ export default class WorkerConnector {
       this.worker.addEventListener('message', this.onmessage)
     }
 
-    onmessage = ({data: {type, data, clientId, messageId}}) => {
+    onmessage = ({data: {type, data, clientId, messageId, performance}}) => {
         if(type === 'reply') {
             return;//ignore replies
         }
@@ -27,6 +27,8 @@ export default class WorkerConnector {
 
         if(type === 'updatingGame') {
             Performance.measure('updatingGame :: decode data', 'updatingGame :: start decoding')
+
+            Object.entries(performance).forEach(([name, durations]) => Performance.onData(name, durations));
         }
 
         this.client.onMessageFromServer(type, decodedData);

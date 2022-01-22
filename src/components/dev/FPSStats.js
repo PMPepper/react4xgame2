@@ -92,7 +92,30 @@ export function PerformanceStats({name, graphWidth = defaultGraphWidth, ...rest}
   return <DisplayStats {...rest} values={valuesRef.current} />
 }
 
-//TODO this is killing my framerate
+export function ExternalPerformanceStats({name, graphWidth = defaultGraphWidth, ...rest}) {
+  const [values, setValues] = useState([]);
+
+  const callback = useCallback(
+    (newValues) => {
+      setValues(values => addValues(values, newValues, graphWidth))
+    },
+    [graphWidth]
+  );
+
+  useEffect(
+    () => {
+      Performance.registerCallback(name, callback)
+
+      return () => {
+        Performance.unregisterCallback(name, callback)
+      }
+    },
+    [name, callback]
+  );
+
+  return <DisplayStats {...rest} values={values} />
+}
+
 export function DisplayStats({formatAvgValue, values, styles = defaultStyles, graphWidth = defaultGraphWidth, graphHeight = defaultGraphHeight, style, ...rest}) {
   const graphItems = useMemo(
     () => {

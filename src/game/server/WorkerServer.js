@@ -1,4 +1,5 @@
 //This is the worker-side part of the worker
+import Performance from 'classes/Performance';
 import Server from './Server'
 
 
@@ -19,13 +20,38 @@ export default class WorkerServer {
         if(!connectionId === 1) {//This connector only supports a single player
             throw new Error('Invalid connectionId');
         }
-        
+
+        let entries = null;
+
+        if(type === "updatingGame") {
+            Performance.mark("server :: updatingGame :: start toBinary");
+        }
         const binaryData = toBinary(data);
 
+        if(type === "updatingGame") {
+            Performance.measure("server :: updatingGame :: toBinary", "server :: updatingGame :: start toBinary");
+
+            entries = Performance.getEntries().reduce((output, {name, duration}) => {
+                if(!output[name]) {
+                    output[name] = [];
+                }
+
+                output[name].push(duration);
+
+                return output;
+            }, {});
+        }
+
+        const dataToSend = {type, data: binaryData, messageId};
+
+        if(type === "updatingGame") {
+            dataToSend.performance = entries;
+        }
+
         binaryData instanceof ArrayBuffer ? 
-            global.postMessage({type, data: binaryData, messageId}, [binaryData])
+            global.postMessage(dataToSend, [binaryData])
             :
-            global.postMessage({type, data: binaryData, messageId});
+            global.postMessage(dataToSend);
     }
 
     //Recieving messages
