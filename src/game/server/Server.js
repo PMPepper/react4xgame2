@@ -823,7 +823,10 @@ function getUpdatedFacets(entity, clientLastUpdated) {
     if(facet && facet.lastUpdateTime > clientLastUpdated) {
       output = output || {};
 
-      output[facetName] = facet;
+      //remove lastUpdateTime from data being sent, as not needed
+      const {lastUpdateTime, ...data} = facet;
+
+      output[facetName] = data;
     }
   })
 
