@@ -1,3 +1,4 @@
+import Performance from "classes/Performance";
 import produce from "immer"
 
 //Helpers
@@ -176,8 +177,12 @@ export function fromState(state, initialGameState) {
 
 
 export function mergeState(oldState, newData) {
-  return produce(oldState, (draft) => {//This is the area that could most benefit from optimisation right now - take approx 5ms
+  Performance.mark('updatingGame :: start merge state');
+
+  const updatedState = produce(oldState, (draft) => {//This is the area that could most benefit from optimisation right now - take approx 5ms
     //const start = performance.now();
+    
+    
 
     const {entities, factionEntities} = newData;
 
@@ -221,4 +226,8 @@ export function mergeState(oldState, newData) {
 
     //console.log('merge: ', end - start);
   });
+
+  Performance.measure('updatingGame :: merge state', 'updatingGame :: start merge state');
+
+  return updatedState
 }

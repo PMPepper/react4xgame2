@@ -1,5 +1,7 @@
 //The client side part of the WorkerConnector
 
+import Performance from "classes/Performance";
+
 
 export default class WorkerConnector {
     worker = null;
@@ -17,8 +19,17 @@ export default class WorkerConnector {
         if(type === 'reply') {
             return;//ignore replies
         }
+        if(type === 'updatingGame') {
+            Performance.mark('updatingGame :: start decoding')
+        }
 
-        this.client.onMessageFromServer(type, fromBinary(data));
+        const decodedData = fromBinary(data);
+
+        if(type === 'updatingGame') {
+            Performance.measure('updatingGame :: decode data', 'updatingGame :: start decoding')
+        }
+
+        this.client.onMessageFromServer(type, decodedData);
     }
 
     //client comms methods

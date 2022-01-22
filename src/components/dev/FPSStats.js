@@ -1,5 +1,7 @@
 import { useMemo, useCallback, useState, useEffect, useRef } from "react";
 
+import Performance from "classes/Performance";
+
 //Hooks
 import useAnimationFrame from "hooks/useAnimationFrame";
 
@@ -34,10 +36,6 @@ function formatFPSData(values) {
   return `${curFPS} FPS`;
 }
 
-function avg(values) {
-  return Math.round(values.reduce((sum, value) => {return sum + value}, 0) / values.length);
-}
-
 function addValue(values, newValue, maxValues) {
   const keepValues = values.length > maxValues - 1 ?
     values.slice(-(maxValues-1))
@@ -49,24 +47,15 @@ function addValue(values, newValue, maxValues) {
   return keepValues;
 }
 
-// export function ValueChangeFrequencyStats({value, formatAvgValue, graphWidth = defaultGraphWidth, ...rest}) {
+function addValues(values, newValues, maxValues) {
+  const output = [...values, ...newValues];
   
-//   const lastTimeRef = useRef();
+  return output.length > maxValues ?
+    output.slice(-maxValues)
+    :
+    output;
+}
 
-//   useEffect(
-//     () => {
-//       const now = performance.now();
-//       const msSinceLastUpdate = (now - lastTimeRef.current);
-
-//       lastTimeRef.current && setValues(values => addValue(values, 1000 / msSinceLastUpdate, graphWidth));
-
-//       lastTimeRef.current = now;
-//     },
-//     [value]
-//   );
-
-//   return <DisplayStats formatAvgValue={formatAvgValue} values={values} graphWidth={graphWidth} {...rest} />
-// }
 
 export function useMeasureSetFrequency(setFunc, maxValues = defaultGraphWidth) {
   const [values, setValues] = useState([]);
@@ -88,6 +77,19 @@ export function useMeasureSetFrequency(setFunc, maxValues = defaultGraphWidth) {
   )
 
   return [measuredSetFunc, values]
+}
+
+export function PerformanceStats({name, graphWidth = defaultGraphWidth, ...rest}) {
+  const valuesRef = useRef([]);
+
+
+  const entries = Performance.getEntriesByName(name, 'measure').map(entry => entry.duration);
+
+  if(entries.length) {
+    valuesRef.current = addValues(valuesRef.current, entries, graphWidth)
+  }
+
+  return <DisplayStats {...rest} values={valuesRef.current} />
 }
 
 

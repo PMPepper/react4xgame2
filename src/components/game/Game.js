@@ -8,7 +8,7 @@ import styles from './Game.module.scss';
 import SelectableContext from 'components/SelectableContext';
 import WindowManager from 'components/WindowManager';
 import SystemMap from 'components/SystemMap';
-import FPSStats, {useMeasureSetFrequency, DisplayStats} from 'components/dev/FPSStats';
+import FPSStats, {useMeasureSetFrequency, DisplayStats, PerformanceStats} from 'components/dev/FPSStats';
 import TimeControls from './TimeControls';
 
 //reducers
@@ -16,6 +16,10 @@ import{set as setSystemMapFollowing} from 'redux/systemMapFollowing';
 
 //Hooks
 import useWindowSize from 'hooks/useWindowSize';
+
+//Helpers
+import mean from 'helpers/math/mean';
+import roundTo from 'helpers/math/round-to';
 
 //Constants
 const windows = [
@@ -81,25 +85,25 @@ export default function Game({
 
   return <div className={styles.game}>
     <FPSStats />
-    <DisplayStats formatAvgValue={values => `${values.length > 1 ? avg(values) : '-'} Ticks/s`} values={setClientStateValues} style={{right: '80px'}} />
+    <DisplayStats formatAvgValue={values => `${values.length > 1 ? Math.round(mean(...values)) : '-'} Ticks/s`} values={setClientStateValues} style={{right: '80px'}} />
+    <PerformanceStats name="updatingGame :: decode data" formatAvgValue={minMaxMean} style={{right: '155px'}} />
+    <PerformanceStats name="updatingGame :: merge state" formatAvgValue={minMaxMean} style={{right: '230px'}} />
     <SelectableContext value={clientState}>
       <WindowManager area={windowSize}>
         {content}
       </WindowManager>
     </SelectableContext>
-    
   </div>
 }
 
 
+function minMaxMean(values, dp = 2, units = '') {
+  if(!values || values.length < 2) {
+    return `-${units}`
+  }
 
-
-function avg(values) {
-  return Math.round(values.reduce((sum, value) => {return sum + value}, 0) / values.length);
+  return `${roundTo(Math.min(...values), dp)}${units}/${roundTo(Math.max(...values), dp)}${units}/${roundTo(mean(...values), dp)}${units}`;
 }
-
-
-
 
 
 
