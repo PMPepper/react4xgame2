@@ -12,4 +12,15 @@ $controlsWidth: 400px;
     top: $basePadding;
     right: $basePadding;
     width: $controlsWidth;
-  }
+}
+
+.buttons {
+  display: flex;
+  flex-flow: row nowrap;
+  justify-content: space-between;
+  margin-bottom: $basePadding/4;
+}
+
+.time {
+  font-size: 14px;
+}
