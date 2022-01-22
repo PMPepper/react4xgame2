@@ -1,12 +1,14 @@
-import { useMemo, useCallback, useState, useEffect, useRef } from "react";
+import { useMemo, useCallback, useState, useEffect, useRef, createFactory } from "react";
 
-import Performance from "classes/Performance";
+//Components
+import Canvas from "components/canvas/Canvas";
 
 //Hooks
 import useAnimationFrame from "hooks/useAnimationFrame";
 
 //Other
 import defaultStyles from './FPSStats.module.scss';
+import Performance from "classes/Performance";
 
 //Constants
 const defaultGraphWidth = 70;
@@ -117,22 +119,26 @@ export function ExternalPerformanceStats({name, graphWidth = defaultGraphWidth, 
 }
 
 export function DisplayStats({formatAvgValue, values, styles = defaultStyles, graphWidth = defaultGraphWidth, graphHeight = defaultGraphHeight, style, ...rest}) {
-  const graphItems = useMemo(
-    () => {
-      const maxValue = Math.max(...values);
 
-      return values.map((value, index) => {
+  const draw = useCallback(
+    (ctx, element) => {
+      ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height)
+      
+      ctx.fillStyle = '#00FFFF';
+
+      const maxValue = Math.max(...values);
+      
+      values.map((value, index) => {
         const height = (graphHeight * value) / maxValue;
 
-        var graphItemStyle = {
-          right: (values.length -1 - index) + 'px',
-          height: height + 'px',
-        };
-
-        return <div key={`item-${index}`} className={styles.graphItem} style={graphItemStyle} />;
+        const x = index;
+        const y = ctx.canvas.height;
+        const width = 1;
+        
+        ctx.fillRect(x, y, width, -height);
       });
     },
-    [values, styles]
+    [values]
   );
 
   const _style = useMemo(
@@ -142,107 +148,6 @@ export function DisplayStats({formatAvgValue, values, styles = defaultStyles, gr
 
   return <div className={styles.root} style={_style} {...rest}>
     {formatAvgValue(values)}
-    <div className={styles.graph}>
-      {graphItems}
-    </div>
+    <Canvas draw={draw} width={graphWidth} className={styles.graph} height={graphHeight} />
   </div>
 }
-
-// const graphHeight = 29;
-// const graphWidth = 70;
-
-
-// export default class FPSStats extends Component {
-//   constructor(props) {
-//     super(props);
-
-//     var currentTime = +new Date();
-
-//     this.state = {
-//       frames: 0,
-//       startTime: currentTime,
-//       prevTime: currentTime,
-//       fps: []
-//     }
-//   }
-
-//   shouldComponentUpdate(nextProps, nextState) {
-//     return this.state.fps !== nextState.fps;
-//   }
-
-//   componentDidMount() {
-//     if (!this.props.isActive) {
-//       return;
-//     }
-
-//     var onRequestAnimationFrame = () => {
-//       this.calcFPS();
-
-//       window.requestAnimationFrame(onRequestAnimationFrame);
-//     };
-
-//     window.requestAnimationFrame(onRequestAnimationFrame);
-//   }
-
-//   calcFPS() {
-//     var currentTime = +new Date();
-
-//     this.setState({
-//       frames: this.state.frames + 1
-//     });
-
-//     if (currentTime > this.state.prevTime + 1000) {
-//       var fps = Math.round(
-//         (this.state.frames * 1000) / (currentTime - this.state.prevTime)
-//       );
-
-//       fps = this.state.fps.concat(fps);
-//       var sliceStart = fps.length - graphWidth;
-
-//       if (sliceStart < 0) {
-//         sliceStart = 0;
-//       }
-
-//       fps = fps.slice(sliceStart, fps.length);
-
-//       this.setState({
-//         fps: fps,
-//         frames: 0,
-//         prevTime: currentTime
-//       });
-//     }
-//   }
-
-//   render() {
-//     if (!this.props.isActive) {
-//       return null;
-//     }
-
-//     var maxFps = Math.max.apply(Math.max, this.state.fps);
-
-//     var graphItems = this.state.fps.map((fps, i) => {
-//       var height = (graphHeight * fps) / maxFps;
-
-//       var graphItemStyle = {
-//         right: (this.state.fps.length -1 - i) + 'px',
-//         height: height + 'px',
-//       };
-
-//       return (
-//         <div key={`fps-${i}`} className={styles.graphItem} style={graphItemStyle} />
-//       );
-//     });
-
-//     return <div className={styles.root} styles={{"--graphWidth": `${graphWidth}px`, "--graphHeight": `${graphHeight}px`}}>
-//       {this.state.fps[this.state.fps.length - 1]} FPS
-//       <div className={styles.graph}>
-//         {graphItems}
-//       </div>
-//     </div>
-//   }
-// };
-
-// FPSStats.defaultProps = {
-//   isActive: true,
-  
-// };
