@@ -85,9 +85,9 @@ export default function Game({
 
   return <div className={styles.game}>
     <FPSStats />
-    <DisplayStats formatAvgValue={values => `${values.length > 1 ? Math.round(mean(...values)) : '-'} Ticks/s`} values={setClientStateValues} style={{right: '80px'}} />
+    {/*<DisplayStats formatAvgValue={values => `${values.length > 1 ? Math.round(mean(...values)) : '-'} Ticks/s`} values={setClientStateValues} style={{right: '80px'}} />
     <PerformanceStats name="updatingGame :: decode data" formatAvgValue={minMaxMean} style={{right: '155px'}} />
-    <PerformanceStats name="updatingGame :: merge state" formatAvgValue={minMaxMean} style={{right: '230px'}} />
+  <PerformanceStats name="updatingGame :: merge state" formatAvgValue={minMaxMean} style={{right: '230px'}} />*/}
     <SelectableContext value={clientState}>
       <WindowManager area={windowSize}>
         {content}

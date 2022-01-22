@@ -1,5 +1,6 @@
 import Performance from "classes/Performance";
 import produce from "immer"
+import { isEmpty } from "lodash";
 
 //Helpers
 //import toEntity from 'helpers/app/toEntity';
@@ -179,53 +180,113 @@ export function fromState(state, initialGameState) {
 export function mergeState(oldState, newData) {
   Performance.mark('updatingGame :: start merge state');
 
-  const updatedState = produce(oldState, (draft) => {//This is the area that could most benefit from optimisation right now - take approx 5ms
-    //const start = performance.now();
-    
-    
+  //These are the things that have changed
+  const {entities, factionEntities} = newData;
+  const {entityIds, entities: existingEntities, factionEntities: existingFactionEntities} = oldState;
 
-    const {entities, factionEntities} = newData;
+  const updatedState = {
+    ...oldState,
+    ...newData
+  };
 
-    draft.desiredGameSpeed = newData.desiredGameSpeed;
-    draft.factionId = newData.factionId;
-    draft.gameSpeed = newData.gameSpeed;
-    draft.gameTime = newData.gameTime;
-    draft.isPaused = newData.isPaused;
+  const newEntities = updatedState.entities = {};
 
-    let haveEntitiesChanged = false;
+  //for all existing entities
+  for(let i = 0; i < entityIds.length; i++) {
+    const entityId = entityIds[i];
+    const existingEntity = existingEntities[entityId];
+    const newEntityData = entities[entityId];
 
-    for(let i = 0, keys = Object.keys(entities), l = keys.length; i < l; ++i) {
-      let key = keys[i];
-
-      const newEntityData = entities[key];
-
+    if(newEntityData) {
       if(newEntityData.id) {
-        draft.entities[key] = newEntityData;
+        newEntities[entityId] = newEntityData;
       } else {
-        for(let j = 0, facetNames = Object.keys(newEntityData), jl = facetNames.length; j < jl; ++j) {
-          let facetName = facetNames[j];
-  
-          draft.entities[key][facetName] = newEntityData[facetName];
+        //merge
+        newEntities[entityId] = {
+          ...existingEntity,
+          ...newEntityData
         }
       }
 
-      haveEntitiesChanged = true;
+      delete entities[entityId]
+    } else {
+      //this entity has not changed
+      newEntities[entityId] = existingEntity;
     }
+  }
 
-    if(haveEntitiesChanged) {
-      draft.entityIds = Object.keys(draft.entities);
-    }
+  let hasNewEntities = false;
 
+  //Add new entities (anything left in entities)
+  for(let i = 0, newEntityIds = Object.keys(entities), l = newEntityIds.length; i < l; i++) {
+    const entityId = newEntityIds[i];
+
+    newEntities[entityId] = entities[entityId];
+
+    hasNewEntities = true;
+  }
+
+  if(hasNewEntities) {
+    updatedState.entityIds = Object.keys(newEntities);
+  }
+
+  //Faction entities
+  if(!isEmpty(factionEntities)) {
+    const newFactionEntities = updatedState.factionEntities = {
+      ...existingFactionEntities
+    };
+  
     for(let i = 0, keys = Object.keys(factionEntities), l = keys.length; i < l; ++i) {
       let key = keys[i];
-
-      draft.factionEntities[key] = factionEntities[key];
+  
+      newFactionEntities[key] = factionEntities[key];
     }
+  } else {
+    updatedState.factionEntities = existingFactionEntities;
+  }
+  
 
-    //const end = performance.now();
 
-    //console.log('merge: ', end - start);
-  });
+
+  // const updatedState = produce(oldState, (draft) => {//This is the area that could most benefit from optimisation right now - take approx 5ms
+  //   const {entities, factionEntities} = newData;
+
+  //   draft.desiredGameSpeed = newData.desiredGameSpeed;
+  //   draft.factionId = newData.factionId;
+  //   draft.gameSpeed = newData.gameSpeed;
+  //   draft.gameTime = newData.gameTime;
+  //   draft.isPaused = newData.isPaused;
+
+  //   let haveEntitiesChanged = false;
+
+  //   for(let i = 0, keys = Object.keys(entities), l = keys.length; i < l; ++i) {
+  //     let key = keys[i];
+
+  //     const newEntityData = entities[key];
+
+  //     if(newEntityData.id) {
+  //       draft.entities[key] = newEntityData;
+  //     } else {
+  //       for(let j = 0, facetNames = Object.keys(newEntityData), jl = facetNames.length; j < jl; ++j) {
+  //         let facetName = facetNames[j];
+  
+  //         draft.entities[key][facetName] = newEntityData[facetName];
+  //       }
+  //     }
+
+  //     haveEntitiesChanged = true;
+  //   }
+
+  //   if(haveEntitiesChanged) {
+  //     draft.entityIds = Object.keys(draft.entities);
+  //   }
+
+  //   for(let i = 0, keys = Object.keys(factionEntities), l = keys.length; i < l; ++i) {
+  //     let key = keys[i];
+
+  //     draft.factionEntities[key] = factionEntities[key];
+  //   }
+  // });
 
   Performance.measure('updatingGame :: merge state', 'updatingGame :: start merge state');
 

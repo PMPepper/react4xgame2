@@ -92,7 +92,7 @@ export function PerformanceStats({name, graphWidth = defaultGraphWidth, ...rest}
   return <DisplayStats {...rest} values={valuesRef.current} />
 }
 
-
+//TODO this is killing my framerate
 export function DisplayStats({formatAvgValue, values, styles = defaultStyles, graphWidth = defaultGraphWidth, graphHeight = defaultGraphHeight, style, ...rest}) {
   const graphItems = useMemo(
     () => {
