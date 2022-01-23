@@ -29,15 +29,13 @@ export default class Server {
   targetTickRate = 60;
   timeMultiplier = 60;//3 * 24 * 3600;//time multiplier
   gameSecondsPerStep = 1;//60;//game seconds to process per step - higher = less processing, but risks resolution based issues
-  isPaused = false;
   gameSpeed;
+  isPaused = false;
 
-  clients;//a client is a player connected to a faction by a connector method with a permissions e.g. Bob spectating Martians on clientId 1
+  clients;//a client is a player/ai connected to a faction by a connector method with a permissions e.g. Bob spectating Martians on clientId 1
   clientLastUpdatedTime = null
 
   entityProcessorFactories = [movementFactory, colonyFactory];
-
-  
 
   constructor(connector) {
     this.connector = connector;
@@ -55,20 +53,17 @@ export default class Server {
 
     //c/onsole.log('[Server] createWorld: ', definition, clientId);
     
-
-    //initialise the world based on supplied definition
     this.clients = {};
     this.clientLastUpdatedTime = {};
 
-    //TODO init client object for this client? As host?
-
+    //initialise the world based on supplied definition
     this.state = createWorldFromDefinition(definition);
 
     this.totalElapsedTime = this.state.gameTime = Math.floor(new Date(definition.startDate).valueOf() / 1000);
 
-    //c/onsole.log('[Server] created world: ', this.entities);
-
     this._advanceTime(null);
+
+    //c/onsole.log('[Server] created world: ', this.entities);
 
     //Now waiting for players to connect
     this.phase = ServerPhase.CONNECTING;
@@ -125,7 +120,6 @@ export default class Server {
 
     const client = this.clients[clientId];
 
-
     //TODO check that client settings are valid e.g. is connecting to valid faction(s) not already controlled by someone else
 
     if(factions === null || isEmpty(factions)) {
@@ -149,6 +143,7 @@ export default class Server {
 
     //c/onsole.log('[Server] setClientSettings: ', name, factions, factionId, ready, clientId);
 
+    //Update the client object
     client.name = name;
     client.factions = factions;
     client.factionId = factionId;
@@ -168,16 +163,17 @@ export default class Server {
 
     this._checkValidClient(clientId);
 
-    //c/onsole.log('[Server] startGame');
-    this.phase = ServerPhase.RUNNING;
-
     //Only only start game if all players are ready
     if(Object.values(this.clients).every(client => (client.ready))) {
+      //c/onsole.log('[Server] startGame');
+      this.phase = ServerPhase.RUNNING;
+
       //For each client, tell them the game is starting and send them their client state
       Object.values(this.clients).forEach(client => {
         this.connector.sendMessageToClient(client.id, 'startingGame', this._getClientState(client.id, true));
       });
 
+      //Start the server update tick running
       this._lastTime = Date.now();
 
       const targetIntervalMs = 1000/this.targetTickRate;//ms
@@ -199,9 +195,11 @@ export default class Server {
         },
         targetIntervalMs
       );
+
       return Promise.resolve(true);
     }
 
+    //Not all players are ready
     return Promise.resolve(false);
   }
 
@@ -235,6 +233,8 @@ export default class Server {
 
     this.clients[clientId].isPaused = !!newIsPaused;
   }
+
+//TODO I feel like this sort of thing needs to go somewhere else, or be handled differently somehow
 
   message_createColony(systemBodyId, clientId) {
     if(this.phase !== ServerPhase.RUNNING) {
@@ -291,27 +291,6 @@ export default class Server {
     //TODO
   }
 
-
-  //-validation methods
-  _checkValidClientName(name, clientId) {
-    if(!name) {
-      throw new Error('Client required a name');
-    }
-
-    Object.values(this.clients).forEach(client => {
-      if(client.id !== clientId && client.name === name) {
-        throw new Error('Client name already in use by another client');
-      }
-    });
-  }
-
-  _checkValidClient(clientId) {
-    if(!this.clients[clientId]) {
-      throw new Error('Unknown client');
-    }
-  }
-
-
   /////////////////////
   // Getters/setters //
   /////////////////////
@@ -333,10 +312,28 @@ export default class Server {
   }
 
 
-
   /////////////////////////////
   // Internal helper methods //
   /////////////////////////////
+
+  //-validation methods
+  _checkValidClientName(name, clientId) {
+    if(!name) {
+      throw new Error('Client required a name');
+    }
+
+    Object.values(this.clients).forEach(client => {
+      if(client.id !== clientId && client.name === name) {
+        throw new Error('Client name already in use by another client');
+      }
+    });
+  }
+
+  _checkValidClient(clientId) {
+    if(!this.clients[clientId]) {
+      throw new Error('Unknown client');
+    }
+  }
 
   _updateGameTime() {
     let newGameSpeed = 5;
@@ -511,10 +508,14 @@ export default class Server {
     return {
       entities: clientEntities, 
       factionEntities: clientFactionEntities,
-      gameTime, gameSpeed: this.gameSpeed, desiredGameSpeed: client.gameSpeed, isPaused: this.isPaused, factionId: client.factionId};
+      gameTime,
+      gameSpeed: this.gameSpeed,
+      desiredGameSpeed: client.gameSpeed, 
+      isPaused: this.isPaused, 
+      factionId: client.factionId
+    };
   }
-
-
+  
   _getClientsForFaction(factionId, roles = null) {
     return Object.values(this.clients).reduce((output, client) => {
       if(client.factions[factionId]) {
@@ -528,9 +529,7 @@ export default class Server {
   }
 }
 
-
-
-
+//Helpers
 function getUpdatedFacets(entity, clientLastUpdated) {
   let output = null;
 
