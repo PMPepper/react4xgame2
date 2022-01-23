@@ -1,18 +1,30 @@
+
+//Classes
+import ServerState from './ServerState';
+
+//Helpers
 import orbitPeriod from 'helpers/physics/orbit-period';
 import map from 'helpers/object/map';
+
+//Data
 import defaultGameDefinition from '../data/defaultGameDefinition';
 
-export default function createWorldFromDefinition(server, definition) {
+
+//The function
+export default function createWorldFromDefinition(definition) {
   //merge in the default game definition
   definition = {...defaultGameDefinition, ...definition};
 
   //Basic props
-  server.minerals = {...definition.minerals};
-  server.structures = JSON.parse(JSON.stringify(definition.structures));
-  server.researchAreas = {...definition.researchAreas};
-  server.research = JSON.parse(JSON.stringify(definition.research));
-  server.technology = JSON.parse(JSON.stringify(definition.technology));
-  server.systemBodyTypeMineralAbundance = JSON.parse(JSON.stringify(definition.systemBodyTypeMineralAbundance));
+  const state = new ServerState(
+    {...definition.minerals},
+    JSON.parse(JSON.stringify(definition.structures)),
+    JSON.parse(JSON.stringify(definition.structures)),
+    {...definition.researchAreas},
+    JSON.parse(JSON.stringify(definition.research)),
+    JSON.parse(JSON.stringify(definition.technology)),
+    JSON.parse(JSON.stringify(definition.systemBodyTypeMineralAbundance))
+  );
 
   //internal lookup hashes
   const systemsByDefinitionId = {};//[systemDefinitionId] = system entity
@@ -25,7 +37,7 @@ export default function createWorldFromDefinition(server, definition) {
     const systemDefinition = definition.systems[systemDefinitionId];
 
     //create system entity
-    const system = server._newEntity('system', {});
+    const system = state._newEntity('system', {});
 
     //update lookup hashes (used later)
     systemsByDefinitionId[systemDefinitionId] = system;
@@ -38,7 +50,7 @@ export default function createWorldFromDefinition(server, definition) {
       const bodyMass = bodyDefinition.mass || 1;
       const orbitingId = bodyDefinition.parent && systemBodiesBySystemBodyDefinitionName[bodyDefinition.parent] && (systemBodiesBySystemBodyDefinitionName[bodyDefinition.parent].id || null);
 
-      const body = server._newEntity('systemBody', {
+      const body = state._newEntity('systemBody', {
         systemId: system.id,
         mass: {
           value: bodyMass
@@ -61,7 +73,7 @@ export default function createWorldFromDefinition(server, definition) {
       });
 
       if(orbitingId) {
-        const orbitingEntity = server.entities[orbitingId];
+        const orbitingEntity = state.entities[orbitingId];
 
         orbitingEntity.systemBody.children.push(body.id);
 
@@ -87,14 +99,14 @@ export default function createWorldFromDefinition(server, definition) {
   Object.keys(definition.species).forEach(id => {
     const speciesDefinition = definition.species[id];
 
-    const entity = server._newEntity('species', {species: {...definition.baseSpecies, ...speciesDefinition}});
+    const entity = state._newEntity('species', {species: {...definition.baseSpecies, ...speciesDefinition}});
 
     speciesByDefinitionId[id] = entity;
   })
 
   //create the factions
   definition.factions.forEach(factionDefinition => {
-    const faction = server.createFaction(factionDefinition.name, factionDefinition.startingResearch);
+    const faction = state.createFaction(factionDefinition.name, factionDefinition.startingResearch);
 
     factionsByDefinitionName[factionDefinition.name] = faction;
 
@@ -129,7 +141,7 @@ export default function createWorldFromDefinition(server, definition) {
 
       switch(factionStartingSystemDefinition.type) {
         case 'known':
-          server._addFactionEntity(
+          state._addFactionEntity(
             faction.id, 
             system.id, 
             {
@@ -138,7 +150,7 @@ export default function createWorldFromDefinition(server, definition) {
           );
 
           systemDefinition.bodies.forEach(bodyDefinition => {
-            const factionSystemBody = server._addFactionEntity(
+            const factionSystemBody = state._addFactionEntity(
               faction.id, 
               systemBodiesBySystemBodyDefinitionName[bodyDefinition.name].id, 
               {
@@ -149,38 +161,6 @@ export default function createWorldFromDefinition(server, definition) {
 
             factionSystemBodyBySystemBodyId[factionSystemBody.id] = factionSystemBody;
           });
-
-          // //create faction system entity, and apply name
-          // const factionSystem = server._newEntity('factionSystem', {
-          //   systemId: system.id,
-          //   factionId: faction.id,
-          //   factionSystem: {
-          //     name: factionStartingSystemDefinition.name || systemDefinitionId//if faction has defined it's own name, use that
-          //   },
-
-          // });
-
-          // //Now repeat for the system bodies
-          // const factionSystemBodies = systemDefinition.bodies.map(bodyDefinition => {
-          //   const factionSystemBody = server._newEntity('factionSystemBody', {
-          //     render: {type: 'factionSystemBody'},
-          //     systemId: system.id,
-          //     factionId: faction.id,
-          //     systemBodyId: systemBodiesBySystemBodyDefinitionName[bodyDefinition.name].id,
-          //     factionSystemId: factionSystem.id,
-          //     factionSystemBody: {
-          //       name: factionStartingSystemDefinition.bodyNamesMap?.[bodyDefinition.name] || bodyDefinition.name,
-          //       isSurveyed: false,
-          //     }
-          //   });
-
-          //   factionSystemBodyBySystemBodyId[factionSystemBody.systemBodyId] = factionSystemBody;
-
-          //   return factionSystemBody;
-          // })
-
-          // //record ID's of factionSystemBodies in factionSystem
-          // factionSystem.factionSystemBodyIds = factionSystemBodies.map(entity => entity.id);
 
           break;
         default:
@@ -193,7 +173,7 @@ export default function createWorldFromDefinition(server, definition) {
       const systemBody = systemBodiesBySystemDefinitionIdBySystemBodyDefinitionName[startingColonyDefinition.system][startingColonyDefinition.body];
 
       //Create the colony
-      const colony = server.createColony(systemBody.id, faction.id, map(definition.minerals, () => (0)));//, structures, populationIds.filter(id => (id !== null))
+      const colony = state.createColony(systemBody.id, faction.id, map(definition.minerals, () => (0)));//, structures, populationIds.filter(id => (id !== null))
 
       //Create the populations
       startingColonyDefinition.populations.forEach(populationDefinition => {
@@ -202,13 +182,13 @@ export default function createWorldFromDefinition(server, definition) {
         if(populationDefinition.species) {
           const species = speciesByDefinitionId[populationDefinition.species];
 
-          const entity = server.createPopulation(faction.id, colony.id, species.id, populationDefinition.population);
+          const entity = state.createPopulation(faction.id, colony.id, species.id, populationDefinition.population);
 
           populationId = entity.id;
         }
 
         if(populationDefinition.structures) {//assign structures to colony
-          server.addStructuresToColony(colony.id, populationId, {...populationDefinition.structures});
+          state.addStructuresToColony(colony.id, populationId, {...populationDefinition.structures});
         }
       });
 
@@ -219,6 +199,8 @@ export default function createWorldFromDefinition(server, definition) {
       }
     });
   })
+
+  return state;
 }
 
 function generateAvailableMinerals(bodyDefinition, definition) {

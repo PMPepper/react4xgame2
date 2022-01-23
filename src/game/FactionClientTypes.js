@@ -1,2 +1,5 @@
-export const OWNER = 1;
-export const SPECTATOR = 2;
+import Enum from "classes/Enum";
+
+
+export default Enum.create('FactionClientType', ['OWNER', 'SPECTATOR'])
+
