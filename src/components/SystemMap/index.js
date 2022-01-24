@@ -445,8 +445,8 @@ export function getSystemBodyVisibleMaxZoom(systemBodyEntity) {
 
 
 //define object pools + generators
-const circlePool = objectpool.generate({t: 'circle', id: null, x: 0, y: 0, r: 0, opacity: 0, type: null, subType: null}, {count: 50, regenerate: 1});
-const textPool = objectpool.generate({t: 'text', text: null, id: null, x: 0, y: 0, opacity: 0, type: null, subType: null}, {count: 50, regenerate: 1});
+const circlePool = objectpool.generate({t: 'circle', id: null, x: 0, y: 0, r: 0, opacity: 0, type: null, subType: null}, {count: 250, regenerate: 1});
+const textPool = objectpool.generate({t: 'text', text: null, id: null, x: 0, y: 0, opacity: 0, type: null, subType: null}, {count: 250, regenerate: 1});
 
 export function circle(id, x, y, r, opacity, type, subType) {
   const circle = circlePool.get();
@@ -480,7 +480,7 @@ export function text(id, textVal, x, y, opacity, type, subType) {
 const positionsPool = objectpool.generate(
   {id: null, x: 0, y: 0, r: 0},
   {
-    count: 50,
+    count: 250,
     regenerate: 1
   }
 );
