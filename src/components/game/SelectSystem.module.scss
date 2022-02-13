@@ -1,17 +1,14 @@
 @import '../../css/shared';
 
 .selectSystem {
-    background: $bgCol;
-    border: 1px solid $borderCol;
-    
-    padding: $basePadding/2;
+    @include panel;
 
     position: fixed;
-    top: $basePadding;//will need to be below buttons (when I add them)
-    left: $basePadding;
+    top: var(--base-padding);//will need to be below buttons (when I add them)
+    left: var(--base-padding);
 }
 
 .label {
     display: block;
-    padding-bottom: $basePadding / 4;
+    padding-bottom: var(--base-padding4);
 }

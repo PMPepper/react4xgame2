@@ -5,8 +5,8 @@
   color: $fontCol;
 
   p {
-    margin: 0 0 math.div($basePadding, 2);
-    font-size: $fontSize;
+    margin: 0 0 var(--base-padding2);
+    font: var(--font-bodyNormal);
   }
 
   :last-child {

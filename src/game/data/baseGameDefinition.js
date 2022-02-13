@@ -17,18 +17,18 @@ const worldDefinition = {
       Sol: {
         type: 'known',
       },
-      // Sol2: {
-      //   type: 'known',
-      //   name: 'Bumhole'
-      // },
-      // Sol3: {
-      //   type: 'known',
-      //   name: 'AAAA'
-      // },
-      // Sol4: {
-      //   type: 'known',
-      //   name: 'Wibble'
-      // }
+      Sol2: {
+        type: 'known',
+        name: 'Bumhole'
+      },
+      Sol3: {
+        type: 'known',
+        name: 'AAAA'
+      },
+      Sol4: {
+        type: 'known',
+        name: 'Wibble'
+      }
     },
     startingColonies: [{
       isStartingWorld: true,

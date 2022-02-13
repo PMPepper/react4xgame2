@@ -96,7 +96,7 @@ export default function colonyFactory(lastTime, time, init) {
 
         colonyFacet.lastUpdateTime = time;
 
-console.log(colonyFacet, additionalModifiedEntityIDs);
+//console.log(colonyFacet, additionalModifiedEntityIDs);
         return additionalModifiedEntityIDs;
       }
 

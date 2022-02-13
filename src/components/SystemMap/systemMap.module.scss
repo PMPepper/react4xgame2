@@ -46,7 +46,7 @@
 
 .systemBodyLabel {
   fill: #FFF;
-  font: normal 20px sans-serif;
+  font: var(--font-bodyNormal);
   text-anchor: middle;
 
   pointer-events: none;
@@ -54,7 +54,7 @@
   dominant-baseline: text-before-edge;
 
   &.asteroid {
-    font-size: 15px;
+    font: var(--font-smallNormal);
   }
 
   //filter: url(#textShadow);

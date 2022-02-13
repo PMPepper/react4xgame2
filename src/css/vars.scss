@@ -1,5 +1,6 @@
 @use 'sass:math';
 
+//TODO convert to CSS vars?
 
 //pallet colours
 //-shades of grey
@@ -47,15 +48,6 @@ $bgCol: $grey20;
 
 
 
-$basePadding: 1.6rem;
-$basePadding2: math.div($basePadding, 2);
-$basePadding4: math.div($basePadding, 4);
-$basePadding8: math.div($basePadding, 8);
+$basePadding: 16px;
 
 
-$fontSize: 1.4rem;
-
-//Specify global CSS vars
-html {
-    --fa-display: block;
-}

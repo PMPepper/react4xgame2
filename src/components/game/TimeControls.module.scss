@@ -3,24 +3,21 @@
 $controlsWidth: 400px;
 
 .root {
-    background: $bgCol;
-    border: 1px solid $borderCol;
-    
-    padding: $basePadding/2;
+  @include panel;
   
-    position: fixed;
-    top: $basePadding;
-    right: $basePadding;
-    width: $controlsWidth;
+  position: fixed;
+  top: var(--base-padding);
+  right: var(--base-padding);
+  //width: $controlsWidth;
 }
 
 .buttons {
   display: flex;
+  gap: var(--base-padding4);
   flex-flow: row nowrap;
-  justify-content: space-between;
-  margin-bottom: $basePadding/4;
+  margin-bottom: var(--base-padding4);
 }
 
 .time {
-  font-size: 14px;
+  font: var(--font-bodyNormal);
 }

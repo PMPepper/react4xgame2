@@ -5,9 +5,9 @@
 .btn {
   background: $grey30;
   border: 0.1rem solid $borderCol;
-  padding: $basePadding/4 $basePadding/2;
-  border-radius: $basePadding/4;
-  font-size: 1.4rem;
+  padding: var(--base-padding4) var(--base-padding2);
+  border-radius: var(--base-padding4);
+  font: var(--font-bodyNormal);
   color: $fontCol;
 
   @include blockInteraction($mouseBg: $grey35);
@@ -15,8 +15,8 @@
   //button themes
   &.theme_close {
     padding: 0;
-    width: calc(1em + #{$basePadding/4});
-    height: calc(1em + #{$basePadding/4});
+    width: calc(1em + var(--base-padding4));
+    height: calc(1em + var(--base-padding4));
     background: #C33;
     color: #FFF;
 
@@ -30,5 +30,5 @@
 
 
 svg + svg {
-  margin-left: -8px;
+  margin-left: -8px;//?
 }

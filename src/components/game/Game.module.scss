@@ -1,10 +1,10 @@
 @import '../../css/shared';
 
-$selectSystemsWidth: 32rem - ($basePadding*2);
+$selectSystemsWidth: 320px - ($basePadding*2);
 $controlsWidth: $selectSystemsWidth;
 $optionsWidth: $controlsWidth;
 
-$selectSystemsHeight: 4.4rem;
+$selectSystemsHeight: 44px;
 
 .game {
   height: 100%;

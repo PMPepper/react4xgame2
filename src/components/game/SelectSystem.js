@@ -9,19 +9,24 @@ import { useContextSelector } from 'components/SelectableContext';
 import mapToSortedArray from 'helpers/object/map-to-sorted-array';
 import sortOnPropNatsort from 'helpers/sorting/sort-on-prop-natsort';
 
+//Actions
+import {set as setSelectedColonyId} from 'redux/selectedSystemId';
+
 //Other
 import styles from './SelectSystem.module.scss';
 
 
 //The component
 export default function SelectSystem() {
+    //Redux
     const selectedSystemId = useSelector(state => state.selectedSystemId);
+    const dispatch = useDispatch();
 
-    const knownSystems = useContextSelector(state => state.knownSystems) || [];;
-
+    //Client state
+    const knownSystems = useContextSelector(state => state.knownSystems) || [];
 
     //Callbacks
-    const onChangeSelectedSystemId = (...args) => {console.log(args)}
+    const onChangeSelectedSystemId = (evt) => dispatch(setSelectedColonyId(+evt.target.value))
 
     //render
     return <div className={styles.selectSystem}>

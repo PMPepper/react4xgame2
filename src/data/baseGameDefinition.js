@@ -1,5 +1,7 @@
 import systems from './systems';
 
+//Is this used? I think no..
+
 const worldDefinition = {
   type: 'new',
   gameName: 'flobble',
@@ -17,18 +19,18 @@ const worldDefinition = {
       Sol: {
         type: 'known',
       },
-      // Sol2: {
-      //   type: 'known',
-      //   name: 'Bumhole'
-      // },
-      // Sol3: {
-      //   type: 'known',
-      //   name: 'AAAA'
-      // },
-      // Sol4: {
-      //   type: 'known',
-      //   name: 'Wibble'
-      // }
+      Sol2: {
+        type: 'known',
+        name: 'Bumhole'
+      },
+      Sol3: {
+        type: 'known',
+        name: 'AAAA'
+      },
+      Sol4: {
+        type: 'known',
+        name: 'Wibble'
+      }
     },
     startingColonies: [{
       isStartingWorld: true,

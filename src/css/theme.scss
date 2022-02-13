@@ -6,3 +6,9 @@
 
 //app specific theme mixins, etc
 
+@mixin panel() {
+    background: $bgCol;
+    border: 1px solid $borderCol;
+    
+    padding: var(--base-padding2);
+}

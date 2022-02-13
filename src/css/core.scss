@@ -3,8 +3,8 @@
 @import 'wysiwyg';
 
 html, body {
-  font-family: sans-serif;
-  font-size: 10px;
+  //font-family: sans-serif;
+  //font-size: 10px;
   height: 100%;
   overflow: hidden;
 }
@@ -15,4 +15,40 @@ html, body {
 
 :focus {
   outline: 0;
+}
+
+
+
+html {
+  //3rd party vars
+  --fa-display: block;
+
+  //Specify global CSS vars
+  --scale: 1;
+  --base-padding: calc(var(--scale) * #{$basePadding});
+  --base-padding2: calc(var(--base-padding) / 2);
+  --base-padding4: calc(var(--base-padding) / 4);
+
+  //Font family and sizes
+  --font-family: Arial, Helvetica, sans-serif;
+
+  --font-size-small: calc(12px * var(--scale));
+  --font-size-normal: calc(14px * var(--scale));
+  --font-size-header: calc(20px * var(--scale));
+
+  //Fonts: [stretch] [style] [variant] [weight] size[/lineHeight] family;
+  --font-smallNormal: var(--font-size-small)/calc(1.2 * var(--scale)) var(--font-family);
+
+  --font-bodyNormal: var(--font-size-normal)/calc(1.2 * var(--scale)) var(--font-family);
+  --font-bodyStrong: var(--font-size-normal)/calc(1.2 * var(--scale)) var(--font-family);
+
+  --font-headerNormal: bold var(--font-size-header)/calc(1.2 * var(--scale)) var(--font-family);
+  --font-headerStrong: bolder var(--font-size-header)/calc(1.2 * var(--scale)) var(--font-family);
+
+  //default fonts
+  font: var(--font-bodyNormal);
+}
+
+text {
+  font: var(--font-bodyNormal);
 }
