@@ -10,6 +10,7 @@ import WindowManager from 'components/WindowManager';
 import SystemMap from 'components/SystemMap';
 import FPSStats, {useMeasureSetFrequency, DisplayStats, PerformanceStats, ExternalPerformanceStats} from 'components/dev/FPSStats';
 import TimeControls from './TimeControls';
+import SelectSystem from './SelectSystem';
 
 //reducers
 import{set as setSystemMapFollowing} from 'redux/systemMapFollowing';
@@ -72,6 +73,7 @@ export default function Game({
           setIsPaused={client.setIsPaused}
           setDesiredSpeed={client.setDesiredSpeed}
         />
+        <SelectSystem />
         <SystemMap
             options={systemMapOptions}
             following={systemMapFollowing}

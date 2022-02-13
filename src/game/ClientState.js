@@ -93,7 +93,7 @@ import { isEmpty } from "lodash";
 // Non-cached getters //
 ////////////////////////
 
-//could memoize?
+//TODO find a way to memoise these methods, and clear when clientstate changes
 
 export function getRenderableEntities(clientState, systemId) {
   const entityIds = clientState.entityIds;
@@ -131,6 +131,26 @@ export function getColoniesBySystemBody(clientState, systemId) {
   }
 
   return colonies;
+}
+
+//cache data
+
+function getKnownSystems(clientState) {
+  const {entities, factionEntities} = clientState;
+  const factionEntityIds = Object.keys(factionEntities);
+
+  const knownSystems = [];
+  let id = null;
+  
+  for(let i = 0; i < factionEntityIds.length; i++) {
+    id = factionEntityIds[i];
+
+    if(entities[id].type === 'system') {
+      knownSystems.push(factionEntities[id]);
+    }
+  }
+
+  return knownSystems;
 }
 
 // export function getColoniesForSystemBody(systemBody) {
@@ -172,6 +192,8 @@ export function fromState(state, initialGameState) {
   clientState.isPaused = state.isPaused;
 
   clientState.entityIds = Object.keys(clientState.entities);
+
+  clientState.knownSystems = getKnownSystems(clientState);
 
   return clientState;
 }
@@ -241,6 +263,10 @@ export function mergeState(oldState, newData) {
   
       newFactionEntities[key] = factionEntities[key];
     }
+
+    //Rebuild if faction entities change
+    //TODO make this smarter, e.g. check types & only rebuild if relevent types change
+    updatedState.knownSystems = getKnownSystems(updatedState);
   } else {
     updatedState.factionEntities = existingFactionEntities;
   }

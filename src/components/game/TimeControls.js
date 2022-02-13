@@ -2,6 +2,7 @@ import { useMemo } from 'react';
 import { Trans } from '@lingui/macro';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { solid } from '@fortawesome/fontawesome-svg-core/import.macro'
+import classNames from 'classnames';
 
 //Components
 import Button from 'components/ui/Button';
@@ -10,9 +11,8 @@ import Time from 'components/format/Time';
 //Hooks
 import { useContextSelector } from 'components/SelectableContext';
 
+//Other
 import styles from './TimeControls.module.scss';
-import classNames from 'classnames';
-
 
 
 //The component
