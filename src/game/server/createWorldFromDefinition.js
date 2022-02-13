@@ -45,6 +45,8 @@ export default function createWorldFromDefinition(definition) {
 
     const systemBodiesBySystemBodyDefinitionName = systemBodiesBySystemDefinitionIdBySystemBodyDefinitionName[systemDefinitionId];
 
+    const bodyChildren = new Map();
+
     //now create the bodies
     const bodies = systemDefinition.bodies.map(bodyDefinition => {
       const bodyMass = bodyDefinition.mass || 1;
@@ -75,7 +77,14 @@ export default function createWorldFromDefinition(definition) {
       if(orbitingId) {
         const orbitingEntity = state.entities[orbitingId];
 
-        orbitingEntity.systemBody.children.push(body.id);
+        //record what entities are children of other entities (orbiting them)
+        if(!bodyChildren.has(orbitingEntity)) {
+          bodyChildren.set(orbitingEntity, [])
+        }
+
+        bodyChildren.get(orbitingEntity).push(body);
+
+        //orbitingEntity.systemBody.children.push(body.id);
 
         body.systemBody.position = [...orbitingEntity.systemBody.position, orbitingEntity.systemBody.children.length];
       } else {
@@ -89,6 +98,15 @@ export default function createWorldFromDefinition(definition) {
       systemBodiesBySystemBodyDefinitionName[bodyDefinition.name] = body;
 
       return body;
+    });
+
+    //now sort out orbit order
+    bodyChildren.forEach((orbiters, orbited) => {
+      orbiters.sort((a, b) => (a?.orbit?.radius ?? 0) - (b?.orbit?.radius ?? 0))
+
+      orbiters.forEach(({id}) => {
+        orbited.systemBody.children.push(id)
+      })
     });
 
     //update system with body ids

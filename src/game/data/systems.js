@@ -505,7 +505,7 @@ const systems = {
       ...tnos,
 
 
-      //Comets
+      //TODO Comets
       // {
       //   "name": "Halley's Comet",
       //   "type": "comet",
@@ -530,20 +530,16 @@ const systems = {
   }
 };
 
-systems.Sol.bodies.sort((a, b) => {
-  return (a?.orbit?.radius ?? 0) - (b?.orbit?.radius ?? 0)
-});
 
+//TEMP CODE - create copy of Sol called Sol2 without venus (so I can tell the difference!)
+systems.Sol2 = JSON.parse(JSON.stringify(systems.Sol));
+systems.Sol2.bodies.splice(2, 1);
 
-// //TEMP CODE - create copy of Sol called Sol2 without venus (so I can tell the difference!)
-// systems.Sol2 = JSON.parse(JSON.stringify(systems.Sol));
-// systems.Sol2.bodies.splice(2, 1);
+systems.Sol3 = JSON.parse(JSON.stringify(systems.Sol));
+systems.Sol3.bodies.splice(1, 1);
 
-// systems.Sol3 = JSON.parse(JSON.stringify(systems.Sol));
-// systems.Sol3.bodies.splice(1, 1);
-
-// systems.Sol4 = JSON.parse(JSON.stringify(systems.Sol));
-// systems.Sol4.bodies.splice(1, 2);
-// //END TEMP CODE
+systems.Sol4 = JSON.parse(JSON.stringify(systems.Sol));
+systems.Sol4.bodies.splice(1, 2);
+//END TEMP CODE
 
 export default systems;
