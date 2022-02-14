@@ -34,18 +34,55 @@ html {
 
   --font-size-small: calc(12px * var(--scale));
   --font-size-normal: calc(14px * var(--scale));
+  --font-size-large: calc(16px * var(--scale));
   --font-size-header: calc(20px * var(--scale));
 
   //Fonts: [stretch] [style] [variant] [weight] size[/lineHeight] family;
-  --font-smallNormal: var(--font-size-small)/calc(1.2 * var(--scale)) var(--font-family);
+  --font-bodySmall: var(--font-size-small)/calc(1.2 * var(--scale)) var(--font-family);
+  --font-bodySmallStrong: bold var(--font-size-small)/calc(1.2 * var(--scale)) var(--font-family);
 
   --font-bodyNormal: var(--font-size-normal)/calc(1.2 * var(--scale)) var(--font-family);
   --font-bodyStrong: var(--font-size-normal)/calc(1.2 * var(--scale)) var(--font-family);
 
+  --font-bodyLarge: var(--font-size-large)/calc(1.2 * var(--scale)) var(--font-family);
+  --font-bodyLargeStrong: var(--font-size-large)/calc(1.2 * var(--scale)) var(--font-family);
+
   --font-headerNormal: bold var(--font-size-header)/calc(1.2 * var(--scale)) var(--font-family);
   --font-headerStrong: bolder var(--font-size-header)/calc(1.2 * var(--scale)) var(--font-family);
 
-  //default fonts
+  --font-buttonNormal: var(--font-bodyNormal);
+  --font-buttonLarge: var(--font-bodyLarge);
+
+  //Colours
+  --c-grey0: #FFF;
+  --c-grey10: #FAFAFA;
+  --c-grey20: #F5F5F5;
+  --c-grey30: #D7D7D7;
+  --c-grey35: #C7C7C7;
+  --c-grey40: #B7B7B7;
+  --c-grey50: #7F7F7F;
+  --c-grey60: #737373;
+  --c-grey70: #6A6A6A;
+  --c-grey80: #666;
+  --c-grey90: #333;
+  --c-grey100: #000;
+
+
+  //-purpose colours
+  --c-keyboard: #EEBB11;
+  --c-ok: #33DD33;
+  --c-warning: #FFAA22;
+  --c-error: #EE3333;
+  --c-success: #33EE33;
+
+  //-text colours
+  --c-text: var(--c-grey90);
+
+  //block colours
+  --c-border: var(--c-grey40);
+  --c-bg: var(--c-grey20);
+
+  //defaults
   font: var(--font-bodyNormal);
 }
 

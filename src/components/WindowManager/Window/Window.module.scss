@@ -21,8 +21,8 @@
 .content {
     grid-area: row-content-start / col-content-start;
 
-    background: $bgCol;
-    border: 1px solid $borderCol;
+    @include panel(true);
+
     box-shadow: 3px 3px 3px 0px rgba(0,0,0,0.3);
 
     display: flex;
@@ -32,7 +32,7 @@
 
 .header {
     flex: 0 0 auto;
-    background: $grey30;
+    background: var(--c-grey30);
     padding: var(--base-padding4);
     
     &.drag {
@@ -50,8 +50,16 @@
 .closeBtn {
     @include blankBtn;
 
-    color: $fontCol;
-    font-size: calc(20px * var(--scale));//hmm, should be a variable?
+    color: var(--c-text);
+    font-size: var(--font-size-header);//hmm, should be a variable?
+
+    &:hover {
+        color: #F33;
+    }
+
+    @include onKeyboardFocus {
+        color: #F33;
+    }
 }
 
 .body {

@@ -3,28 +3,28 @@
 
 
 .btn {
-  background: $grey30;
-  border: 0.1rem solid $borderCol;
+  background: var(--c-grey30);
+  border: 0.1rem solid var(--c-border);
   padding: var(--base-padding4) var(--base-padding2);
   border-radius: var(--base-padding4);
   font: var(--font-bodyNormal);
-  color: $fontCol;
+  color: var(--c-text);
 
-  @include blockInteraction($mouseBg: $grey35);
+  @include blockInteraction($mouseBg: var(--c-grey35));
 
-  //button themes
-  &.theme_close {
-    padding: 0;
-    width: calc(1em + var(--base-padding4));
-    height: calc(1em + var(--base-padding4));
-    background: #C33;
-    color: #FFF;
+  // //button themes
+  // &.theme_close {
+  //   padding: 0;
+  //   width: calc(1em + var(--base-padding4));
+  //   height: calc(1em + var(--base-padding4));
+  //   background: #C33;
+  //   color: #FFF;
 
-    @include blockInteraction($mouseBg: #F33, $mouseCol: #FFF);
-  }
+  //   @include blockInteraction($mouseBg: #F33, $mouseCol: #FFF);
+  // }
 
   &.selected {
-    background: $grey40;
+    background: var(--c-grey40);
   }
 }
 

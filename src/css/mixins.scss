@@ -41,6 +41,25 @@
   // }
 }
 
+@mixin onKeyboardFocus() {
+  :global(.focus_keyboard) &:focus {
+    @content;
+  }
+}
+
+
+$textMouseInteractionCol: car(--c-grey80);
+$blockMouseInteractionCol: var(--c-grey90);
+
+$textKeyboardInteractionCol: var(--c-keyboard);
+$blockKeyboardInteractionCol: var(--c-grey90);
+
+$textMouseInteractionBg: null;
+$blockMouseInteractionBg: var(--c-grey10);
+
+$textKeyboardInteractionBg: null;
+$blockKeyboardInteractionBg: var(--c-keyboard);
+
 @mixin blockInteraction($mouseCol: $blockMouseInteractionCol, $mouseBg: $blockMouseInteractionBg, $keyboardCol: $blockKeyboardInteractionCol, $keyboardBg: $blockKeyboardInteractionBg) {
   outline: 0!important;
 
@@ -50,7 +69,7 @@
     cursor: pointer;
   }
 
-  :global(.focus_keyboard) &:focus {
+  @include onKeyboardFocus {
     background-color: $keyboardBg;
     color: $keyboardCol;
   }
@@ -65,7 +84,7 @@
     cursor: pointer;
   }
 
-  .focus_keyboard &:focus {
+  @include onKeyboardFocus {
     color: $keyboardCol;
     background-color: $keyboardBg;
   }
