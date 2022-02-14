@@ -1,5 +1,5 @@
 import solAsteroids from './solAsteroids.json';
-import tnos from 'temp/importTNOs'
+import tnos from './temp/importTNOs'
 
 //const solAsteroids = [];
 

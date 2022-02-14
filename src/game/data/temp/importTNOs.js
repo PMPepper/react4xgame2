@@ -1,4 +1,4 @@
-import tnos from 'data/raw-tno-data.json';
+import tnos from '../raw-tno-data.json';
 
 import SimplePRNG from 'classes/SimplePRNG';
 
