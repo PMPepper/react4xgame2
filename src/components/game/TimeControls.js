@@ -1,8 +1,7 @@
 import { useMemo } from 'react';
 import { Trans } from '@lingui/macro';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { solid } from '@fortawesome/fontawesome-svg-core/import.macro'
-import classNames from 'classnames';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { solid } from '@fortawesome/fontawesome-svg-core/import.macro';
 
 //Components
 import Button from 'components/ui/Button';

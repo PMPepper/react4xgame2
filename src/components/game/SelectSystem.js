@@ -6,7 +6,6 @@ import { Trans } from '@lingui/macro';
 import { useContextSelector } from 'components/SelectableContext';
 
 //Helpers
-import mapToSortedArray from 'helpers/object/map-to-sorted-array';
 import sortOnPropNatsort from 'helpers/sorting/sort-on-prop-natsort';
 
 //Actions

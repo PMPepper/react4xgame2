@@ -1,5 +1,4 @@
 import Performance from "classes/Performance";
-import produce from "immer"
 import { isEmpty } from "lodash";
 
 //Helpers
