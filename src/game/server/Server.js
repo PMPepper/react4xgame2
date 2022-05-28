@@ -9,8 +9,6 @@ import createWorldFromDefinition from './createWorldFromDefinition';
 import FactionClientTypes from '../FactionClientTypes';
 import Enum from 'classes/Enum';
 
-import movementFactory from './entityProcessorFactories/movement';
-//import populationFactory from './entityProcessorFactories/population';
 import colonyFactory from './entityProcessorFactories/colony';
 import ServerClient, { ENUM_CLIENT_TYPE } from './ServerClient';
 
@@ -35,7 +33,7 @@ export default class Server {
   clients;//a client is a player/ai connected to a faction by a connector method with a permissions e.g. Bob spectating Martians on clientId 1
   clientLastUpdatedTime = null
 
-  entityProcessorFactories = [movementFactory, colonyFactory];
+  entityProcessorFactories = [colonyFactory];
 
   constructor(connector) {
     this.connector = connector;

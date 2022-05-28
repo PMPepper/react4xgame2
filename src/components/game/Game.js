@@ -48,7 +48,7 @@ export default function Game({
   //Internal state
   const [clientState, _setClientState] = useState(() => client.gameState);
 
-  const [setClientState, setClientStateValues] = useMeasureSetFrequency(_setClientState);//intercept calls to setClientState to meansure their frequency
+  const [setClientState, setClientStateValues] = useMeasureSetFrequency(_setClientState);//intercept calls to setClientState to measure their frequency
 
   //Callbacks
   const setFollowing = useCallback(

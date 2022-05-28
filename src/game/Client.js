@@ -89,15 +89,23 @@ export default class Client {
 
   message_startingGame(gameState) {
     console.log('[CLIENT] startingGame', gameState);
-    this.store.dispatch(setSelectedSystemId(+find(gameState.entities, entity => (entity.type === 'system')).id));//TODO base on starting systems
 
-    this.gameState = fromState(gameState, this.initialGameState);
+    const selectedSystemId = +find(gameState.entities, entity => (entity.type === 'system')).id;
+    this.store.dispatch(setSelectedSystemId(selectedSystemId));//TODO base on starting systems
+
+    this.gameState = fromState(gameState, this.initialGameState, selectedSystemId);
   }
 
   message_updatingGame(newGameState) {
     //console.log('[CLIENT] updatingGame', newGameState);
-    this.gameState = mergeState(this.gameState, newGameState);
+    this.gameState = mergeState(this.gameState, newGameState, this.store.getState().selectedSystemId);
   }
+
+  //////////////////
+  // UI -> Client //
+  //////////////////
+
+  //TODO subscribe to store, and if selected system id changes, re-calculate system body positions
 
   //////////////////
   // Client -> UI //

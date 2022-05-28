@@ -2,6 +2,9 @@ import Performance from "classes/Performance";
 import { isEmpty } from "lodash";
 
 //Helpers
+import getSystemBodyPosition from 'helpers/app/getSystemBodyPosition';
+
+//Helpers
 //import toEntity from 'helpers/app/toEntity';
 //import deepFreeze from 'helpers/object/deepFreeze';//useful for debugging
 
@@ -176,7 +179,7 @@ function getKnownSystems(clientState) {
 
 
 
-export function fromState(state, initialGameState) {
+export function fromState(state, initialGameState, selectedSystemId) {
   //TODO removed entities
 
   const clientState = {};
@@ -194,11 +197,13 @@ export function fromState(state, initialGameState) {
 
   clientState.knownSystems = getKnownSystems(clientState);
 
+  calculateSystemBodyPositions(clientState.entities, clientState.gameTime, selectedSystemId);
+
   return clientState;
 }
 
 
-export function mergeState(oldState, newData) {
+export function mergeState(oldState, newData, selectedSystemId) {
   Performance.mark('updatingGame :: start merge state');
 
   //These are the things that have changed
@@ -269,51 +274,24 @@ export function mergeState(oldState, newData) {
   } else {
     updatedState.factionEntities = existingFactionEntities;
   }
+
+  if(oldState.gameTime !== updatedState.gameTime) {
+    calculateSystemBodyPositions(updatedState.entities, updatedState.gameTime, selectedSystemId);
+  }
   
-
-
-
-  // const updatedState = produce(oldState, (draft) => {//This is the area that could most benefit from optimisation right now - take approx 5ms
-  //   const {entities, factionEntities} = newData;
-
-  //   draft.desiredGameSpeed = newData.desiredGameSpeed;
-  //   draft.factionId = newData.factionId;
-  //   draft.gameSpeed = newData.gameSpeed;
-  //   draft.gameTime = newData.gameTime;
-  //   draft.isPaused = newData.isPaused;
-
-  //   let haveEntitiesChanged = false;
-
-  //   for(let i = 0, keys = Object.keys(entities), l = keys.length; i < l; ++i) {
-  //     let key = keys[i];
-
-  //     const newEntityData = entities[key];
-
-  //     if(newEntityData.id) {
-  //       draft.entities[key] = newEntityData;
-  //     } else {
-  //       for(let j = 0, facetNames = Object.keys(newEntityData), jl = facetNames.length; j < jl; ++j) {
-  //         let facetName = facetNames[j];
-  
-  //         draft.entities[key][facetName] = newEntityData[facetName];
-  //       }
-  //     }
-
-  //     haveEntitiesChanged = true;
-  //   }
-
-  //   if(haveEntitiesChanged) {
-  //     draft.entityIds = Object.keys(draft.entities);
-  //   }
-
-  //   for(let i = 0, keys = Object.keys(factionEntities), l = keys.length; i < l; ++i) {
-  //     let key = keys[i];
-
-  //     draft.factionEntities[key] = factionEntities[key];
-  //   }
-  // });
-
   Performance.measure('updatingGame :: merge state', 'updatingGame :: start merge state');
 
   return updatedState
+}
+
+
+function calculateSystemBodyPositions(entities, time, systemId) {
+  const system = entities[systemId];
+  const cache = {};
+
+  for(let i = 0; i < system.systemBodyIds.length; i++) {
+    const systemBody = entities[system.systemBodyIds[i]];
+
+    systemBody.position = getSystemBodyPosition(systemBody, entities, time, cache);
+  }
 }

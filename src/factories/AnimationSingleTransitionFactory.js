@@ -1,5 +1,4 @@
 import React from 'react';
-import {compose} from 'recompose';
 
 //TODO need to way to be able to 'pause' to let the content be rendered before starting animation?
 //Havent needed it so far...

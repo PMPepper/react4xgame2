@@ -58,7 +58,6 @@ export default function createWorldFromDefinition(definition) {
           value: bodyMass
         },
         movement: getMovementFromOrbitDefinition(bodyDefinition.orbit, bodyMass, orbitingId, orbitingId ? systemBodiesBySystemBodyDefinitionName[bodyDefinition.parent].mass.value : 0),
-        position: {x: 0, y: 0},
         systemBody: {
           type: bodyDefinition.type,
           radius: bodyDefinition.radius,
