@@ -1,7 +1,7 @@
 import {set as setSelectedSystemId} from 'redux/selectedSystemId';
 
 import find from 'helpers/object/find';
-import { fromState, mergeState } from './ClientState';
+import { fromState, mergeState, calculateSystemBodyPositions } from './ClientState';
 
 
 export default class Client {
@@ -12,6 +12,15 @@ export default class Client {
     //connector deals with communications, e.g. ip address of remote server
     this.connector = connector;
     this.connector.setClient(this);
+
+    this.store.subscribe(() => {
+      const {selectedSystemId} = this.store.getState();
+
+      if(this.gameState && this.systemId !== selectedSystemId) {
+        //console.log('updateSystemBodyPositions: ', selectedSystemId);
+        this.updateSystemBodyPositions(selectedSystemId)
+      }
+    })
   }
 
   /////////////////////
@@ -94,18 +103,29 @@ export default class Client {
     this.store.dispatch(setSelectedSystemId(selectedSystemId));//TODO base on starting systems
 
     this.gameState = fromState(gameState, this.initialGameState, selectedSystemId);
+
+    this.updateSystemBodyPositions(selectedSystemId);
   }
 
   message_updatingGame(newGameState) {
-    //console.log('[CLIENT] updatingGame', newGameState);
+    //console.log('[CLIENT] updatingGame', newGameState, this.systemId);
     this.gameState = mergeState(this.gameState, newGameState, this.store.getState().selectedSystemId);
+
+    this.updateSystemBodyPositions(this.systemId);
   }
 
   //////////////////
   // UI -> Client //
   //////////////////
 
-  //TODO subscribe to store, and if selected system id changes, re-calculate system body positions
+  updateSystemBodyPositions(systemId) {
+    //console.log('updateSystemBodyPositions: ', systemId);
+    if(systemId !== null || systemId !== undefined) {
+      calculateSystemBodyPositions(this.gameState.entities, this.gameState.gameTime, systemId)
+
+      this.systemId = systemId;
+    }
+  }
 
   //////////////////
   // Client -> UI //

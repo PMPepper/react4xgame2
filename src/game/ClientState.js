@@ -197,7 +197,7 @@ export function fromState(state, initialGameState, selectedSystemId) {
 
   clientState.knownSystems = getKnownSystems(clientState);
 
-  calculateSystemBodyPositions(clientState.entities, clientState.gameTime, selectedSystemId);
+  //calculateSystemBodyPositions(clientState.entities, clientState.gameTime, selectedSystemId);
 
   return clientState;
 }
@@ -275,17 +275,13 @@ export function mergeState(oldState, newData, selectedSystemId) {
     updatedState.factionEntities = existingFactionEntities;
   }
 
-  if(oldState.gameTime !== updatedState.gameTime) {
-    calculateSystemBodyPositions(updatedState.entities, updatedState.gameTime, selectedSystemId);
-  }
-  
   Performance.measure('updatingGame :: merge state', 'updatingGame :: start merge state');
 
   return updatedState
 }
 
 
-function calculateSystemBodyPositions(entities, time, systemId) {
+export function calculateSystemBodyPositions(entities, time, systemId) {
   const system = entities[systemId];
   const cache = {};
 

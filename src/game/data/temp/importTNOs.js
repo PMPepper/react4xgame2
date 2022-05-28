@@ -36,15 +36,6 @@ const auToMeters = 1.496e+11
 
 const prng = new SimplePRNG(235635298);
 
-console.log(prng.next())
-console.log(prng.next())
-console.log(prng.next())
-console.log(prng.next())
-console.log(prng.next())
-console.log(prng.next())
-console.log(prng.next())
-console.log(prng.next())
-
 //C, S, and M class asteroids as 1.38, 2.71, and 5.32 g/cm3.
 
 // The C-type (chondrite) asteroids are most common. They probably consist of clay and silicate rocks, and are dark in appearance. ...
