@@ -63,8 +63,16 @@ export default class Rectangle{
         this.y += dy;
     }
 
+    contains(rect) {
+        return this.x <= rect.x && this.y <= rect.y && this.right >= rect.right && this.bottom >= rect.bottom;
+    }
+
     //Static methods
     static fromEdges(top, left, bottom, right) {
         return new Rectangle(left, top, right - left, bottom - top);
+    }
+
+    static fromObj({x = 0, y = 0, width = 0, height = 0}) {
+        return new Rectangle(x, y, width, height);
     }
 }

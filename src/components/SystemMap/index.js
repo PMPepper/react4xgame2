@@ -367,11 +367,15 @@ export default memo(function SystemMap({
       onMouseLeave,
       onClick,
       onWheel,
-      onContextMenu: (e) => {
-        //const worldPos = this.screenToWorld(e.clientX, e.clientY);
+      onContextMenu: onContextMenu ? (e) => {
+        const {clientX, clientY} = e;
 
-        onContextMenu && onContextMenu(e, ref.current.entityScreenPositions);
-      }
+        onContextMenu(e, clientX, clientY, ref.current.entityScreenPositions.filter(({x, y, r}) => {
+          const d = (clientX - x) ** 2 + (clientY - y) ** 2;
+
+          return d <= Math.max(5, r) ** 2;
+        }).map(({id}) => id));
+      } : null
     }),
     // all the other props are 100% memoised, so will never become 'stale'
     [onContextMenu]//eslint-disable-line react-hooks/exhaustive-deps

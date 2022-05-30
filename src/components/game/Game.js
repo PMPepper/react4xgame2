@@ -11,6 +11,7 @@ import SystemMap from 'components/SystemMap';
 import FPSStats, {useMeasureSetFrequency, DisplayStats, PerformanceStats, ExternalPerformanceStats} from 'components/dev/FPSStats';
 import TimeControls from './TimeControls';
 import SelectSystem from './SelectSystem';
+import ContextMenu from 'components/ui/ContextMenu';
 
 //reducers
 import{set as setSystemMapFollowing} from 'redux/systemMapFollowing';
@@ -43,19 +44,29 @@ export default function Game({
 
   const dispatch = useDispatch();
 
+  //Calculated values
   const windowSize = useWindowSize();
 
   //Internal state
   const [clientState, _setClientState] = useState(() => client.gameState);
-
   const [setClientState, setClientStateValues] = useMeasureSetFrequency(_setClientState);//intercept calls to setClientState to measure their frequency
+  const [contextMenuState, setContextMenuState] = useState();
 
   //Callbacks
   const setFollowing = useCallback(
     following => dispatch(setSystemMapFollowing(following)),
     [dispatch]
-  )
+  );
 
+  const onSystemMapContextMenu = useCallback(
+    (e, x, y, entityIds) => {
+      e.preventDefault();
+      setContextMenuState({position: {x, y}, entityIds});
+    },
+    []
+  );
+
+  //Side effect
   useEffect(
     () => {
       client.setUpdateStateCallback(setClientState);
@@ -65,6 +76,7 @@ export default function Game({
     [client]
   );
 
+  //Render
   const content = useMemo(
     () => {
       return <>
@@ -79,11 +91,13 @@ export default function Game({
             following={systemMapFollowing}
             systemId={selectedSystemId}
             setFollowing={setFollowing}
+            onContextMenu={onSystemMapContextMenu}
           />
+          
       </>
     },
     [systemMapOptions, systemMapFollowing, selectedSystemId, setFollowing]
-  )
+  );
 
   return <div className={styles.game}>
     <FPSStats />
@@ -96,6 +110,7 @@ export default function Game({
         {content}
       </WindowManager>
     </SelectableContext>
+    {contextMenuState && <ContextMenu onClose={() => setContextMenuState(null)} position={contextMenuState.position}><div style={{background: 'white', padding: '5px'}}>TODO context menu contents <a className='link' href="#1">Link 1</a> OR <a className='link' href="#2">Link 2</a></div></ContextMenu>}
   </div>
 }
 
