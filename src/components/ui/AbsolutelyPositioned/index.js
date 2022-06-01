@@ -6,12 +6,14 @@ import useWindowSize from 'hooks/useWindowSize';
 import usePositionedItem from 'hooks/usePositionedItem';
 import { useMemo } from 'react';
 
+import classNames from 'classnames';
+
 //Other
 import classes from './AbsolutelyPositioned.module.scss';
 
 
 //The component
-const AbsolutelyPositioned = forwardRef(function AbsolutelyPositioned({position, align, children}, ref) {
+const AbsolutelyPositioned = forwardRef(function AbsolutelyPositioned({position, align, children, fixed = false}, ref) {
     const [sizeRef, dimensions] = useElementSize(ref);
     const windowSize = useWindowSize();
     const [{x, y}] = usePositionedItem(position, dimensions, align, windowSize);
@@ -21,7 +23,7 @@ const AbsolutelyPositioned = forwardRef(function AbsolutelyPositioned({position,
         [x, y]
     );
 
-    return <div ref={sizeRef} className={classes.root} style={style}>
+    return <div ref={sizeRef} className={classNames(classes.root, fixed && classes.fixed)} style={style}>
         {children}
     </div>
 })

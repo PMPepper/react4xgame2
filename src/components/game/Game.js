@@ -1,6 +1,8 @@
 import { useCallback, useEffect, useState, useMemo } from 'react';
 import { useSelector, useDispatch } from 'react-redux'
-import { Trans } from '@lingui/macro';
+import { Trans, t } from '@lingui/macro';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { solid } from '@fortawesome/fontawesome-svg-core/import.macro';
 
 import styles from './Game.module.scss';
 
@@ -12,6 +14,8 @@ import FPSStats, {useMeasureSetFrequency, DisplayStats, PerformanceStats, Extern
 import TimeControls from './TimeControls';
 import SelectSystem from './SelectSystem';
 import ContextMenu from 'components/ui/ContextMenu';
+import Menu from 'components/ui/Menu';
+import Entity from 'components/game/Entity';
 
 //reducers
 import{set as setSystemMapFollowing} from 'redux/systemMapFollowing';
@@ -109,8 +113,26 @@ export default function Game({
       <WindowManager area={windowSize}>
         {content}
       </WindowManager>
+      {contextMenuState && <ContextMenu onClose={() => setContextMenuState(null)} position={contextMenuState.position}>
+        <Menu>
+          <Menu.SubItems
+            icon={<FontAwesomeIcon icon={solid('globe')} />}
+            info={t`planets and stuff`}
+            subMenu={<Menu>{contextMenuState.entityIds.map(entityId => 
+              <Menu.Item key={entityId} onClick={() => alert('TODO')}><Entity.Name id={entityId} /></Menu.Item>
+            )}</Menu>}
+          >
+            <Trans>System bodies</Trans>
+          </Menu.SubItems>
+          <Menu.Divider></Menu.Divider>
+          <Menu.SubItems icon={<FontAwesomeIcon icon={solid('city')} />} info={t`view your stuff`}><Trans>Colonies</Trans></Menu.SubItems>
+          <Menu.Divider></Menu.Divider>
+          <Menu.Item onClick={() => alert('TODO other')}><Trans>Other</Trans></Menu.Item>
+          <Menu.Item onClick={() => alert('TODO things')} info={t`and stuff`}><Trans>Things</Trans></Menu.Item>
+          <Menu.Item onClick={() => alert('TODO help')}><Trans>Help?</Trans></Menu.Item>
+        </Menu>
+      </ContextMenu>}
     </SelectableContext>
-    {contextMenuState && <ContextMenu onClose={() => setContextMenuState(null)} position={contextMenuState.position}><div style={{background: 'white', padding: '5px'}}>TODO context menu contents <a className='link' href="#1">Link 1</a> OR <a className='link' href="#2">Link 2</a></div></ContextMenu>}
   </div>
 }
 
