@@ -1,4 +1,4 @@
-import { forwardRef, useCallback, useEffect, useState } from "react";
+import { createContext, forwardRef, useCallback, useEffect, useState } from "react";
 import PropTypes from "prop-types";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { solid } from '@fortawesome/fontawesome-svg-core/import.macro';
@@ -15,6 +15,10 @@ import combineProps from "helpers/react/combine-props";
 
 //Other
 import classes from './Menu.module.scss';
+
+//Consts
+const MenuContext = createContext();
+MenuContext.displayName = 'MenuContext';
 
 
 //The component
@@ -43,9 +47,18 @@ const Menu = forwardRef(function Menu({children, component: Component, ...rest},
         []
     );
 
-    return <Component {...combineProps({className: classes.menu, onKeyDown, onMouseEnter}, rest)} ref={ref}>
-        {children}
-    </Component>
+    const menuProps = useMemo(
+        () => ({
+            setSelected
+        }),
+        []
+    );
+
+    return <MenuContext.Provider value={menuProps}>
+            <Component {...combineProps({className: classes.menu, onKeyDown, onMouseEnter}, rest)} ref={ref}>
+            {children}
+        </Component>
+    </MenuContext.Provider>
 });
 
 export default Menu;
@@ -58,7 +71,7 @@ Menu.propTypes = {
     component: PropTypes.elementType
 };
 
-function MenuItem({children, icon, info, ...rest}) {
+function MenuItem({children, icon, info, selected, ...rest}) {
     return <div {...combineProps({className: classes.menuItem, tabIndex: rest.onClick ? "0" : undefined}, rest)}>
         <span className={classes.icon}>{icon}</span>
         <span className={classes.content}>{children}</span>
