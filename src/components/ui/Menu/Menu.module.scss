@@ -21,6 +21,10 @@
         padding-bottom: var(--menu-paddingV);
         //height: calc(var(--menu-paddingV) * 2 + round(var(--font-size-normal) * 1.2));//pointless until the round function is implemented in CSS
     }
+
+    &.selected > * {
+        background: var(--c-bg-selected);
+    }
 }
 
 .icon, .subMenu {
