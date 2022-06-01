@@ -59,6 +59,7 @@ export default memo(function SystemMap({
   //calculated values
   const forceUpdate = useForceUpdate();
   const windowSize = useWindowSize();
+
   const controls = useMemo(
     () => flatten(Object.values(options.controls)),
     [options.controls]
@@ -206,7 +207,7 @@ export default memo(function SystemMap({
       if(isKeyDown(options.controls.zoomIn)) {//zoom in
         ref.current.tzoom *= Math.pow(zoomSpeed, elapsedTime);
       } else if(isKeyDown(options.controls.zoomOut)) {//zoom out
-        ref.current *= Math.pow(1 / zoomSpeed, elapsedTime);
+        ref.current.tzoom *= Math.pow(1 / zoomSpeed, elapsedTime);
       }
 
       if(isMouseDragging) {
