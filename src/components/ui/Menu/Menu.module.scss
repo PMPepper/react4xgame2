@@ -10,6 +10,11 @@
     padding: var(--menu-paddingV) 0;
 
     display: table;
+    cursor: default;
+}
+
+.subMenuWrapper {
+    margin: calc(var(--menu-paddingV) * -1 + var(--border-width) * -1) calc(var(--menu-paddingH) * -1 + var(--border-width) * -1);
 }
 
 .menuItem {

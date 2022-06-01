@@ -1,5 +1,5 @@
 import React from 'react';
-import ReactDOM from 'react-dom';
+import { createRoot } from 'react-dom/client';
 import {I18nProvider} from '@lingui/react';
 import {Provider} from 'react-redux';
 
@@ -47,13 +47,14 @@ polyfills.then(() => {
   GameEngine.startGame(baseGameDefinition, new Client('local', store, connector)).then((client) => {
       console.log('[MAIN] render');
 
-      ReactDOM.render(
+      const root = createRoot(document.getElementById('app'));
+
+      root.render(
         <Provider store={store}>
           <I18nProvider i18n={i18n}>
             <Game client={client} />
           </I18nProvider>
-        </Provider>,
-        document.getElementById('app')
+        </Provider>
       );
     });
   })
