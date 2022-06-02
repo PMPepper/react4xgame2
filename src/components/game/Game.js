@@ -52,8 +52,8 @@ export default function Game({
   const windowSize = useWindowSize();
 
   //Internal state
-  const [clientState, _setClientState] = useState(() => client.gameState);
-  const [setClientState, setClientStateValues] = useMeasureSetFrequency(_setClientState);//intercept calls to setClientState to measure their frequency
+  const [clientState, setClientState] = useState(() => client.gameState);
+  //const [setClientState, setClientStateValues] = useMeasureSetFrequency(_setClientState);//intercept calls to setClientState to measure their frequency
   const [contextMenuState, setContextMenuState] = useState();
 
   //Callbacks
@@ -104,33 +104,47 @@ export default function Game({
   );
 
   return <div className={styles.game}>
-    <FPSStats />
+    {/*<FPSStats />
     <DisplayStats formatAvgValue={values => `${values.length > 1 ? Math.round(mean(...values)) : '-'} Ticks/s`} values={setClientStateValues} style={{right: '80px'}} />
     <PerformanceStats name="updatingGame :: decode data" formatAvgValue={minMaxMean} style={{right: '155px'}} />
     <PerformanceStats name="updatingGame :: merge state" formatAvgValue={minMaxMean} style={{right: '230px'}} />
-    <ExternalPerformanceStats name="server :: updatingGame :: toBinary" formatAvgValue={minMaxMean} style={{right: '305px'}} />
+    <ExternalPerformanceStats name="server :: updatingGame :: toBinary" formatAvgValue={minMaxMean} style={{right: '305px'}} />*/}
     <SelectableContext value={clientState}>
       <WindowManager area={windowSize}>
         {content}
       </WindowManager>
       {contextMenuState && <ContextMenu onClose={() => setContextMenuState(null)} position={contextMenuState.position}>
-        <Menu>
-          <Menu.SubItems
-            icon={<FontAwesomeIcon icon={solid('globe')} />}
-            info={t`planets and stuff`}
-            subMenu={<Menu>{contextMenuState.entityIds.map(entityId => 
-              <Menu.Item key={entityId} onClick={() => alert('TODO')}><Entity.Name id={entityId} /></Menu.Item>
-            )}</Menu>}
-          >
-            <Trans>System bodies</Trans>
-          </Menu.SubItems>
-          <Menu.Divider></Menu.Divider>
-          <Menu.SubItems icon={<FontAwesomeIcon icon={solid('city')} />} info={t`view your stuff`}><Trans>Colonies</Trans></Menu.SubItems>
-          <Menu.Divider></Menu.Divider>
-          <Menu.Item onClick={() => alert('TODO other')}><Trans>Other</Trans></Menu.Item>
-          <Menu.Item onClick={() => alert('TODO things')} info={t`and stuff`}><Trans>Things</Trans></Menu.Item>
-          <Menu.Item onClick={() => alert('TODO help')}><Trans>Help?</Trans></Menu.Item>
-        </Menu>
+        <Menu items={[
+          {
+            icon: <FontAwesomeIcon icon={solid('globe')} />, 
+            label: <Trans>System bodies</Trans>, 
+            info: t`planets and stuff`, 
+            items: contextMenuState.entityIds.map(entityId => 
+              ({label: <Entity.Name id={entityId} />, onClick: () => alert('TODO')})
+            )
+          },
+          'div',
+          {
+            icon: <FontAwesomeIcon icon={solid('city')} />,
+            label: <Trans>Colonies</Trans>,
+            info: t`view your stuff`,
+            //items: [],//TODO
+          },
+          'div',
+          {
+            label: <Trans>Other</Trans>,
+            onClick: () => alert('TODO other')
+          },
+          {
+            label: <Trans>Things</Trans>,
+            info: t`and stuff`,
+            onClick: () => alert('TODO things')
+          },
+          {
+            label: <Trans>Help?</Trans>,
+            onClick: () => alert('TODO help')
+          }
+        ]} />
       </ContextMenu>}
     </SelectableContext>
   </div>

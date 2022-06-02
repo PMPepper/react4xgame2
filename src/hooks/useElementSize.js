@@ -7,7 +7,7 @@ import useRefCallback from 'hooks/useRefCallback';
 
 
 //The hook (using observers, the modern way)
-export default function useElementSize(currentRef = null, wait = 0, options = {width: true, height: true, x: false, y: false}, debounceOptions = null) {
+export default function useElementSize(currentRef = null, wait = 0, {width = true, height = true, x = false, y = false, getElement = x => x} = {}, debounceOptions = null) {
     const [dimensions, setDimensionsDebounce, setDimensionsImmediate] = useStateDebounce({}, wait, debounceOptions);
     const setDimensions = wait ? setDimensionsDebounce : setDimensionsImmediate;
 
@@ -31,7 +31,7 @@ export default function useElementSize(currentRef = null, wait = 0, options = {w
         ref.current.observer = new ResizeObserver((entries, observer) => {
             if(entries[0]) {
                 //get watched properties in normalised form
-                const rect = getDimensionObject(entries[0].target, options);
+                const rect = getDimensionObject(entries[0].target, width, height, x, y);
 
                 //if dimensions have changed, update
                !shallowEqual(rect, ref.current.dimensions) && ref.current.setDimensions(rect)
@@ -41,7 +41,9 @@ export default function useElementSize(currentRef = null, wait = 0, options = {w
 
     //Monitor the ref, and set the observer as required
     const setElemCallback = useRefCallback(
-        (elem) => {
+        (rawElement) => {
+            const elem = getElement(rawElement);
+
             if(elem !== ref.current.elem) {
                 const {observer, elem: curElem} = ref.current;
     
@@ -82,7 +84,7 @@ export default function useElementSize(currentRef = null, wait = 0, options = {w
 
 
 //{width: rect.width, height: rect.height, top: rect.top, left: rect.left, bottom: rect.bottom, right: rect.right, x: rect.left, y: rect.top}
-function getDimensionObject(elem, {width, height, x, y}) {
+function getDimensionObject(elem, width, height, x, y) {
     const rect = elem.getBoundingClientRect();
     const normalisedOutput = {};
 

@@ -1,0 +1,61 @@
+@import '../../../css/shared';
+
+//Would be much better with CSS grids, but requires sub-grids, which aren't yet widely supported
+//so instead I am using table CSS styles
+
+.menu {
+    @include panel;
+    --menu-paddingH: var(--base-padding2);
+    --menu-paddingV: var(--base-padding4);
+    padding: var(--menu-paddingV) 0;
+
+    display: table;
+    cursor: default;
+}
+
+.menuItem {
+    display: table-row;
+    line-height: 1.2;
+
+    & > * {
+        padding-top: var(--menu-paddingV);
+        padding-bottom: var(--menu-paddingV);
+        //height: calc(var(--menu-paddingV) * 2 + round(var(--font-size-normal) * 1.2));//pointless until the round function is implemented in CSS
+    }
+
+    &.selected > * {
+        background: var(--c-bg-selected);
+    }
+}
+
+.icon, .subMenu {
+    display: table-cell;
+    width: calc(var(--menu-paddingH) * 2 + var(--font-size-normal));
+    padding-right: var(--menu-paddingH);
+    padding-left: var(--menu-paddingH);
+    vertical-align: middle;
+}
+
+.content {
+    display: table-cell;
+    padding-right: var(--menu-paddingH);
+}
+
+.info {
+    display: table-cell;
+
+    color: var(--c-textSubtle);
+}
+
+.divider {
+    display: table-row;
+
+    & > * {
+        display: table-cell;
+        height: calc(var(--menu-paddingV) * 2 + 1px);
+        background: var(--c-border);
+        border: 0 solid transparent;
+        border-width: var(--menu-paddingV) 0;
+        background-clip: content-box;
+    }
+}
