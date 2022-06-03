@@ -70,13 +70,16 @@ export function useMeasureSetFrequency(setFunc, maxValues = defaultGraphWidth) {
   const measuredSetFunc = useCallback(
     (value) => {
       const now = performance.now();
-      setValues(values => addValue(values, 1000 / (now - lastTimeRef.current), maxValues));
+      const lastTime = lastTimeRef.current;
+
+      setValues(values => addValue(values, 1000 / (now - lastTime), maxValues));
+      
       lastTimeRef.current = now;
 
       return setFunc(value);
     },
     [setFunc, setValues, maxValues]
-  )
+  );
 
   return [measuredSetFunc, values]
 }
