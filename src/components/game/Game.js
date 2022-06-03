@@ -125,14 +125,14 @@ export default function Game({
                 ({label: <Entity.Name id={entityId} />, onClick: () => alert('TODO')})
               )
             },
-            'div',
+            Menu.DividerName,
             {
               icon: <FontAwesomeIcon icon={solid('city')} />,
               label: <Trans>Colonies</Trans>,
               info: t`view your stuff`,
-              //items: [],//TODO
+              items: [],//TODO
             },
-            'div',
+            Menu.DividerName,
             {
               label: <Trans>Other</Trans>,
               onClick: () => alert('TODO other')

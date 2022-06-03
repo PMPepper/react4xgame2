@@ -14,17 +14,9 @@ import classes from './AbsolutelyPositioned.module.scss';
 
 //The component
 const AbsolutelyPositioned = forwardRef(function AbsolutelyPositioned({positionRelativeTo, align, children, fixed = false}, ref) {
-    //console.log('AbsolutelyPositioned::render');
     const [sizeRef, dimensions] = useElementSize(ref);
     const windowSize = useWindowSize();
-    const [itemPosition] = usePositionedItem(positionRelativeTo, dimensions, align, windowSize);//TODO return null if either position or dimensions are missing?
-
-    //const hasMeasuredSize = dimensions.width !== undefined;
-
-    // if(fixed) {
-    //     console.log(hasMeasuredSize, y, dimensions, positionRelativeTo);
-    // }
-    //console.log(hasMeasuredSize, y, dimensions);
+    const [itemPosition] = usePositionedItem(positionRelativeTo, dimensions, align, windowSize);
 
     const style = useMemo(
         () => itemPosition?.x === undefined ?

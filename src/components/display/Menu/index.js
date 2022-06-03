@@ -25,8 +25,8 @@ Menu.propTypes = {
 };
 
 
-const MenuItem = forwardRef(function Item({icon, children, info, subMenu, className, component:Component, ...rest}, ref) {
-    return <Component className={classnames(classes.menuItem, className)} {...rest} ref={ref}>
+const MenuItem = forwardRef(function Item({icon, children, info, subMenu, className, selected, component:Component, ...rest}, ref) {
+    return <Component className={classnames(classes.menuItem, className, selected && classes.selected)} {...rest} ref={ref}>
         <span className={classes.icon}>{icon}</span>
         <span className={classes.content}>{children}</span>
         <span className={classes.info}>{info}</span>
@@ -41,6 +41,7 @@ MenuItem.defaultProps = {
 MenuItem.propTypes = {
     component: PropTypes.elementType,
     className: PropTypes.string,
+    selected: PropTypes.bool,
 };
 
 function Divider() {
