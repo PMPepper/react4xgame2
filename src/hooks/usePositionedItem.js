@@ -11,8 +11,8 @@ import { useMemo } from "react";
 const defaultAlign = ['left', 'right', 'left-bottom', 'right-bottom'];
 
 export default function usePositionedItem(
-    {x: px = 0, y: py = 0, width: pWidth = 0, height: pHeight = 0} = {},//the position of the point/item we are aligning to
-    {x: dx = 0, y: dy = 0, width: dWidth = 0, height: dHeight = 0} = {},//dimensions of the item that is being positioned
+    positionRelativeTo,//the position of the point/item we are aligning to
+    dimensions,//dimensions of the item that is being positioned
     align = defaultAlign,
     bounds = null,//bounds
 ) {
@@ -20,12 +20,19 @@ export default function usePositionedItem(
         () => bounds ? Rectangle.fromObj(bounds) : null,
         [bounds]
     );
-    //For each alignment, check if the item can fit within the bounds
-//console.log(px, py, pWidth, pHeight, dx, dy, dWidth, dHeight, align, bounds);
+    
     return useMemo(
         () => {
+            if(!positionRelativeTo || !dimensions) {
+                return [null, null];
+            }
+
+            const {x: px = 0, y: py = 0, width: pWidth = 0, height: pHeight = 0} = positionRelativeTo;//the position of the point/item we are aligning to
+            const {x: dx = 0, y: dy = 0, width: dWidth = 0, height: dHeight = 0} = dimensions;//dimensions of the item that is being positioned
+
             let firstPosition = null;
-//debugger;
+
+            //For each alignment, check if the item can fit within the bounds
             for(let i = 0; i < align.length; i++) {
                 const alignment = align[i];
 
@@ -43,7 +50,7 @@ export default function usePositionedItem(
             //if none fit, for now just resort to first defined position
             return [firstPosition, align[0]];
         },
-        [align, px, py, pWidth, pHeight, dx, dy, dWidth, dHeight, boundsRect]
+        [align, positionRelativeTo?.x, positionRelativeTo?.y, positionRelativeTo?.width, positionRelativeTo?.height, dimensions?.x, dimensions?.y, dimensions?.width, dimensions?.height, boundsRect]
     );
 
 }

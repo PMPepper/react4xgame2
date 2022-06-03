@@ -15,6 +15,7 @@ import TimeControls from './TimeControls';
 import SelectSystem from './SelectSystem';
 import ContextMenu from 'components/ui/ContextMenu';
 import Menu from 'components/ui/Menu';
+import Memo from 'components/ui/Memo';
 import Entity from 'components/game/Entity';
 
 //reducers
@@ -113,39 +114,41 @@ export default function Game({
       <WindowManager area={windowSize}>
         {content}
       </WindowManager>
-      {contextMenuState && <ContextMenu onClose={() => setContextMenuState(null)} position={contextMenuState.position}>
-        <Menu items={[
-          {
-            icon: <FontAwesomeIcon icon={solid('globe')} />, 
-            label: <Trans>System bodies</Trans>, 
-            info: t`planets and stuff`, 
-            items: contextMenuState.entityIds.map(entityId => 
-              ({label: <Entity.Name id={entityId} />, onClick: () => alert('TODO')})
-            )
-          },
-          'div',
-          {
-            icon: <FontAwesomeIcon icon={solid('city')} />,
-            label: <Trans>Colonies</Trans>,
-            info: t`view your stuff`,
-            //items: [],//TODO
-          },
-          'div',
-          {
-            label: <Trans>Other</Trans>,
-            onClick: () => alert('TODO other')
-          },
-          {
-            label: <Trans>Things</Trans>,
-            info: t`and stuff`,
-            onClick: () => alert('TODO things')
-          },
-          {
-            label: <Trans>Help?</Trans>,
-            onClick: () => alert('TODO help')
-          }
-        ]} />
-      </ContextMenu>}
+      {contextMenuState && <Memo args={[contextMenuState]}>
+        <ContextMenu onClose={() => setContextMenuState(null)} position={contextMenuState.position}>
+          <Menu items={[
+            {
+              icon: <FontAwesomeIcon icon={solid('globe')} />, 
+              label: <Trans>System bodies</Trans>, 
+              info: t`planets and stuff`, 
+              items: contextMenuState.entityIds.map(entityId => 
+                ({label: <Entity.Name id={entityId} />, onClick: () => alert('TODO')})
+              )
+            },
+            'div',
+            {
+              icon: <FontAwesomeIcon icon={solid('city')} />,
+              label: <Trans>Colonies</Trans>,
+              info: t`view your stuff`,
+              //items: [],//TODO
+            },
+            'div',
+            {
+              label: <Trans>Other</Trans>,
+              onClick: () => alert('TODO other')
+            },
+            {
+              label: <Trans>Things</Trans>,
+              info: t`and stuff`,
+              onClick: () => alert('TODO things')
+            },
+            {
+              label: <Trans>Help?</Trans>,
+              onClick: () => alert('TODO help')
+            }
+          ]} />
+        </ContextMenu>
+      </Memo>}
     </SelectableContext>
   </div>
 }

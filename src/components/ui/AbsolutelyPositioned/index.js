@@ -13,21 +13,25 @@ import classes from './AbsolutelyPositioned.module.scss';
 
 
 //The component
-const AbsolutelyPositioned = forwardRef(function AbsolutelyPositioned({position, align, children, fixed = false}, ref) {
-    const [sizeRef, dimensions, elem] = useElementSize(ref);
+const AbsolutelyPositioned = forwardRef(function AbsolutelyPositioned({positionRelativeTo, align, children, fixed = false}, ref) {
+    //console.log('AbsolutelyPositioned::render');
+    const [sizeRef, dimensions] = useElementSize(ref);
     const windowSize = useWindowSize();
-    const [{x, y}] = usePositionedItem(position, dimensions, align, windowSize);//TODO return null if either position or dimensions are missing?
+    const [itemPosition] = usePositionedItem(positionRelativeTo, dimensions, align, windowSize);//TODO return null if either position or dimensions are missing?
 
-    const hasMeasuredSize = dimensions.width !== undefined;
+    //const hasMeasuredSize = dimensions.width !== undefined;
 
-    if(fixed) {
-        console.log(hasMeasuredSize, y, dimensions, position);
-    }
+    // if(fixed) {
+    //     console.log(hasMeasuredSize, y, dimensions, positionRelativeTo);
+    // }
     //console.log(hasMeasuredSize, y, dimensions);
 
     const style = useMemo(
-        () => ({left: `${x}px`, top: `${y}px`, visibility: hasMeasuredSize ? undefined : 'hidden'}),//hide until we have element size
-        [x, y, hasMeasuredSize]
+        () => itemPosition?.x === undefined ?
+            {visibility: 'hidden'}
+            :
+            {left: `${itemPosition.x}px`, top: `${itemPosition.y}px`},//hide until we have a position
+        [itemPosition?.x, itemPosition?.y]
     );
 
     return <div ref={sizeRef} className={classNames(classes.root, fixed && classes.fixed)} style={style}>

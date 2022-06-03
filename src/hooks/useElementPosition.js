@@ -1,3 +1,5 @@
+//TODO respect x/y/width/height options 
+
 import {useCallback, useEffect, useState, useRef} from 'react';
 import mergeRefs from 'react-merge-refs';
 
@@ -15,34 +17,39 @@ export default function useElementPosition(currentRef = null, wait = 0, {width =
     const [, _setElem] = useState();
     const [position, setPosition] = useStateDebounce(null, wait, debounceOptions);
 
-    const monitorElementSize = useCallback(() => {
-        const monitorElement = elemRef.current;
+    const measureAndRecordPosition = useCallback(
+        () => {
+            //measure element position and see if it has changed
+            const elemPosition = getElement(elemRef.current)?.getBoundingClientRect();
 
-        if(!monitorElement) {
+            setPosition((curPosition) => {
+                if(!elemPosition) {
+                    return elemPosition;
+                }
+
+                if(curPosition && curPosition.x === elemPosition.x && curPosition.y === elemPosition.y && curPosition.width === elemPosition.width && curPosition.height === elemPosition.height) {
+                    return curPosition;
+                }
+
+                return Rectangle.fromObj(elemPosition);
+            });
+        },
+        []
+    );
+
+    const monitorElementSize = useCallback(() => {
+        if(!elemRef.current) {
             isMonitoringRef.current = false;
             return;
         }
 
         isMonitoringRef.current = true;
 
-        //TODO measure element position and see if it has changed
-        const elemPosition = getElement(monitorElement)?.getBoundingClientRect();
-
-        setPosition((curPosition) => {
-            if(!elemPosition) {
-                return elemPosition;
-            }
-
-            if(curPosition && curPosition.x === elemPosition.x && curPosition.y === elemPosition.y && curPosition.width === elemPosition.width && curPosition.height === elemPosition.height) {
-                return curPosition;
-            }
-
-            return Rectangle.fromObj(elemPosition);
-        });
+        measureAndRecordPosition();
 
         //continue to monitor
         window.requestAnimationFrame(monitorElementSize);
-    }, [setPosition])
+    }, [])
 
     const setElem = useCallback(
         (newElem) => {
@@ -66,6 +73,6 @@ export default function useElementPosition(currentRef = null, wait = 0, {width =
         },
         []
     );
-    
+
     return [mergeRefs([setElem, currentRef]), position, elemRef.current]
 }

@@ -13,7 +13,7 @@ const ContextMenu = forwardRef(function ContextMenu({position, children, onClose
     const clickOutsideRef = useOnClickOutside(onClose, ref);
     useOnEsc(onClose);
 
-    return <AbsolutelyPositioned ref={clickOutsideRef} position={position}>
+    return <AbsolutelyPositioned ref={clickOutsideRef} positionRelativeTo={position}>
         {children}
     </AbsolutelyPositioned>
 });

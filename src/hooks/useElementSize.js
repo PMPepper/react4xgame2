@@ -8,7 +8,7 @@ import useRefCallback from 'hooks/useRefCallback';
 
 //The hook (using observers, the modern way)
 export default function useElementSize(currentRef = null, wait = 0, {width = true, height = true, x = false, y = false, getElement = x => x} = {}, debounceOptions = null) {
-    const [dimensions, setDimensionsDebounce, setDimensionsImmediate] = useStateDebounce({}, wait, debounceOptions);
+    const [dimensions, setDimensionsDebounce, setDimensionsImmediate] = useStateDebounce(null, wait, debounceOptions);
     const setDimensions = wait ? setDimensionsDebounce : setDimensionsImmediate;
 
     const [, setElem] = useState(null);

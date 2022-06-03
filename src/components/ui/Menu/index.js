@@ -158,6 +158,5 @@ const elementSizeOptions = {width: true, height: true, x: true, y: true, getElem
 const SubMenuWrapper = forwardRef(function SubMenuWrapper({children}, ref) {
     const [setElement, position] = useElementPosition(ref, 0, elementSizeOptions);
 
-    //const position = {};
-    return <AbsolutelyPositioned fixed ref={setElement} position={position || {}}>{children}</AbsolutelyPositioned>
+    return <AbsolutelyPositioned fixed ref={setElement} positionRelativeTo={position || {}}>{children}</AbsolutelyPositioned>
 });
