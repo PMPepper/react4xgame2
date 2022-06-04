@@ -144,7 +144,18 @@ export default function Game({
             },
             {
               label: <Trans>Help?</Trans>,
-              onClick: () => alert('TODO help')
+              //onClick: () => alert('TODO help')
+              items: [
+                {label: 'A', onClick: () => alert('TODO A')},
+                {label: 'B', onClick: () => alert('TODO B')},
+                Menu.DividerName,
+                {label: 'X', items: [
+                  {label: 'X2', onClick: () => alert('X2')},
+                  {label: 'X3', onClick: () => alert('X3')}
+                ]},
+                {label: 'Y', onClick: () => alert('Y')},
+                {label: 'Z', onClick: () => alert('Z')},
+              ]
             }
           ]} />
         </ContextMenu>

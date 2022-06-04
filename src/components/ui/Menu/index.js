@@ -82,18 +82,19 @@ const Menu = forwardRef(function ({items, ...rest}, ref) {
         }        
     });
 
-    const selectFirst = useRefCallback(() => {
-        console.log('selectFirst');
-        const levelItems = getLevelItems(items, selected, level);
+    const selectFirst = useRefCallback((atLevel = null) => {
+        atLevel = atLevel ?? level;
+        console.log('selectFirst: ', atLevel, selected);
+        const levelItems = getLevelItems(items, selected, atLevel);
 
-        const newSelectedIndex = levelItems.findIndex((item, index) => {
+        const newSelectedIndex = levelItems.findIndex((item) => {
             return item !== Menu.DividerName;
         })
 
         if(newSelectedIndex !== -1) {
-            setSelectedItem(newSelectedIndex, level);
+            setSelectedItem(newSelectedIndex, atLevel);
         } else {
-            setSelectedItem(null, level);
+            setSelectedItem(null, atLevel);
         }
     });
 
@@ -114,14 +115,18 @@ const Menu = forwardRef(function ({items, ...rest}, ref) {
     });
 
     const openSubmenu = useRefCallback(() => {
-        
+        const item = getCurrentItem(items, selected);
+
+        if(item?.items?.length > 0) {
+            setOpenItem(selected[level], level);
+        }
     });
 
     const closeSubmenu = useRefCallback(() => {
-
+        setOpenAtLevel(openAtLevel => openAtLevel.slice(0, -1));
     });
 
-    const onKeyDown = useCallback(
+    const onKeyDown = useRefCallback(
         (e) => {
             console.log('Menu::onKeyDown('+e.which+')');
             //tab key is ignored
@@ -148,13 +153,33 @@ const Menu = forwardRef(function ({items, ...rest}, ref) {
                 case 38:
                     selectPrev();
                     break;
-                case 39://right
-                    openSubmenu();
-                    selectFirst();
+                case 39: {//right
+                    const item = getCurrentItem(items, selected);
+
+                    if(item?.items?.length > 0) {
+                        const newLevel = level + 1;
+                        openSubmenu();
+                        setLevel(newLevel);
+                        selectFirst(newLevel);
+                    }
+                    
                     break;//TODO
-                case 37://left
-                    closeSubmenu();
+                }
+                case 37: {//left
+                    const deepestOpenLevel = openAtLevel.length;
+
+                    if(deepestOpenLevel > 0) {
+                        const newLevel = deepestOpenLevel - 1;
+
+                        closeSubmenu();
+                        setLevel(newLevel);
+
+                        //set selected to parent of current open item
+                        setSelected([...openAtLevel]);
+                    }
+                    
                     break;//TODO
+                }
                 default:
                     return;
                     
@@ -162,14 +187,25 @@ const Menu = forwardRef(function ({items, ...rest}, ref) {
 
             e.preventDefault();
             e.stopPropagation();
-        },
-        []
+        }
     );
 
     const setSelectedItem = useCallback(
         (index, level) => {
             console.log('setSelectedItem ', index, level);
-            setSelected(curSelected => ([...curSelected.slice(0, level), index]))
+            if(index === null) {
+                setSelected(curSelected => (curSelected.slice(0, level)));
+            } else {
+                setSelected(curSelected => ([...curSelected.slice(0, level), index]));
+            }
+        },
+        []
+    );
+
+    const setOpenItem = useCallback(
+        (index, level) => {
+            console.log('setSelectedOpen ', index, level);
+            setOpenAtLevel(current => ([...current.slice(0, level), index]))
         },
         []
     );
@@ -183,12 +219,14 @@ const Menu = forwardRef(function ({items, ...rest}, ref) {
         []
     );
 
-    // const onMouseEnter = useCallback(
-    //     (e) => {
-            
-    //     },
-    //     []
-    // );
+    const onMouseEnter = useCallback(
+        (index, level) => {
+            setSelectedItem(index, level);
+            //is this going to work?
+            openSubmenu();
+        },
+        []
+    );
 
     const menuProps = useMemo(
         () => ({
@@ -207,7 +245,7 @@ const Menu = forwardRef(function ({items, ...rest}, ref) {
     //     [items]
     // );
 
-    return renderMenu(items, 0, level, selected, menuProps, setSelectedItem);
+    return renderMenu(items, 0, level, selected, openAtLevel, menuProps, onMouseEnter);
 });
 
 Menu.displayName = 'Menu';
@@ -215,15 +253,37 @@ Menu.displayName = 'Menu';
 export default Menu;
 
 //Internal helpers
+function getItemAt(items, path, level = 0) {
+    const index = path[level];
+
+    if(path.length === level + 1) {
+        return items[index];
+    }
+
+    return getItemAt(items[index].items, path, level + 1);
+}
+
+function getCurrentItem(items, selected, curLevel = 0) {
+    if(items.length === 0) {
+        return null;
+    }
+
+    if(selected.length -1 === curLevel) {
+        return items[selected[curLevel]]
+    }
+
+    return getCurrentItem(items[selected[curLevel]].items, selected, curLevel + 1)
+}
+
 function getLevelItems(items, selected, level, curLevel = 0) {
     if(level === curLevel) {
         return items
     }
 
-    return getLevelItems(items[selected[curLevel]].items, level, curLevel+1);
+    return getLevelItems(items[selected[curLevel]].items, selected, level, curLevel+1);
 }
 
-function renderMenu(items, level, selectedLevel, selected, menuProps, setSelectedItem) {
+function renderMenu(items, level, selectedLevel, selected, openAtLevel, menuProps, onMouseEnter) {
     const itemSelectedAtThisLevel = selected[level];
 
     return <MenuDisplay {...menuProps}>
@@ -244,8 +304,8 @@ function renderMenu(items, level, selectedLevel, selected, menuProps, setSelecte
                 subMenu={items && items.length > 0 ? //TODO separate selected from open
                     <>
                         <FontAwesomeIcon icon={solid('caret-right')} />
-                        {false && <SubMenuWrapper>
-                            {renderMenu(items, level+1, selectedLevel, selected, null, setSelectedItem)}
+                        {(openAtLevel[level] === i) && <SubMenuWrapper>
+                            {renderMenu(items, level+1, selectedLevel, selected, openAtLevel, null, onMouseEnter)}
                         </SubMenuWrapper>}
                     </>
                     :
@@ -253,7 +313,7 @@ function renderMenu(items, level, selectedLevel, selected, menuProps, setSelecte
                 }
 
                 onClick={(!items && onClick) || null}
-                onMouseEnter={() => setSelectedItem(i, level)}
+                onMouseEnter={() => onMouseEnter(i, level)}
             />
         })}
 
