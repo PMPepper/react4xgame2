@@ -1,13 +1,19 @@
 import { useReducer, useEffect, useRef } from "react";
+
+//Consts
 import {DividerName} from './index';
+const MOUSE_ENTER_MENU_OPEN_DELAY = 0.25;//seconds
+const MOUSE_ENTER_MENU_CLOSE_DELAY = 0.5;//seconds
 
 
+//The hook
 export default function useMenu(items) {
     const ref = useRef();
 
     if(!ref.current) {
         ref.current = {
-            firstTime: true
+            firstTime: true,
+            pendingActions: {}
         };
     }
 
@@ -15,6 +21,17 @@ export default function useMenu(items) {
         ...initialState,
         items: normaliseItemsForState(items)
     }));
+
+    useEffect(() => {
+        //on first open, set dispatch in state
+        dispatch({type: 'setDispatch', payload: dispatch});
+
+        return () => {
+            //tidy up
+            //-stop any pending actions
+            Object.keys(state.actions).forEach((id) => clearTimeout(id))
+        }
+    }, [])
 
     //keeps state updated with items
     useEffect(
@@ -28,7 +45,6 @@ export default function useMenu(items) {
         [items]
     );
 
-    
     return [state, dispatch]
 }
 
@@ -49,12 +65,13 @@ function normaliseItemsForState(items) {
 export const initialState = {
     items: null,
     itemsSelectedAtLevel: [],
-    itemsOpenAtLevel: []
+    itemsOpenAtLevel: [],
+
+    actions: {},//{[id]: {type: string, delay: number(seconds), id: string, data: optional additional info}}
 };
 
 
 function reducer(state, {type, payload}) {
-    console.log('[MSR] ', type, payload);
     switch(type) {
         //General events
         case 'updateItems':
@@ -62,36 +79,62 @@ function reducer(state, {type, payload}) {
                 ...state,
                 items: payload
             }
+        case 'setDispatch':
+            return {
+                ...state,
+                dispatch: payload
+            }
+        case 'performAction': {
+            const {id, type: actionType, data} = payload;
+            
+            if(!state.actions[id]) {
+                return state;//action no longer valid, do nothing
+            }
+
+            const newState = removeAction(state, id);
+
+            switch(actionType) {
+                case 'delayedOpenMenu': {
+                    return cancelActionTypes(
+                        setItemsOpenAtLevel(newState, data.level, data.index),
+                        [
+                            'delayedOpenMenu',
+                            'delayedCloseMenu'
+                        ]
+                    );
+                }
+                case 'delayedCloseMenu': {
+                    const {level} = data;
+
+                    return setItemsOpenAtLevel(newState, level, null);
+                }
+            }
+
+            return state;
+        }
         //Mouse events
         case 'mouseEnter':{
-            //TODO clear any existing open menu timers
-            //TODO if selected item has children,
-            //-set timer to open it's submenu (this will close other open menus)
-            //-ELSE set timer to close other submenus
-
-
-            //if any other sub-menus open, set timer to close them (what about cancelling them?)
-
-
-            //TODO set timer to close lower level menus
-            //TODO clear above timers if applicable
             const newState = setItemsSelectedAtLevel(state, payload.level, payload.index);
 
             const item = getSelectedItem(newState);
 
-
-
             if(item?.length > 0) {
-                //TODO slight delay before opening item
-                //return setItemsOpenAtLevel(newState, payload.level, payload.index)
+                // if selected item has children, set timer to open it's submenu (this will close other open menus)
+                return addAction(cancelActionTypes(newState, ['delayedCloseMenu']), {delay: MOUSE_ENTER_MENU_OPEN_DELAY, type: 'delayedOpenMenu', data: payload});
+            } else {
+                //if a different, lower level menu is open, set an action to delayed close it
+                const {itemsOpenAtLevel} = newState;
+
+                if(itemsOpenAtLevel.length > payload.level) {
+                    return addAction(newState, {delay: MOUSE_ENTER_MENU_CLOSE_DELAY, type: 'delayedCloseMenu', data: {level: payload.level}})
+                }
             }
 
             return newState;
         }
         case 'mouseLeave': {
-
-
-            return state;
+            //cancel any delayed open menu actions
+            return cancelActionTypes(state, ['delayedOpenMenu'])
         }
         case 'mouseLeaveMenu': {
             //deselect the deepest open level
@@ -100,7 +143,13 @@ function reducer(state, {type, payload}) {
             return setItemsSelectedAtLevel(state, itemsOpenAtLevel.length, null)
         }
         case 'openMenu': {
-            return setItemsOpenAtLevel(state, payload.level, payload.index);
+            return cancelActionTypes(
+                setItemsOpenAtLevel(state, payload.level, payload.index),
+                [
+                    'delayedOpenMenu',
+                    'delayedCloseMenu'
+                ]
+            );
         }
 
         //keyboard events
@@ -160,7 +209,7 @@ function reducer(state, {type, payload}) {
         }
         //unknown type
         default:
-            console.log('Unknown type')
+            console.log('Unknown type: ', type)
             return state;
     }
 }
@@ -213,6 +262,67 @@ function getItemsAtSelectedLevel({items, itemsSelectedAtLevel}) {
     }
 
     return items;
+}
+
+//State transforms
+function addAction(state, actions) {//add action or array of actions
+
+    const newActions = (actions instanceof Array) ?
+        actions.map((action) => initAction(action, state.dispatch))
+        :
+        [initAction(actions, state.dispatch)]
+
+    if(actions.length === 0) {
+        return state;
+    }
+
+    return {
+        ...state,
+        actions: newActions.reduce((output, action) => {
+            output[action.id] = action
+
+            return output;
+        }, {...state.actions})
+    }
+}
+
+function initAction(action, dispatch) {
+    const initedAction = {
+        ...action, 
+        id: setTimeout(() => dispatch({type: 'performAction', payload: initedAction}), action.delay * 1000)
+    };
+
+    return initedAction;
+}
+
+function removeAction(state, id) {
+    const newActions = {...state.actions};
+    clearTimeout(id);//just in case
+    delete newActions[id];
+
+    return {
+        ...state,
+        actions: newActions
+    }
+}
+
+function cancelActionTypes(state, actionTypes) {
+    const {actions} = state;
+
+    return {
+        ...state,
+        actions: Object.keys(actions).reduce((output, id) => {
+            const action = actions[id];
+
+            if(!actionTypes.includes(action.type)) {
+                output[id] = action;
+            } else {
+                clearTimeout(id);
+            }
+
+            return output;
+        }, {})
+    }
 }
 
 function setItemsSelectedAtLevel(state, level, index) {

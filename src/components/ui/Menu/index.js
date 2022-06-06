@@ -1,5 +1,5 @@
 import { useRef, forwardRef, useCallback, useEffect, useMemo } from "react";
-//import PropTypes from "prop-types";
+import PropTypes from 'prop-types'
 import mergeRefs from "react-merge-refs";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { solid } from '@fortawesome/fontawesome-svg-core/import.macro';
@@ -189,12 +189,26 @@ function renderMenu(items, path, selectedLevel, itemsSelectedAtLevel, itemsOpenA
     </MenuDisplay>
 }
 
-Menu.defaultProps = {
-    
-};
 
 Menu.propTypes = {
-    
+    id: PropTypes.string,
+    items: PropTypes.arrayOf(PropTypes.oneOfType([
+        PropTypes.string,//TODO specific value = DividerName
+
+        PropTypes.shape({
+            label: PropTypes.node.isRequired,
+            icon: PropTypes.node,
+            info: PropTypes.node,
+            onClick: PropTypes.function
+        }),
+
+        PropTypes.shape({
+            label: PropTypes.node.isRequired,
+            icon: PropTypes.node,
+            info: PropTypes.node,
+            items: PropTypes.array//TODO ideally would enfoce recursively, but proptypes not designed for that
+        })
+    ]))
 };
 
 export const DividerName = Menu.DividerName = 'divider';
