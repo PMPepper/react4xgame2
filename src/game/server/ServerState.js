@@ -98,6 +98,43 @@ export default class ServerState {
     return faction;
   }
 
+  createSystemBody(systemId, bodyDefinition, movement, availableMinerals) {
+    const orbitingId = movement?.orbitingId ?? null;
+    const orbitingEntity = orbitingId === null ? null : this.entities[orbitingId];
+
+    const body = this._newEntity('systemBody', {
+      systemId,
+      mass: {
+        value: bodyDefinition.mass || 1
+      },
+      movement,
+      systemBody: {
+        type: bodyDefinition.type,
+        radius: bodyDefinition.radius,
+        day: bodyDefinition.day,
+        axialTilt: bodyDefinition.axialTilt,
+        tidalLock: !!bodyDefinition.tidalLock,
+        albedo: bodyDefinition.albedo || 0,
+        luminosity: bodyDefinition.luminosity || 0,
+        children: [],
+        position: orbitingEntity ?
+          [...orbitingEntity.systemBody.position, orbitingEntity.systemBody.children.length]
+          :
+          [],
+      },
+      render: {type: 'systemBody'},
+      availableMinerals
+    });
+
+    //register position as 'hidden' getter
+    Object.defineProperty(body, "position", {
+      enumerable: false,
+      get: () => {}//TODO
+    });
+
+    return body;
+  }
+
   createColony(systemBodyId, factionId, minerals = {}, structures = {}, populationIds = []) {
     const systemBody = this.entities[systemBodyId];
     const faction = this.entities[factionId];
@@ -279,8 +316,13 @@ export default class ServerState {
       } else if(prop.endsWith('Ids')) {
         //hmm.. I don't think I need to do anythin
       } else if(newEntity[prop] && !skipProps.includes(prop) && isObject(newEntity[prop])) {
-        //is a facet - record last update time
-        newEntity[prop].lastUpdateTime = this.gameTime;
+        //is a facet - record last update time in 'hidden' prop
+        Object.defineProperty(newEntity[prop], "lastUpdateTime", {
+          enumerable: false,
+          writable: true,
+          value: this.gameTime
+        });
+        
         facets.push(prop);
       }
     }
@@ -334,3 +376,13 @@ export default class ServerState {
   }
 }
 
+// var obj = {
+//   name: "Fred"
+// };
+
+// Object.defineProperty(obj, "age", {
+//   enumerable: false,
+//   writable: true
+// });
+
+// console.log(JSON.stringify(obj));

@@ -52,26 +52,33 @@ export default function createWorldFromDefinition(definition) {
       const bodyMass = bodyDefinition.mass || 1;
       const orbitingId = bodyDefinition.parent && systemBodiesBySystemBodyDefinitionName[bodyDefinition.parent] && (systemBodiesBySystemBodyDefinitionName[bodyDefinition.parent].id || null);
 
-      const body = state._newEntity('systemBody', {
-        systemId: system.id,
-        mass: {
-          value: bodyMass
-        },
-        movement: getMovementFromOrbitDefinition(bodyDefinition.orbit, bodyMass, orbitingId, orbitingId ? systemBodiesBySystemBodyDefinitionName[bodyDefinition.parent].mass.value : 0),
-        systemBody: {
-          type: bodyDefinition.type,
-          radius: bodyDefinition.radius,
-          day: bodyDefinition.day,
-          axialTilt: bodyDefinition.axialTilt,
-          tidalLock: !!bodyDefinition.tidalLock,
-          albedo: bodyDefinition.albedo || 0,
-          luminosity: bodyDefinition.luminosity || 0,
-          children: [],
-          position: null,
-        },
-        render: {type: 'systemBody'},
-        availableMinerals: generateAvailableMinerals(bodyDefinition, definition)
-      });
+      const body = state.createSystemBody(
+        system.id, 
+        bodyDefinition, 
+        getMovementFromOrbitDefinition(bodyDefinition.orbit, bodyMass, orbitingId, orbitingId ? systemBodiesBySystemBodyDefinitionName[bodyDefinition.parent].mass.value : 0), 
+        generateAvailableMinerals(bodyDefinition, definition)
+      );
+
+      // const body = state._newEntity('systemBody', {
+      //   systemId: system.id,
+      //   mass: {
+      //     value: bodyMass
+      //   },
+      //   movement: ,
+      //   systemBody: {
+      //     type: bodyDefinition.type,
+      //     radius: bodyDefinition.radius,
+      //     day: bodyDefinition.day,
+      //     axialTilt: bodyDefinition.axialTilt,
+      //     tidalLock: !!bodyDefinition.tidalLock,
+      //     albedo: bodyDefinition.albedo || 0,
+      //     luminosity: bodyDefinition.luminosity || 0,
+      //     children: [],
+      //     position: null,
+      //   },
+      //   render: {type: 'systemBody'},
+      //   availableMinerals: 
+      // });
 
       if(orbitingId) {
         const orbitingEntity = state.entities[orbitingId];
@@ -82,12 +89,6 @@ export default function createWorldFromDefinition(definition) {
         }
 
         bodyChildren.get(orbitingEntity).push(body);
-
-        //orbitingEntity.systemBody.children.push(body.id);
-
-        body.systemBody.position = [...orbitingEntity.systemBody.position, orbitingEntity.systemBody.children.length];
-      } else {
-        body.systemBody.position = [];
       }
 
       //record in lookup hash (used later for factions)
