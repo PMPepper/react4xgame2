@@ -1,0 +1,48 @@
+@import '../../../css/shared';
+
+.tabs {
+    --tabs-padding: var(--base-padding4);
+    --tab-gap: 0 var(--base-padding4);
+    --tab-borderWidth: 1px;
+    --tab-borderRadius: 3px;
+    --tab-borderCol: var(--c-border);
+    --tab-bg: var(--c-bg);
+    --tab-bgSelected: var(--c-grey0);
+
+    display: flex;
+    flex-flow: column nowrap;
+    align-items: stretch;
+}
+
+.tab {
+    flex: 0 0 auto;
+    display: block;
+    padding: var(--base-padding4);
+    margin: 0;
+    border: solid var(--tab-borderCol);
+    border-width: var(--tab-borderWidth) var(--tab-borderWidth) 0;
+    border-radius: var(--tab-borderRadius) var(--tab-borderRadius) 0 0;
+    background: var(--tab-bg);
+
+    cursor: pointer;
+
+    &.selected {
+        background: var(--tab-bgSelected);
+        margin-bottom: -1px;
+        border-bottom: var(--tab-borderWidth) solid var(--c-grey0);
+    }
+}
+
+.tabsList {
+    flex: 0 0 auto;
+    display: flex;
+    flex-flow: row wrap;
+    gap: var(--tab-gap);
+    padding: var(--tabs-padding) var(--tabs-padding) 0;
+    border-bottom: var(--tab-borderWidth) solid var(--tab-borderCol);
+}
+
+.tabContent {
+    flex: 1 1 auto;
+    padding: var(--tabs-padding);
+}

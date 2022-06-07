@@ -7,7 +7,7 @@
 //app specific theme mixins, etc
 
 @mixin panel($noPadding: false) {
-    background: var(--c-bg);
+    background: var(--c-grey0);
     border: var(--border-width) solid var(--c-border);
     border-radius: 2px;
     

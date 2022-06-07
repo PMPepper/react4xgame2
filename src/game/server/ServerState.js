@@ -2,6 +2,7 @@ import { isObject } from 'lodash';
 
 //Helpers
 import forEach from 'helpers/object/forEach';
+import getSystemBodyPosition from 'helpers/app/getSystemBodyPosition';
 
 //Other
 import calculatePopulationWorkers from './entityProcessorFactories/colony/calculatePopulationWorkers';
@@ -129,7 +130,10 @@ export default class ServerState {
     //register position as 'hidden' getter
     Object.defineProperty(body, "position", {
       enumerable: false,
-      get: () => {}//TODO
+      get: () => {
+        //TODO cache values, clear on gameTime change
+        return getSystemBodyPosition(body, this.entities, this.gameTime);
+      }
     });
 
     return body;
