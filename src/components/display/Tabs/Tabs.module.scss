@@ -24,12 +24,17 @@
     border-radius: var(--tab-borderRadius) var(--tab-borderRadius) 0 0;
     background: var(--tab-bg);
 
-    cursor: pointer;
+
+    &:not(.selected) {
+        @include blockInteraction();
+    }
 
     &.selected {
+        @include blockInteraction();
         background: var(--tab-bgSelected);
         margin-bottom: -1px;
         border-bottom: var(--tab-borderWidth) solid var(--c-grey0);
+        cursor: default;
     }
 }
 
@@ -42,7 +47,20 @@
     border-bottom: var(--tab-borderWidth) solid var(--tab-borderCol);
 }
 
-.tabContent {
+.tabContents {
     flex: 1 1 auto;
+    white-space: nowrap;
+}
+
+.tabContent {
+    white-space: normal;
     padding: var(--tabs-padding);
+    display: inline-block;
+    vertical-align: top;
+    width: 100%;
+
+    &:not(.selected) {
+        margin-right: -100%;
+        visibility: hidden;
+    }
 }

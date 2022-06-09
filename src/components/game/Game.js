@@ -17,7 +17,7 @@ import ContextMenu from 'components/ui/ContextMenu';
 import Menu from 'components/ui/Menu';
 import Memo from 'components/ui/Memo';
 import Entity from 'components/game/Entity';
-import Tabs from 'components/display/Tabs';
+import ColonyWindow from 'components/game/ColonyWindow';
 
 //reducers
 import{set as setSystemMapFollowing} from 'redux/systemMapFollowing';
@@ -29,20 +29,21 @@ import useWindowSize from 'hooks/useWindowSize';
 import mean from 'helpers/math/mean';
 import roundTo from 'helpers/math/round-to';
 
-//Constants
-const windows = [
-  <WindowManager.Window key="colony" x={1300} y={220} width={300} height={200} minWidth={250} maxWidth={500} minHeight={150} maxHeight={300} title={<Trans>Colony</Trans>}>
-    <Tabs>
+/*<Tabs>
       <Tabs.TabsList>
         <Tabs.Tab>Hello</Tabs.Tab>
         <Tabs.Tab selected>World</Tabs.Tab>
         <Tabs.Tab>Foo Bar</Tabs.Tab>
       </Tabs.TabsList>
       <Tabs.TabContent className="wysiwyg">
-        <p>TODO content for this tab.</p>
-        <p>Some more text</p>
+        
       </Tabs.TabContent>
-    </Tabs>
+    </Tabs>*/
+
+//Constants
+const windows = [
+  <WindowManager.Window key="colony" x={1300} y={220} width={300} height={200} minWidth={250} maxWidth={500} minHeight={150} maxHeight={300} title={<Trans>Colony</Trans>}>
+    <ColonyWindow />
   </WindowManager.Window>,
   <WindowManager.Window key="technology" x={300} y={100} width={350} height={150} minWidth={200} maxWidth={700} title={<Trans>Technology</Trans>}>
     <p>TODO content for this window</p>
