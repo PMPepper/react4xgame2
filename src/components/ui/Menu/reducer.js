@@ -207,6 +207,44 @@ function reducer(state, {type, payload}) {
             
             return state;
         }
+        case 'keyboardHome': {
+            const {itemsSelectedAtLevel, items} = state;
+
+            return setItemsSelectedAtLevel(
+                state, 
+                Math.max(0, itemsSelectedAtLevel.length - 1), 
+                getNextSelectableItemIndex(itemsSelectedAtLevel.length === 0 ? items : getItemsAtSelectedLevel(state), -1)//find the first selectable child);
+            )
+        }
+        case 'keyboardEnd': {
+            const {itemsSelectedAtLevel, items} = state;
+
+            const levelItems = itemsSelectedAtLevel.length === 0 ? items : getItemsAtSelectedLevel(state);
+
+            return setItemsSelectedAtLevel(
+                state, 
+                Math.max(0, itemsSelectedAtLevel.length - 1), 
+                getPrevSelectableItemIndex(levelItems, levelItems.length)//find the last selectable child);
+            )
+        }
+        case 'keyboardKey': {//TODO doesn't QUITE work right...
+            const {key, firstLetters} = payload;
+            const {itemsOpenAtLevel, itemsSelectedAtLevel} = state;
+
+            const level = itemsOpenAtLevel.length;
+            const startIndex = itemsSelectedAtLevel[level] ?? 0;
+            const index = firstLetters.slice(startIndex).findIndex(letter => letter === key);
+
+            if(index !== -1) {
+                return setItemsSelectedAtLevel(
+                    state,
+                    level, 
+                    index + startIndex
+                );
+            }
+
+            return state;
+        }
         //unknown type
         default:
             console.log('Unknown type: ', type)

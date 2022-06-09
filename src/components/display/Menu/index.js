@@ -16,7 +16,8 @@ const Menu = forwardRef(function Menu({children, component: Component, className
 export default Menu;
 
 Menu.defaultProps = {
-    component: 'div'
+    component: 'div',
+    role: "menu",
 };
 
 Menu.propTypes = {
@@ -36,6 +37,7 @@ const MenuItem = forwardRef(function Item({icon, children, info, subMenu, classN
 
 MenuItem.defaultProps = {
     component: 'div',
+    role: "menuitem"
 };
 
 MenuItem.propTypes = {
@@ -45,7 +47,7 @@ MenuItem.propTypes = {
 };
 
 function Divider() {
-    return <div className={classes.divider}><span /><span /><span /><span /></div>
+    return <div className={classes.divider} role="separator"><span /><span /><span /><span /></div>
 }
 
 Menu.Item = MenuItem;

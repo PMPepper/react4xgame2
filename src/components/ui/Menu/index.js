@@ -14,6 +14,7 @@ import useId from "hooks/useId";
 
 //Other
 import useMenuState from './reducer';
+import findAncestor from "helpers/dom/find-ancestor";
 
 
 //The component
@@ -61,7 +62,33 @@ const Menu = forwardRef(function ({items, id, ...rest}, ref) {
                     dispatch({type: 'keyboardLeft'});
                     break;
                 }
+                case 36: {//Home
+                    dispatch({type: 'keyboardHome'});
+                    break;
+                }
+                case 35: {//End
+                    dispatch({type: 'keyboardEnd'});
+                    break;
+                }
+                
                 default:
+                    const key = e.key.trim();
+
+                    if(key.length === 1) {
+                        //any character key - move to next item starting with that key (if none, does not move) (elem.textContent.charAt(0).toLowerCase())
+                        //state doesn't have access to first character
+                        
+                        const elem = document.activeElement;
+                        const menuElem = findAncestor(elem, '[role="menu"]');
+
+                        if(menuElem) {
+                            const firstLetters = Array.from(menuElem.children).map(e => e.textContent.trim().charAt(0).toLowerCase());
+
+                            dispatch({type: 'keyboardKey', payload: {key, firstLetters}});
+                        }
+                        break;
+                    }
+
                     return;
                     
             }
@@ -165,7 +192,7 @@ function renderMenu(items, path, selectedLevel, itemsSelectedAtLevel, itemsOpenA
                     null
                 }
 
-                role={!hasChildren && onClick ? "button" : undefined}
+                role="menuitem"//{!hasChildren && onClick ? "button" : undefined}
                 onClick={hasChildren ?
                     (e) => {
                         const dataset = e.currentTarget.dataset;
