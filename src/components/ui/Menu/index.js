@@ -34,6 +34,7 @@ const Menu = forwardRef(function ({items, id, ...rest}, ref) {
                 rootElem?.focus();
             }
         },
+        // eslint-disable-next-line react-hooks/exhaustive-deps
         [itemsSelectedAtLevel]
     )
 
@@ -71,7 +72,7 @@ const Menu = forwardRef(function ({items, id, ...rest}, ref) {
                     break;
                 }
                 
-                default:
+                default: {
                     const key = e.key.trim();
 
                     if(key.length === 1) {
@@ -79,10 +80,12 @@ const Menu = forwardRef(function ({items, id, ...rest}, ref) {
                         //state doesn't have access to first character
                         
                         const elem = document.activeElement;
-                        const menuElem = findAncestor(elem, '[role="menu"]');
+                        const menuElem = findAncestor(elem, '[role="menu"]');//TODO needs to be deepest menu
+                        
 
                         if(menuElem) {
-                            const firstLetters = Array.from(menuElem.children).map(e => e.textContent.trim().charAt(0).toLowerCase());
+                            const deepestMenu = menuElem.querySelector('[role="menu"]') || menuElem;
+                            const firstLetters = Array.from(deepestMenu.children).map(e => e.textContent.trim().charAt(0).toLowerCase());
 
                             dispatch({type: 'keyboardKey', payload: {key, firstLetters}});
                         }
@@ -90,12 +93,13 @@ const Menu = forwardRef(function ({items, id, ...rest}, ref) {
                     }
 
                     return;
-                    
+                }
             }
 
             e.preventDefault();
             e.stopPropagation();
-        }
+        },
+        [dispatch]
     );
 
     const setRootElem = useCallback(
@@ -115,7 +119,7 @@ const Menu = forwardRef(function ({items, id, ...rest}, ref) {
 
             dispatch({type: 'mouseEnter', payload: {index: +dataset.menuIndex, level: +dataset.menuLevel}});
         },
-        []
+        [dispatch]
     );
 
     const onMouseLeave = useCallback(
@@ -124,7 +128,7 @@ const Menu = forwardRef(function ({items, id, ...rest}, ref) {
 
             dispatch({type: 'mouseLeave', payload: {index: +dataset.menuIndex, level: +dataset.menuLevel}});
         },
-        []
+        [dispatch]
     );
 
     const itemProps = useMemo(
@@ -133,7 +137,7 @@ const Menu = forwardRef(function ({items, id, ...rest}, ref) {
             onMouseLeave,
             tabIndex: '0',
         }),
-        []
+        [onMouseEnter, onMouseLeave]
     );
 
     const menuProps = useMemo(
@@ -145,7 +149,7 @@ const Menu = forwardRef(function ({items, id, ...rest}, ref) {
             id,
             ref: mergeRefs([ref, setRootElem])
         }),
-        []
+        [dispatch, id, onKeyDown, ref, setRootElem]
     );
 
     return renderMenu(items, [], 0, itemsSelectedAtLevel, itemsOpenAtLevel, menuProps, id, itemProps, dispatch);

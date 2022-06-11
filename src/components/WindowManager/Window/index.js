@@ -11,6 +11,7 @@ import Spreader from "components/layout/Spreader";
 import useDraggable from "hooks/useDraggable";
 
 //Helpers
+import makeFocusInOut from "helpers/react/make-focus-in-out";
 
 //Other
 import defaultStyles from './Window.module.scss';
@@ -48,7 +49,7 @@ export default function Window({
         [x, y, width, height]
     );
 
-    return <Component style={style} className={styles.root} onMouseDown={onInteract}>
+    return <Component style={style} className={styles.root} onMouseDown={onInteract} onFocus={makeFocusInOut(onInteract)} tabIndex="-1">
         <div className={styles.content}>
             <HeaderComponent className={cn(styles.header, onDrag && styles.drag, onResize && styles.onResize)} {...dragProps}>
                 <Spreader

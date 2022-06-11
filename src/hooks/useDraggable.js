@@ -12,7 +12,7 @@ export default function useDraggable(onDrag, getAbsoluteOffset = null) {
     //Callbacks
     const onMouseDown = useCallback(
         (e) => {
-            e.preventDefault();
+            //e.preventDefault();
             
             if(ref.current.getAbsoluteOffset) {
                 ref.current.offset = ref.current.getAbsoluteOffset(e, e.clientX, e.clientY)

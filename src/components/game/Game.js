@@ -10,7 +10,7 @@ import styles from './Game.module.scss';
 import SelectableContext from 'components/SelectableContext';
 import WindowManager from 'components/WindowManager';
 import SystemMap from 'components/SystemMap';
-import FPSStats, {useMeasureSetFrequency, DisplayStats, PerformanceStats, ExternalPerformanceStats} from 'components/dev/FPSStats';
+import FPSStats, {PerformanceStats, ExternalPerformanceStats} from 'components/dev/FPSStats';
 import TimeControls from './TimeControls';
 import SelectSystem from './SelectSystem';
 import ContextMenu from 'components/ui/ContextMenu';
@@ -29,20 +29,9 @@ import useWindowSize from 'hooks/useWindowSize';
 import mean from 'helpers/math/mean';
 import roundTo from 'helpers/math/round-to';
 
-/*<Tabs>
-      <Tabs.TabsList>
-        <Tabs.Tab>Hello</Tabs.Tab>
-        <Tabs.Tab selected>World</Tabs.Tab>
-        <Tabs.Tab>Foo Bar</Tabs.Tab>
-      </Tabs.TabsList>
-      <Tabs.TabContent className="wysiwyg">
-        
-      </Tabs.TabContent>
-    </Tabs>*/
-
 //Constants
 const windows = [
-  <WindowManager.Window key="colony" x={1300} y={220} width={300} height={200} minWidth={250} maxWidth={500} minHeight={150} maxHeight={300} title={<Trans>Colony</Trans>}>
+  <WindowManager.Window key="colony" x={200} y={220} width={300} height={200} minWidth={250} maxWidth={500} minHeight={150} maxHeight={300} title={<Trans>Colony</Trans>}>
     <ColonyWindow />
   </WindowManager.Window>,
   <WindowManager.Window key="technology" x={300} y={100} width={350} height={150} minWidth={200} maxWidth={700} title={<Trans>Technology</Trans>}>
@@ -85,7 +74,7 @@ export default function Game({
 
   //Side effect
   useEffect(
-    () => {
+    () => {//TODO why is clientState updating even while paused?
       client.setUpdateStateCallback(setClientState);
 
       return () => client.setUpdateStateCallback(null);
@@ -96,7 +85,7 @@ export default function Game({
   //Render
   const content = useMemo(
     () => {
-      return <>
+      return <WindowManager area={windowSize}>
         {windows}
         <TimeControls
           setIsPaused={client.setIsPaused}
@@ -104,16 +93,23 @@ export default function Game({
         />
         <SelectSystem />
         <SystemMap
-            options={systemMapOptions}
-            following={systemMapFollowing}
-            systemId={selectedSystemId}
-            setFollowing={setFollowing}
-            onContextMenu={onSystemMapContextMenu}
-          />
-          
-      </>
+          options={systemMapOptions}
+          following={systemMapFollowing}
+          systemId={selectedSystemId}
+          setFollowing={setFollowing}
+          onContextMenu={onSystemMapContextMenu}
+        />
+      </WindowManager>
     },
-    [systemMapOptions, systemMapFollowing, selectedSystemId, setFollowing]
+    [windowSize, client.setIsPaused, client.setDesiredSpeed, systemMapOptions, systemMapFollowing, selectedSystemId, setFollowing, onSystemMapContextMenu]
+  );
+
+  const contextMenu = useMemo(
+    () => contextMenuState ?
+      getContextMenuFor(contextMenuState, () => setContextMenuState(null))
+      :
+      null,
+    [contextMenuState, setContextMenuState]
   );
 
   return <div className={styles.game}>
@@ -123,60 +119,13 @@ export default function Game({
     <PerformanceStats name="updatingGame :: merge state" formatAvgValue={minMaxMean} style={{right: '230px'}} />
     <ExternalPerformanceStats name="server :: updatingGame :: toBinary" formatAvgValue={minMaxMean} style={{right: '305px'}} />
     <SelectableContext value={clientState}>
-      <WindowManager area={windowSize}>
-        {content}
-      </WindowManager>
-      {contextMenuState && <Memo args={[contextMenuState]}>
-        <ContextMenu onClose={() => setContextMenuState(null)} position={contextMenuState.position}>
-          <Menu items={[
-            {
-              icon: <FontAwesomeIcon icon={solid('globe')} />, 
-              label: <Trans>System bodies</Trans>, 
-              info: t`planets and stuff`, 
-              items: contextMenuState.entityIds.map(entityId => 
-                ({label: <Entity.Name id={entityId} />, onClick: () => alert('TODO')})
-              )
-            },
-            Menu.DividerName,
-            {
-              icon: <FontAwesomeIcon icon={solid('city')} />,
-              label: <Trans>Colonies</Trans>,
-              info: t`view your stuff`,
-              items: [],//TODO
-            },
-            Menu.DividerName,
-            {
-              label: <Trans>Other</Trans>,
-              onClick: () => alert('TODO other')
-            },
-            {
-              label: <Trans>Things</Trans>,
-              info: t`and stuff`,
-              onClick: () => alert('TODO things')
-            },
-            {
-              label: <Trans>Help?</Trans>,
-              //onClick: () => alert('TODO help')
-              items: [
-                {label: 'A', onClick: () => alert('TODO A')},
-                {label: 'B', onClick: () => alert('TODO B')},
-                Menu.DividerName,
-                {label: 'X', items: [
-                  {label: 'X2', onClick: () => alert('X2')},
-                  {label: 'X3', onClick: () => alert('X3')}
-                ]},
-                {label: 'Y', onClick: () => alert('Y')},
-                {label: 'Z', onClick: () => alert('Z')},
-              ]
-            }
-          ]} />
-        </ContextMenu>
-      </Memo>}
+      <Memo useChildren>{content}</Memo>
+      {contextMenu && <Memo useChildren>{contextMenu}</Memo>}
     </SelectableContext>
   </div>
 }
 
-
+//TEMP
 function minMaxMean(values, dp = 2, units = '') {
   if(!values || values.length < 2) {
     return `-${units}`
@@ -185,6 +134,53 @@ function minMaxMean(values, dp = 2, units = '') {
   return `${roundTo(Math.min(...values), dp)}${units}/${roundTo(Math.max(...values), dp)}${units}/${roundTo(mean(...values), dp)}${units}`;
 }
 
+//Internal helpers
+function getContextMenuFor({position, entityIds}, onClose) {//
+  return <ContextMenu onClose={onClose} position={position}>
+    <Menu items={[
+      {
+        icon: <FontAwesomeIcon icon={solid('globe')} />, 
+        label: <Trans>System bodies</Trans>, 
+        info: t`planets and stuff`, 
+        items: entityIds.map(entityId => 
+          ({label: <Entity.Name id={entityId} />, onClick: () => alert('TODO')})
+        )
+      },
+      Menu.DividerName,
+      {
+        icon: <FontAwesomeIcon icon={solid('city')} />,
+        label: <Trans>Colonies</Trans>,
+        info: t`view your stuff`,
+        items: [],//TODO
+      },
+      Menu.DividerName,
+      {
+        label: <Trans>Other</Trans>,
+        onClick: () => alert('TODO other')
+      },
+      {
+        label: <Trans>Things</Trans>,
+        info: t`and stuff`,
+        onClick: () => alert('TODO things')
+      },
+      {
+        label: <Trans>Help?</Trans>,
+        //onClick: () => alert('TODO help')
+        items: [
+          {label: 'A', onClick: () => alert('TODO A')},
+          {label: 'B', onClick: () => alert('TODO B')},
+          Menu.DividerName,
+          {label: 'X', items: [
+            {label: 'X2', onClick: () => alert('X2')},
+            {label: 'X3', onClick: () => alert('X3')}
+          ]},
+          {label: 'Y', onClick: () => alert('Y')},
+          {label: 'Z', onClick: () => alert('Z')},
+        ]
+      }
+    ]} />
+  </ContextMenu>
+}
 
 
 // import React from 'react';

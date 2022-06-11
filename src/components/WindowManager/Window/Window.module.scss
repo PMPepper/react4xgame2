@@ -16,6 +16,10 @@
     display: grid;
     grid-template-columns: [col-start] var(--dragWidth) [col-content-start] 1fr [col-content-end] var(--dragWidth) [col-end];
     grid-template-rows: [row-start] var(--dragWidth) [row-content-start] 1fr [row-content-end] var(--dragWidth) [row-end];
+
+    &:not(:focus-within) {
+        opacity: 0.5;
+    }
 }
 
 .content {

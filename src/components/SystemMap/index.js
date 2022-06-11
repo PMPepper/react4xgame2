@@ -41,7 +41,7 @@ const followExtraEaseTime = 0.5;
 
 
 //The component
-export default memo(function SystemMap({
+export default (function SystemMap({
   options, systemId, following, setFollowing, initialX = 0, initialY = 0, initialZoom = 1/1000000000, cx = 0.5, cy = 0.5, 
   onContextMenu = null, 
   renderComponent:RenderComponent = SystemMapSVGRenderer, styles = defaultStyles

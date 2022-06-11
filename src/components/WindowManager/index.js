@@ -1,4 +1,5 @@
-import {useMemo, useRef, useCallback, cloneElement, memo} from 'react';
+//TODO tab order for windows? currently is weird?
+import {useMemo, useRef, useCallback, cloneElement} from 'react';
 
 //Components
 import Window from "./Window";
@@ -8,6 +9,7 @@ import Rectangle from 'classes/Rectangle';
 
 //Hooks
 import useForceUpdate from 'hooks/useForceUpdate';
+import useRefCallback from 'hooks/useRefCallback';
 
 //Helpers
 import mapToSortedArray from 'helpers/object/map-to-sorted-array';
@@ -37,7 +39,7 @@ const sortOnInteractionTime = sortOnPropNumeric('interactionTime');
 
 
 //The component
-const WindowManager = memo(function WindowManager({children, area, getBounds = defaultGetBounds, styles = defaultStyles}) {
+export default function WindowManager({children, area, getBounds = defaultGetBounds, styles = defaultStyles}) {
     const ref = useRef({
         windowState: BLANK,
         windows: null,
@@ -59,27 +61,9 @@ const WindowManager = memo(function WindowManager({children, area, getBounds = d
             windowState[key].interactionTime = Date.now();
             sortElements(ref.current);
 
-            
             forceUpdate();
         },
-        []
-    );
-
-    const onWindowDrag = useCallback(
-        (key, x, y) => {
-            const {getBounds, area, windowState, windows, windowKeyToIndex} = ref.current;
-            const state = windowState[key];
-
-            positionWindow(x, y, state, area, getBounds)
-
-            state.element = makeElement(state, onWindowInteract, onWindowClose, onWindowDrag, onWindowResize);
-
-            //update windows array
-            windows[windowKeyToIndex[key]] = state.element;
-
-            forceUpdate();
-        },
-        []
+        [forceUpdate]
     );
 
     const onWindowClose = useCallback(
@@ -93,10 +77,10 @@ const WindowManager = memo(function WindowManager({children, area, getBounds = d
 
             forceUpdate();
         },
-        []
+        [forceUpdate]
     );
 
-    const onWindowResize = useCallback(
+    const onWindowResize = useRefCallback(
         (key, top, right, bottom, left) => {
             if(top === null && right === null && bottom === null && left === null) {
                 return;//nothing has changed
@@ -193,15 +177,30 @@ const WindowManager = memo(function WindowManager({children, area, getBounds = d
             windows[windowKeyToIndex[key]] = state.element;
 
             forceUpdate();
-        },
-        []
+        }
+    );
+
+    const onWindowDrag = useRefCallback(
+        (key, x, y) => {
+            const {getBounds, area, windowState, windows, windowKeyToIndex} = ref.current;
+            const state = windowState[key];
+
+            positionWindow(x, y, state, area, getBounds)
+
+            state.element = makeElement(state, onWindowInteract, onWindowClose, onWindowDrag, onWindowResize);
+
+            //update windows array
+            windows[windowKeyToIndex[key]] = state.element;
+
+            forceUpdate();
+        }
     );
 
     //Memoised values
     //-If windows change, initialise them
     const nonWindowContent = useMemo(
         () => {
-            const {windowState: currentWindowState, area, bounds} = ref.current;
+            const {windowState: currentWindowState, area} = ref.current;
             const nonWindowContent = [];
 
             const windowsState = childrenToArray(children, true).reduce((output, child) => {
@@ -245,7 +244,7 @@ const WindowManager = memo(function WindowManager({children, area, getBounds = d
 
             return nonWindowContent;
         },
-        [children]
+        [children, getBounds, onWindowClose, onWindowDrag, onWindowInteract, onWindowResize]
     );
 
     useMemo(
@@ -268,9 +267,7 @@ const WindowManager = memo(function WindowManager({children, area, getBounds = d
         </div>
         {nonWindowContent}
     </>
-});
-
-export default WindowManager;
+}
 
 WindowManager.Window = Window;
 

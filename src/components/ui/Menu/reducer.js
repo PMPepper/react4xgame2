@@ -31,6 +31,7 @@ export default function useMenu(items) {
             //-stop any pending actions
             Object.keys(state.actions).forEach((id) => clearTimeout(id))
         }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
 
     //keeps state updated with items
@@ -108,6 +109,7 @@ function reducer(state, {type, payload}) {
 
                     return setItemsOpenAtLevel(newState, level, null);
                 }
+                default:
             }
 
             return state;
@@ -227,12 +229,12 @@ function reducer(state, {type, payload}) {
                 getPrevSelectableItemIndex(levelItems, levelItems.length)//find the last selectable child);
             )
         }
-        case 'keyboardKey': {//TODO doesn't QUITE work right...
+        case 'keyboardKey': {
             const {key, firstLetters} = payload;
             const {itemsOpenAtLevel, itemsSelectedAtLevel} = state;
 
             const level = itemsOpenAtLevel.length;
-            const startIndex = itemsSelectedAtLevel[level] ?? 0;
+            const startIndex = (itemsSelectedAtLevel[level] ?? -1) + 1;
             const index = firstLetters.slice(startIndex).findIndex(letter => letter === key);
 
             if(index !== -1) {
