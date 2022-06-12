@@ -26,9 +26,11 @@
   &.selected {
     background: var(--c-grey40);
   }
+
+  svg + svg {
+    margin-left: -8px;//?
+  }
 }
 
 
-svg + svg {
-  margin-left: -8px;//?
-}
+
