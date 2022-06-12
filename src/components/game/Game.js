@@ -31,10 +31,10 @@ import roundTo from 'helpers/math/round-to';
 
 //Constants
 const windows = [
-  <WindowManager.Window key="colony" x={200} y={220} width={300} height={200} minWidth={250} maxWidth={500} minHeight={150} maxHeight={300} title={<Trans>Colony</Trans>}>
+  <WindowManager.Window key="colony" x={50} y={150} width={600} height={400} minWidth={250} maxWidth={500} minHeight={150} maxHeight={300} title={<Trans>Colony</Trans>}>
     <ColonyWindow />
   </WindowManager.Window>,
-  <WindowManager.Window key="technology" x={300} y={100} width={350} height={150} minWidth={200} maxWidth={700} title={<Trans>Technology</Trans>}>
+  <WindowManager.Window key="technology" x={600} y={500} width={350} height={150} minWidth={200} maxWidth={700} title={<Trans>Technology</Trans>}>
     <p>TODO content for this window</p>
   </WindowManager.Window>
 ]
@@ -98,6 +98,8 @@ export default function Game({
           systemId={selectedSystemId}
           setFollowing={setFollowing}
           onContextMenu={onSystemMapContextMenu}
+          aria-haspopup="menu"
+          aria-controls="systemMapContextMenu"
         />
       </WindowManager>
     },
@@ -137,7 +139,7 @@ function minMaxMean(values, dp = 2, units = '') {
 //Internal helpers
 function getContextMenuFor({position, entityIds}, onClose) {//
   return <ContextMenu onClose={onClose} position={position}>
-    <Menu items={[
+    <Menu id="systemMapContextMenu" aria-label={t`System map options`} items={[
       {
         icon: <FontAwesomeIcon icon={solid('globe')} />, 
         label: <Trans>System bodies</Trans>, 

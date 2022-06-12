@@ -9,8 +9,17 @@
 @mixin panel($noPadding: false) {
     background: var(--c-grey0);
     border: var(--border-width) solid var(--c-border);
-    border-radius: 2px;
+    border-radius: var(--border-radius);
     
+    @if($noPadding != true) {
+        padding: var(--base-padding2);
+    }
+}
+
+@mixin section( $noPadding: false) {
+    border: var(--border-width) solid var(--c-border);
+    border-radius: var(--border-radius);
+
     @if($noPadding != true) {
         padding: var(--base-padding2);
     }

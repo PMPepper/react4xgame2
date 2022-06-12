@@ -1,0 +1,23 @@
+@import '../../../css/shared';
+
+.root {
+    --padding: var(--base-padding4);
+    flex: 1 1 auto;
+    display: flex;
+    flex-flow: row nowrap;
+    height: 100%;
+    gap: var(--padding);
+    padding: var(--padding);
+}
+
+.treeHolder {
+    flex: 0 0 auto;
+
+    @include section();
+}
+
+.main {
+    flex: 1 1 auto;
+
+    @include section(true);
+}

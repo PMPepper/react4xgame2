@@ -18,7 +18,7 @@
     grid-template-rows: [row-start] var(--dragWidth) [row-content-start] 1fr [row-content-end] var(--dragWidth) [row-end];
 
     &:not(:focus-within) {
-        opacity: 0.5;
+        opacity: 0.75;
     }
 }
 

@@ -15,6 +15,7 @@ import useId from "hooks/useId";
 //Other
 import useMenuState from './reducer';
 import findAncestor from "helpers/dom/find-ancestor";
+import combineProps from "helpers/react/combine-props";
 
 
 //The component
@@ -141,15 +142,15 @@ const Menu = forwardRef(function ({items, id, ...rest}, ref) {
     );
 
     const menuProps = useMemo(
-        () => ({
+        () => combineProps({
             onKeyDown, 
             onMouseLeave: (e) => dispatch({type: 'mouseLeaveMenu'}),
             onContextMenu: (e) => {e.preventDefault(); e.stopPropagation();},
             tabIndex: 0,
             id,
-            ref: mergeRefs([ref, setRootElem])
-        }),
-        [dispatch, id, onKeyDown, ref, setRootElem]
+            ref: mergeRefs([ref, setRootElem]),
+        }, rest),
+        [dispatch, id, onKeyDown, ref, setRootElem, rest]
     );
 
     return renderMenu(items, [], 0, itemsSelectedAtLevel, itemsOpenAtLevel, menuProps, id, itemProps, dispatch);
@@ -161,6 +162,10 @@ export default Menu;
 
 //Internal helpers
 function getItemId(rootId, ...path) {
+    return `${rootId}-item-${path.map(i => `[${i}]`).join('')}`;
+}
+
+function getMenuId(rootId, ...path) {
     return `${rootId}${path.map(i => `[${i}]`).join('')}`;
 }
 
@@ -177,6 +182,7 @@ function renderMenu(items, path, selectedLevel, itemsSelectedAtLevel, itemsOpenA
             const isSelected = itemSelectedAtThisLevel === i;
             const {label, info, icon, items, onClick} = item;
             const hasChildren = items?.length > 0;
+            const isExpanded = itemsOpenAtLevel[level] === i;
 
             return <MenuDisplay.Item
                 id={getItemId(rootId, ...path, i)}
@@ -188,14 +194,16 @@ function renderMenu(items, path, selectedLevel, itemsSelectedAtLevel, itemsOpenA
                 subMenu={items && items.length > 0 ?
                     <>
                         <FontAwesomeIcon icon={solid('caret-right')} />
-                        {(itemsOpenAtLevel[level] === i) && <SubMenuWrapper>
-                            {renderMenu(items, [...path, i], selectedLevel, itemsSelectedAtLevel, itemsOpenAtLevel, null, rootId, itemProps, dispatch)}
+                        {isExpanded && <SubMenuWrapper>
+                            {renderMenu(items, [...path, i], selectedLevel, itemsSelectedAtLevel, itemsOpenAtLevel, {id: getMenuId(rootId, ...path, i)}, rootId, itemProps, dispatch)}
                         </SubMenuWrapper>}
                     </>
                     :
                     null
                 }
-
+                aria-haspopup="menu"
+                aria-controls={getMenuId(rootId, ...path, i)}
+                aria-expanded={isExpanded ? "true" : undefined}
                 role="menuitem"//{!hasChildren && onClick ? "button" : undefined}
                 onClick={hasChildren ?
                     (e) => {
