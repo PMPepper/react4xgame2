@@ -12,6 +12,8 @@
     top: calc(var(--window-y) - var(--dragWidth));
     width: calc(var(--window-width) + calc(2 * var(--dragWidth)));
     height: calc(var(--window-height) + calc(2 * var(--dragWidth)));
+
+    max-height: 90vh;
     
     display: grid;
     grid-template-columns: [col-start] var(--dragWidth) [col-content-start] 1fr [col-content-end] var(--dragWidth) [col-end];
@@ -31,6 +33,7 @@
 
     display: flex;
     flex-flow: column nowrap;
+    overflow: hidden;
 }
 
 
@@ -68,6 +71,9 @@
 
 .body {
     flex: 1 1 auto;
+
+    overflow-x: hidden;
+    overflow-y: auto;
 }
 
 //resize classes

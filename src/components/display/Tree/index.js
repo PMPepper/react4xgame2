@@ -1,9 +1,15 @@
 import { forwardRef } from "react";
 import PropTypes from "prop-types";
 import classNames from "classnames";
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { solid } from '@fortawesome/fontawesome-svg-core/import.macro';
 
 //Other
 import classes from './Tree.module.scss';
+
+//Consts
+const openedIcon = <FontAwesomeIcon icon={solid("caret-down")} />;
+const closedIcon = <FontAwesomeIcon icon={solid("caret-right")} />;
 
 
 //The component
@@ -42,18 +48,30 @@ Tree.Group.propTypes = {
 };
 
 
-Tree.Item = forwardRef(function Tree({component: Component, className, children, ...rest}, ref) {
+Tree.Item = forwardRef(function Tree({component: Component, className, icon, label, children, onExpandClick, ...rest}, ref) {
+    const expanded = rest['aria-expanded'];
     
-    return <Component className={classNames(classes.item, className)} {...rest} ref={ref}>{children}</Component>
+    return <Component className={classNames(classes.itemWrapper)} ref={ref}>
+        <div className={classNames(classes.item, className)} {...rest} role="treeitem" tabIndex="-1">
+            <span className={classes.itemNavIcon} onClick={onExpandClick}>
+                {expanded === "true" && openedIcon}
+                {expanded === "false" && closedIcon}
+            </span>
+            <span className={classes.itemIcon} aria-hidden="true">{icon}</span>
+            <span className={classes.itemLabel}>{label}</span>
+        </div>
+        {children}
+    </Component>
 });
 
 Tree.Item.defaultProps = {
     component: 'li',
-    role: "treeitem",
-    tabIndex: -1
+    role: "presentational",
 };
 
 Tree.Item.propTypes = {
     component: PropTypes.elementType,
     role: PropTypes.string,
+    icon: PropTypes.node,
+    label: PropTypes.node.isRequired,
 };

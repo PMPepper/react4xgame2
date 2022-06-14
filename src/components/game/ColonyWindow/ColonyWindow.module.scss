@@ -12,6 +12,7 @@
 
 .treeHolder {
     flex: 0 0 auto;
+    overflow: auto;
 
     @include section();
 }

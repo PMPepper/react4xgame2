@@ -111,3 +111,9 @@ $blockKeyboardInteractionBg: var(--c-keyboard);
   cursor: pointer;
   font: inherit;
 }
+
+@mixin truncate {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
