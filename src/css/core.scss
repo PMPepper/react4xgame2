@@ -85,7 +85,7 @@ html {
   --c-bg-selected: var(--c-grey40);
 
   --border-width: 1px;
-  --border-radius: 2px;
+  --border-radius: calc(2px * var(--scale));
 
   //defaults
   font: var(--font-bodyNormal);

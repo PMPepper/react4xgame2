@@ -36,6 +36,11 @@
     gap: 4px;
 
     cursor: pointer;
+
+    &[aria-selected="true"] {
+        background: var(--c-bg);
+        border-radius: var(--border-radius);
+    }
 }
 
 .itemNavIcon {

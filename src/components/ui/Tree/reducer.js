@@ -43,19 +43,17 @@ function reducer(state, {type, payload}) {
             }
         }
 
+        //Keyboard events
+        case 'collapseSelected': {
+            return expandOrCollapseItem(state, payload, false);
+        }
+        case 'expandSelected': {
+            return expandOrCollapseItem(state, payload, true);
+        }
+
         //Mouse events
         case 'onExpandClick': {
-            const pathName = getPathName(payload);
-
-            //TODO validate? is already handled on client? Ideally, yes
-
-            return {
-                ...state,
-                expanded: {
-                    ...state.expanded,
-                    [pathName]: !state.expanded[pathName]
-                }
-            }
+           return expandOrCollapseItem(state, payload, null);
         }
 
         default:
@@ -86,6 +84,43 @@ function normaliseItemsForState(items, expanded = null, path = []) {
     }
 }
 
+function getItemByPath(path, items) {
+    if(path.length === 0) {
+        return null;
+    }
+
+    return path.reduce((items, index) => {
+        return items[index];
+    }, items)
+}
+
 export function getPathName(path) {
     return path.join('-');
+}
+
+//transform methods
+function expandOrCollapseItem(state, path, expand) {
+    const item = getItemByPath(path, state.items);
+
+    //check this is an item that can expand/collapse
+    if(item?.length > 0) {
+        const pathName = getPathName(path);
+        const newValue = expand === null ?
+            !state.expanded[pathName]
+            :
+            !!expand
+
+        if(newValue !== state.expanded[pathName]) {//only update state if value changes
+            return {
+                ...state,
+                expanded: {
+                    ...state.expanded,
+                    [pathName]: newValue
+                }
+            }
+        }
+        
+    }
+
+    return state;
 }

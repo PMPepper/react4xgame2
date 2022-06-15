@@ -1,16 +1,16 @@
 import { useEffect, useState, useRef } from 'react';
 import { useSelector } from 'react-redux';
+import { t } from '@lingui/macro';
 
 //Components
 import Tabs from 'components/ui/Tabs';
-import TreeDisplay from 'components/display/Tree';
 import Tree from 'components/ui/Tree';
 import Entity from 'components/game/Entity';
 
 //Other
 import classes from './ColonyWindow.module.scss';
 //Hooks
-import { useContextSelector, useGetContextState } from 'components/SelectableContext';
+import { useGetContextState } from 'components/SelectableContext';
 
 //TEMP
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -22,8 +22,8 @@ import { solid } from '@fortawesome/fontawesome-svg-core/import.macro';
 
 const starIcon = <FontAwesomeIcon icon={solid("sun")} />;
 const planetIcon = <FontAwesomeIcon icon={solid("globe")} />;
+const asteroidIcon = <FontAwesomeIcon icon={solid("cookie")} />;
 //const moonIcon = <FontAwesomeIcon icon={solid("minus-square")} />;
-//const asteroidIcon = <FontAwesomeIcon icon={solid("minus-square")} />;
 
 //The component
 export default function ColonyWindow() {
@@ -32,34 +32,13 @@ export default function ColonyWindow() {
     //Internal state
     const [selectedIndex, setSelectedIndex] = useState(0);
 
+    const [selectedTreeItem, setSelectedTreeItem] = useState([]);
+
     const items = useGetSystemItems(selectedSystemId);
 
     return <div className={classes.root}>
         <div className={classes.treeHolder}>
-
-            <Tree items={items} />
-
-            <TreeDisplay>
-                <TreeDisplay.Group>
-                    <TreeDisplay.Item aria-expanded="true" icon={starIcon} label="Sol">
-                        <TreeDisplay.Group>
-                            <TreeDisplay.Item icon={planetIcon} label="Mercury" />
-                            <TreeDisplay.Item icon={planetIcon} label="Venus" />
-                            <TreeDisplay.Item aria-expanded="true" icon={planetIcon} label="Earth">
-                                <TreeDisplay.Group>
-                                    <TreeDisplay.Item icon={planetIcon} label="Luna" />
-                                </TreeDisplay.Group>
-                            </TreeDisplay.Item>
-                            <TreeDisplay.Item aria-expanded="false" icon={planetIcon} label="Mars">
-                                <TreeDisplay.Group>
-                                    <TreeDisplay.Item icon={planetIcon} label="Phobos" />
-                                    <TreeDisplay.Item icon={planetIcon} label="Deimos" />
-                                </TreeDisplay.Group>
-                            </TreeDisplay.Item>
-                        </TreeDisplay.Group>
-                    </TreeDisplay.Item>
-                </TreeDisplay.Group>
-            </TreeDisplay>
+            <Tree items={items} selectedItem={selectedTreeItem} setSelectedItem={setSelectedTreeItem} />
         </div>
 
         <div className={classes.main}>
@@ -110,10 +89,11 @@ const systemBodyTypeIcon = {
     moon: planetIcon,
     gasGiant: planetIcon,
     dwarfPlanet: planetIcon,
-    asteroid: planetIcon,
+    asteroid: asteroidIcon,
 };
 
-function getSystemItems(systemId, {entities}) {//TODO group asteroids
+//TODO use 'position' array instead of assuming systemBodyIds is in correct order
+function getSystemItems(systemId, {entities}) {
     const system = entities[systemId];
     const systemBodies = system.systemBodyIds.map(id => entities[id]);
 
@@ -141,7 +121,7 @@ function getSystemItems(systemId, {entities}) {//TODO group asteroids
                 //create new item for the asteroid belt
                 asteroidBelt = {
                     icon: null,//TODO asteroid belt icon?
-                    label: 'TODO asteroid belt name',
+                    label: t`[Asteroid belt]`,
                     items: []
                 };
 
