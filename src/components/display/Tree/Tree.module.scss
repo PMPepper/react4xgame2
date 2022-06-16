@@ -40,6 +40,10 @@
     &[aria-selected="true"] {
         background: var(--c-bg);
         border-radius: var(--border-radius);
+
+        :global(.focus_keyboard) .tree:focus-within & {
+            background-color: var(--c-keyboard);
+        }
     }
 }
 
@@ -53,7 +57,6 @@
 
 .itemLabel {
     flex: 1 1 auto;
-
-    @include truncate;
+    white-space: nowrap;
 }
 

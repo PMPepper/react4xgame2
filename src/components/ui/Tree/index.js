@@ -1,10 +1,8 @@
 //TODO lots, including:
-//keyboard navigation
-//scroll to keep selected item in view?
-//add tooltip for truncated items? or do that at the items building level?
+//'auto' width seems weird 
 //performance?
 
-import { forwardRef, useMemo, useCallback } from 'react';
+import { forwardRef, useMemo, useCallback, useEffect } from 'react';
 import PropTypes from "prop-types";
 import { isEqual } from 'lodash';
 
@@ -64,11 +62,8 @@ const Tree = forwardRef(function Tree({items, selectedItem, setSelectedItem, id,
                     const key = e.key.trim();
 
                     if(key.length === 1) {
-                        const treeElem = e.currentTarget;
-
-                        const textContent = getVisibleItemsTextContent(treeElem);
+                        selectNextItemStartingWith(key, state, e.currentTarget, selectedItem, setSelectedItem);
                         
-                        //TODO
                         break;
                     }
 
@@ -79,6 +74,22 @@ const Tree = forwardRef(function Tree({items, selectedItem, setSelectedItem, id,
             e.stopPropagation();
         },
         [selectedItem, state]
+    );
+
+    //Side effects
+    useEffect(
+        () => {
+            if(selectedItem?.length > 0) {
+                document
+                    .querySelector(`[data-tree="${id}"][data-tree-path="${getPathName(selectedItem)}"]`)
+                    ?.scrollIntoView({
+                        scrollMode: 'if-needed',
+                        block: 'nearest',
+                        inline: 'nearest',
+                    });
+            }
+        },
+        [selectedItem]
     )
     
     return <TreeDisplay {...rest} onKeyDown={onKeyDown} id={id} ref={ref}>
@@ -188,6 +199,26 @@ function getAllVisibleItems(items, expanded, path = []) {
     return visibleItems;
 }
 
+function selectNextItemStartingWith(startsWithStr, state, treeElem, selectedItem, setSelectedItem) {
+    const allVisibleItems = getAllVisibleItems(state.items, state.expanded);
+    const selectedIndex = allVisibleItems.findIndex(path => isEqual(path, selectedItem));
+    const textContent = getVisibleItemsTextContent(treeElem);
+
+    let itemIndex = allVisibleItems.findIndex((path, index) => {
+        return index > selectedIndex && textContent[getPathName(path)].toLowerCase().startsWith(startsWithStr);
+    })
+
+    if(itemIndex === -1) {
+        itemIndex = allVisibleItems.findIndex((path) => {
+            return textContent[getPathName(path)].toLowerCase().startsWith(startsWithStr);
+        })
+    }
+
+    if(itemIndex !== -1) {
+        setSelectedItem(allVisibleItems[itemIndex]);
+    }
+}
+
 function getVisibleItemsTextContent(treeElem) {
     const items = Array.from(treeElem.querySelectorAll(`[data-tree="${treeElem.id}"][role="treeitem"]`));
 
@@ -196,8 +227,6 @@ function getVisibleItemsTextContent(treeElem) {
 
         return output;
     }, {})
-
-    console.log(itemContent);
 
     return itemContent;
 }
