@@ -20,6 +20,10 @@ export default function usePositionedItem(
         () => bounds ? Rectangle.fromObj(bounds) : null,
         [bounds]
     );
+
+    if(!(align instanceof Array)) {
+        align = [align];
+    }
     
     return useMemo(
         () => {
@@ -69,7 +73,7 @@ function getPositionAtAlignment(alignment, px, py, pWidth, pHeight, dx, dy, dWid
         case 'bottom':
         case 'bottom-left':
             //aligning on the left in the x axis
-            x = px + pWidth;
+            x = px - dWidth;
             break;
         case 'right':
         case 'right-top':
@@ -78,7 +82,7 @@ function getPositionAtAlignment(alignment, px, py, pWidth, pHeight, dx, dy, dWid
         case 'top-right':
         case 'bottom-right':
             //aligning on the right in the x axis
-            x = px - dWidth;
+            x = px + pWidth;
             break;
         case 'top-center':
         case 'bottom-center':
@@ -86,11 +90,42 @@ function getPositionAtAlignment(alignment, px, py, pWidth, pHeight, dx, dy, dWid
             x = px + (pWidth/2) + (-dWidth/2);
             break;
         default:
-            throw new Error('Unknown alighment: ', alignment);
+            throw new Error('Unknown alignment: ', alignment);
     }
 
     switch(alignment) {//Y axis
         case 'left':
+        case 'left-top':
+        case 'right':
+        case 'right-top':
+            y = py;
+            break;
+        case 'top':
+        case 'top-left':
+        case 'top-center':
+        case 'top-right':
+            //align to the top
+            y = py - dHeight;
+            break;
+        case 'left-center':
+        case 'right-center':
+            //align to the center
+            y = py + (pHeight/2) - (dHeight/2);
+            break;
+        case 'left-bottom':
+        case 'right-bottom':
+            y = py + pHeight - dHeight;
+            break;
+        case 'bottom':
+        case 'bottom-left':
+        case 'bottom-center':
+        case 'bottom-right':
+            //align to the bottom
+            y = py + pHeight;
+            break;
+    }
+
+/*case 'left':
         case 'left-top':
         case 'right':
         case 'right-top':
@@ -113,9 +148,7 @@ function getPositionAtAlignment(alignment, px, py, pWidth, pHeight, dx, dy, dWid
         case 'bottom-center':
         case 'bottom-right':
             //align to the bottom
-            y = py + pHeight - dHeight;
-            break;
-    }
+            y = py + pHeight - dHeight; */
 
     return new Rectangle(x, y, dWidth, dHeight);
 }

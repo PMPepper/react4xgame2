@@ -17,6 +17,9 @@ import useMenuState from './reducer';
 import findAncestor from "helpers/dom/find-ancestor";
 import combineProps from "helpers/react/combine-props";
 
+//Consts
+const subMenuAlign = ['right-top', 'right-bottom', 'left-top', 'left-bottom'];
+
 
 //The component
 const Menu = forwardRef(function ({items, id, ...rest}, ref) {
@@ -257,5 +260,5 @@ const elementSizeOptions = {width: true, height: true, x: true, y: true, getElem
 const SubMenuWrapper = forwardRef(function SubMenuWrapper({children}, ref) {
     const [setElement, position] = useElementPosition(ref, 0, elementSizeOptions);
 
-    return <AbsolutelyPositioned fixed ref={setElement} positionRelativeTo={position}>{children}</AbsolutelyPositioned>
+    return <AbsolutelyPositioned fixed ref={setElement} positionRelativeTo={position} align={subMenuAlign}>{children}</AbsolutelyPositioned>
 });

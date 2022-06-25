@@ -32,7 +32,7 @@ const AbsolutelyPositioned = forwardRef(function AbsolutelyPositioned({positionR
 })
 
 AbsolutelyPositioned.defaultProps = {
-    align: ['left', 'right', 'left-bottom', 'right-bottom']
+    align: ['bottom-center']
 }
 
 export default AbsolutelyPositioned;

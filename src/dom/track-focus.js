@@ -2,6 +2,9 @@
 // track-focus v 1.0.0 | Author: Jeremy Fields [jeremy.fields@vget.com], 2015 | License: MIT
 // inspired by: http://irama.org/pkg/keyboard-focus-0.3/jquery.keyboard-focus.js
 
+//TODO need to add some method to trigger adding keyboard class even when components stop propagation of keyboard presses
+//-maybe a custom event?
+
 const body = document.body;
 let usingMouse = true;
 

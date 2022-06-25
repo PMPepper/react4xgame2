@@ -6,17 +6,18 @@ import { t } from '@lingui/macro';
 import Tabs from 'components/ui/Tabs';
 import Tree from 'components/ui/Tree';
 import Entity from 'components/game/Entity';
+import Tooltip from 'components/ui/Tooltip';
+
+//Hooks
+import { useGetContextState } from 'components/SelectableContext';
 
 //Other
 import classes from './ColonyWindow.module.scss';
-//Hooks
-import { useGetContextState } from 'components/SelectableContext';
 
 //TEMP
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { solid } from '@fortawesome/fontawesome-svg-core/import.macro';
 
-//plus square: f0fe
 
 //Consts
 
@@ -44,7 +45,7 @@ export default function ColonyWindow() {
         <div className={classes.main}>
             <Tabs selectedIndex={selectedIndex} setSelectedIndex={setSelectedIndex}>
                 <Tabs.Tab label="Hello" className="wysiwyg">
-                    <p>The first tab</p>
+                    <p>The <Tooltip.Inline content={'foo bar'}>first tab</Tooltip.Inline></p>
                     <p>The second line of the first tab</p>
                 </Tabs.Tab>
                 <Tabs.Tab label="World" className="wysiwyg">
@@ -77,7 +78,7 @@ function useGetSystemItems(systemId) {
                 setItems(getSystemItems(systemId, getContextState()))
             }
         },
-        [systemId]
+        [systemId, getContextState]
     );
 
     return items;
