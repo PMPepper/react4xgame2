@@ -29,3 +29,8 @@ body.addEventListener('keydown', preFocus);
 body.addEventListener('mousedown', preFocus);
 body.addEventListener('focusin', addFocus);
 body.addEventListener('focusout', removeFocus);
+
+export function setKeyboardFocus() {
+	usingMouse = false;
+	body.classList.add('focus_keyboard');
+}

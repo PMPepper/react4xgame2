@@ -13,6 +13,9 @@ import makeFocusInOut from "helpers/react/make-focus-in-out";
 //Prop types
 import isPositiveInteger from "prop-types/is-positive-integer";
 
+//Other
+import { setKeyboardFocus } from "dom/track-focus";
+
 
 //The component
 const Tabs = forwardRef(function Tabs({children, selectedIndex, setSelectedIndex, id, ...props}, ref) {
@@ -42,6 +45,8 @@ const Tabs = forwardRef(function Tabs({children, selectedIndex, setSelectedIndex
 
         e.preventDefault();
         e.stopPropagation();
+
+        setKeyboardFocus();
     };
 
     //Side effects
@@ -69,6 +74,7 @@ const Tabs = forwardRef(function Tabs({children, selectedIndex, setSelectedIndex
                 onClick={() => setSelectedIndex?.(index)}
                 id={`${id}-tab-${index}`}
                 aria-controls={`${id}-panel-${index}`}
+                tabIndex={index === selectedIndex ? "0" : "-1"}
             >
                 {label}
             </TabsDisplay.Tab>)}

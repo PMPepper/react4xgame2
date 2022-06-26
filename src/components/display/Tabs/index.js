@@ -54,7 +54,6 @@ Tabs.TabsList = forwardRef(function TabsList({children, component: Component, cl
 
 Tabs.TabsList.defaultProps = {
     component: 'div',
-    tabIndex: 0,
     role: "tablist"
 };
 
