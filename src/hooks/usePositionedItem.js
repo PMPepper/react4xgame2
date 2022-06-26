@@ -48,7 +48,7 @@ export default function usePositionedItem(
                 }
 
                 if(!bounds || checkBounds(position, boundsRect)) {
-                    return [position, align]
+                    return [position, alignment]
                 }
             }
 
@@ -69,21 +69,27 @@ function getPositionAtAlignment(alignment, px, py, pWidth, pHeight, dx, dy, dWid
         case 'left-top':
         case 'left-center':
         case 'left-bottom':
+            //
+            x = px - dWidth;
+            break;
         case 'top':
         case 'top-left':
         case 'bottom':
         case 'bottom-left':
             //aligning on the left in the x axis
-            x = px - dWidth;
+            x = px;
             break;
         case 'right':
         case 'right-top':
         case 'right-center':
         case 'right-bottom':
+            //
+            x = px + pWidth;
+            break;
         case 'top-right':
         case 'bottom-right':
             //aligning on the right in the x axis
-            x = px + pWidth;
+            x = px + pWidth - dWidth;
             break;
         case 'top-center':
         case 'bottom-center':

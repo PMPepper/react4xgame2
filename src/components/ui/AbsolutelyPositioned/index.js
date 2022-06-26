@@ -18,7 +18,7 @@ import combineProps from 'helpers/react/combine-props';
 const AbsolutelyPositioned = forwardRef(function AbsolutelyPositioned({positionRelativeTo, align, children, fixed = false, ...rest}, ref) {
     const [sizeRef, dimensions] = useElementSize(ref);
     const windowSize = useWindowSize();
-    const [itemPosition] = usePositionedItem(positionRelativeTo, dimensions, align, windowSize);
+    const [itemPosition, alignment] = usePositionedItem(positionRelativeTo, dimensions, align, windowSize);
 
     const style = useMemo(
         () => itemPosition?.x === undefined ?
@@ -35,7 +35,7 @@ const AbsolutelyPositioned = forwardRef(function AbsolutelyPositioned({positionR
     }, rest);
 
     return <div {...props}>
-        {children}
+        {children instanceof Function ? children(alignment) : children}
     </div>
 })
 

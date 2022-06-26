@@ -5,8 +5,8 @@ import { Children, cloneElement, useState, useCallback, useEffect } from "react"
 import PropTypes from 'prop-types';
 
 //Components
+import Bubble from "components/display/Bubble";
 import Portal from "components/ui/Portal";
-
 import AbsolutelyPositioned from "components/ui/AbsolutelyPositioned";
 
 //Hooks
@@ -88,11 +88,11 @@ export default function Tooltip({children, content, align, forceOpen}) {
     return <>
         {renderChild}
         <Portal>
-            <AbsolutelyPositioned fixed ref={setElement} positionRelativeTo={position} align={align} className={isOpen ? undefined : classes.closed}>
-                <div role="tooltip" id={tooltipId} style={{padding: '5px', background: 'white', border: '1px solid black'}}>
+            <AbsolutelyPositioned fixed ref={setElement} positionRelativeTo={position} align={align} className={isOpen ? undefined : classes.closed}>{
+                (alignment) => <Bubble role="tooltip" id={tooltipId} aligned={alignment}>
                     {content}
-                </div>
-            </AbsolutelyPositioned>
+                </Bubble>
+            }</AbsolutelyPositioned>
         </Portal>
     </>
 }

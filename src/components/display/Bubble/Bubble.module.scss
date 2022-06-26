@@ -1,0 +1,115 @@
+@import '../../../css/shared';
+
+.bubble {
+    --tooltip-bg: var(--c-grey0);
+    --tooltip-c-border: var(--c-border);
+
+    --tooltip-arrow-length: 5px;
+    --tooltip-arrow-width: 6px;
+
+    --tooltip-arrow-border-length: calc(var(--tooltip-arrow-length) + var(--border-width));
+    --tooltip-arrow-border-width: calc(var(--tooltip-arrow-width) + calc(var(--border-width) * 2));
+
+    --tooltip-border-radius: var(--base-padding4);
+
+    display: block;
+    padding: var(--base-padding4);
+    border: var(--border-width) solid var(--tooltip-c-border);
+    border-radius: var(--tooltip-border-radius);
+    background: var(--tooltip-bg);
+    box-shadow: var(--shadow);
+    position: relative;
+
+    &.start {
+        --tooltip-arrow-position: calc(var(--tooltip-border-radius) + calc(var(--tooltip-arrow-width) / 2));
+        --tooltip-arrow-border-position: calc(var(--tooltip-border-radius) + calc(var(--tooltip-arrow-border-width) / 2));
+    }
+
+    &.middle {
+        --tooltip-arrow-position: calc(50% - calc(var(--tooltip-arrow-width) / 2));
+        --tooltip-arrow-border-position: calc(50% - calc(var(--tooltip-arrow-border-width) / 2));
+    }
+
+    &.end {
+        --tooltip-arrow-position: calc(100% - var(--tooltip-border-radius) - calc(var(--tooltip-arrow-width) * 1.5));
+        --tooltip-arrow-border-position: calc(100% - var(--tooltip-border-radius) - calc(var(--tooltip-arrow-border-width) * 1.5));
+    }
+
+    &:after,
+    &:before {//bg
+        position: absolute;
+        content: '';
+    }
+
+    &.top {
+        margin-bottom: var(--tooltip-arrow-border-length);
+
+        &:after {//bg
+            top: 100%;
+            left: var(--tooltip-arrow-position);
+    
+            @include triangle(bottom, var(--tooltip-arrow-width), var(--tooltip-arrow-length), var(--tooltip-bg));
+        }
+    
+        &:before {//border
+            top: 100%;
+            left: var(--tooltip-arrow-border-position);
+    
+            @include triangle(bottom, var(--tooltip-arrow-border-width), var(--tooltip-arrow-border-length), var(--tooltip-c-border));
+        }
+    }
+    
+    &.bottom {
+        margin-top: var(--tooltip-arrow-border-length);
+
+        &:after {//bg
+            bottom: 100%;
+            left: var(--tooltip-arrow-position);
+    
+            @include triangle(top, var(--tooltip-arrow-width), var(--tooltip-arrow-length), var(--tooltip-bg));
+        }
+    
+        &:before {//border
+            bottom: 100%;
+            left: var(--tooltip-arrow-border-position);
+    
+            @include triangle(top, var(--tooltip-arrow-border-width), var(--tooltip-arrow-border-length), var(--tooltip-c-border));
+        }
+    }
+
+    &.left {
+        margin-right: var(--tooltip-arrow-border-length);
+
+        &:after {//bg
+            top: var(--tooltip-arrow-position);
+            left: 100%;
+    
+            @include triangle(right, var(--tooltip-arrow-length), var(--tooltip-arrow-width), var(--tooltip-bg));
+        }
+    
+        &:before {//border
+            top: var(--tooltip-arrow-border-position);
+            left: 100%;
+    
+            @include triangle(right, var(--tooltip-arrow-border-length), var(--tooltip-arrow-border-width), var(--tooltip-c-border));
+        }
+    }
+
+    &.right {
+        margin-left: var(--tooltip-arrow-border-length);
+
+        &:after {//bg
+            top: var(--tooltip-arrow-position);
+            right: 100%;
+    
+            @include triangle(left, var(--tooltip-arrow-length), var(--tooltip-arrow-width), var(--tooltip-bg));
+        }
+    
+        &:before {//border
+            top: var(--tooltip-arrow-border-position);
+            right: 100%;
+    
+            @include triangle(left, var(--tooltip-arrow-border-length), var(--tooltip-arrow-border-width), var(--tooltip-c-border));
+        }
+    }
+}

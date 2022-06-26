@@ -33,7 +33,7 @@ export default function useTree(items) {
 }
 
 function reducer(state, {type, payload}) {
-    console.log('[TS]: ', type, payload);
+    //console.log('[TS]: ', type, payload);
     switch(type) {
         //General events
         case 'updateItems': {
