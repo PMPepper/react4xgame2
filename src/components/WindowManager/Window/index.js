@@ -1,4 +1,4 @@
-import { useMemo, memo } from "react";
+import { useMemo, memo, useState, useCallback } from "react";
 import { Trans } from "@lingui/macro"
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { solid } from '@fortawesome/fontawesome-svg-core/import.macro'
@@ -37,6 +37,24 @@ export default function Window({
 }) {
     const dragProps = useDraggable(onDrag, getAbsoluteOffsetTopLeft);
 
+    const [isFocusIn, setIsFocusIn] = useState(false);
+
+    const onFocusIn = useCallback(
+        makeFocusInOut((e) => {
+            onInteract(e);
+
+            setIsFocusIn(true);
+        }),
+        [onInteract]
+    );
+
+    const onFocusOut = useCallback(
+        makeFocusInOut(() => {
+            setIsFocusIn(false);
+        }),
+        []
+    );
+
     const style = useMemo(
         () => {
             return {
@@ -49,7 +67,7 @@ export default function Window({
         [x, y, width, height]
     );
 
-    return <Component style={style} className={styles.root} onMouseDown={onInteract} onFocus={makeFocusInOut(onInteract)} tabIndex="-1">
+    return <Component style={style} className={styles.root} onMouseDown={onInteract} onFocus={onFocusIn} onBlur={onFocusOut} tabIndex="-1">
         <div className={styles.content}>
             <HeaderComponent className={cn(styles.header, onDrag && styles.drag, onResize && styles.onResize)} {...dragProps}>
                 <Spreader
@@ -60,7 +78,7 @@ export default function Window({
                     </button>}
                 />
             </HeaderComponent>
-            <div className={styles.body}>{children}</div>
+            <div className={styles.body} inert={isFocusIn ? undefined : 'inert'}>{children}</div>
         </div>
         {onResize && <WindowResizeHandler styles={styles} onResize={onResize} />}
     </Component>

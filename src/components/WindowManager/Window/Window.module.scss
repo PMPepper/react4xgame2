@@ -21,6 +21,10 @@
 
     &:not(:focus-within) {
         opacity: 0.75;
+
+        // & .body {
+        //     pointer-events: none;
+        // }
     }
 }
 

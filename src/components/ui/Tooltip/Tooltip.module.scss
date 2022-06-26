@@ -1,5 +1,9 @@
 @import '../../../css/shared';
 
+.closed {
+    visibility: hidden;
+}
+
 .inline {
     text-decoration: green wavy underline;
 }

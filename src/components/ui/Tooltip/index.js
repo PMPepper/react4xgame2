@@ -1,8 +1,8 @@
 //TODO
 //customise position (disance/offset)
 //layout
-//custom show/hide control?
 import { Children, cloneElement, useState, useCallback, useEffect } from "react";
+import PropTypes from 'prop-types';
 
 //Components
 import Portal from "components/ui/Portal";
@@ -15,13 +15,14 @@ import useId from "hooks/useId";
 
 //Other
 import classes from './Tooltip.module.scss';
+import {validAlignments} from 'hooks/usePositionedItem';
 
 //Constants
 const elementSizeOptions = {width: true, height: true, x: true, y: true};
 
 
 //The component
-export default function Tooltip({children, content, align}) {
+export default function Tooltip({children, content, align, forceOpen}) {
     const [setElement, position] = useElementPosition(null, 0, elementSizeOptions);
 
     //State
@@ -64,7 +65,14 @@ export default function Tooltip({children, content, align}) {
     const id = useId(child.props.id);
     const tooltipId = `${id}-tooltip`;
     const renderChild = cloneElement(child, {ref: setElement, "aria-describedby": tooltipId, tabIndex: '0', onMouseEnter, onMouseLeave, onFocus, onBlur});
-    const isOpen = isMouseFocus || isKeyboardFocus;
+    // const isOpen = forceOpen === false ?
+    //     false
+    //     :
+    //     forceOpen === true ?
+    //         true
+    //         :
+    //         (isMouseFocus || isKeyboardFocus);
+    const isOpen = forceOpen ?? (isMouseFocus || isKeyboardFocus);
 
     //Side effects
     useEffect(
@@ -74,24 +82,36 @@ export default function Tooltip({children, content, align}) {
             return () => window.removeEventListener('keydown', onKeyDown);
         },
         []
-    )
+    );
 
     //Render
     return <>
         {renderChild}
         <Portal>
-            {isOpen && <AbsolutelyPositioned fixed ref={setElement} positionRelativeTo={position} align={align}>
+            <AbsolutelyPositioned fixed ref={setElement} positionRelativeTo={position} align={align} className={isOpen ? undefined : classes.closed}>
                 <div role="tooltip" id={tooltipId} style={{padding: '5px', background: 'white', border: '1px solid black'}}>
                     {content}
                 </div>
-            </AbsolutelyPositioned>}
+            </AbsolutelyPositioned>
         </Portal>
     </>
 }
 
 Tooltip.defaultProps = {
-    align: ['bottom-center', 'top-center', 'right-center', 'left-center']
+    align: ['bottom-center', 'top-center', 'right-center', 'left-center'],
+    forceOpen: null,
 };
+
+const oneOfValidAlignments = PropTypes.oneOf(Array.from(validAlignments));
+
+Tooltip.propTypes = {
+    align: PropTypes.oneOfType([
+        oneOfValidAlignments,
+        PropTypes.arrayOf(oneOfValidAlignments)
+    ]),
+    forceOpen: PropTypes.bool,
+    content: PropTypes.node,
+}
 
 export const InlineTooltip = Tooltip.Inline = function InlineTooltip({children, ...props}) {
     return <Tooltip {...props}><span className={classes.inline}>{children}</span></Tooltip>

@@ -2,12 +2,13 @@ import Rectangle from "classes/Rectangle";
 import { useMemo } from "react";
 
 
-// const validAlignments = new Set([
-//     'left', 'left-top', 'left-center', 'left-bottom',
-//     'right', 'right-top', 'right-center', 'right-bottom',
-//     'top', 'top-left', 'top-center', 'top-right',
-//     'bottom', 'bottom-left', 'bottom-center', 'bottom-right',
-// ])
+export const validAlignments = new Set([
+    'left', 'left-top', 'left-center', 'left-bottom',
+    'right', 'right-top', 'right-center', 'right-bottom',
+    'top', 'top-left', 'top-center', 'top-right',
+    'bottom', 'bottom-left', 'bottom-center', 'bottom-right',
+])
+
 const defaultAlign = ['left', 'right', 'left-bottom', 'right-bottom'];
 
 export default function usePositionedItem(
