@@ -7,6 +7,7 @@ import Tabs from 'components/ui/Tabs';
 import Tree from 'components/ui/Tree';
 import Entity from 'components/game/Entity';
 import Tooltip from 'components/ui/Tooltip';
+import Table from 'components/display/Table'
 
 //Hooks
 import { useGetContextState } from 'components/SelectableContext';
@@ -47,6 +48,66 @@ export default function ColonyWindow() {
                 <Tabs.Tab label="Hello" className="wysiwyg">
                     <p>The <Tooltip.Inline content={'foo bar'}>first tab</Tooltip.Inline></p>
                     <p>The second line of the first tab</p>
+                    <Table columns="auto auto auto auto">
+                        {/*<div style={{
+                            border: '2px solid red',
+                            gridArea: '3 / 1 / 6 / 3',
+                        }}></div>*/}
+                        <Table.Head>
+                            <Table.Row>
+                                <Table.HeaderCell scope="col">Name</Table.HeaderCell>
+                                <Table.HeaderCell scope="col">World</Table.HeaderCell>
+                                <Table.HeaderCell scope="col">Foo</Table.HeaderCell>
+                                <Table.HeaderCell scope="col">Bar</Table.HeaderCell>
+                            </Table.Row>
+                        </Table.Head>
+                        <Table.Body>
+                            <Table.Row>
+                                <Table.HeaderCell scope="row">Sooty</Table.HeaderCell>
+                                <Table.Cell>243</Table.Cell>
+                                <Table.Cell>D</Table.Cell>
+                                <Table.Cell>ef sfsefsdfcw fsdvcsdfs efsadczc </Table.Cell>
+                            </Table.Row>
+                            <Table.Row>
+                                <Table.HeaderCell scope="row">Sweep</Table.HeaderCell>
+                                <Table.Cell>723</Table.Cell>
+                                <Table.Cell>A</Table.Cell>
+                                <Table.Cell>cesfdeef ced ce cessedf fdf </Table.Cell>
+                            </Table.Row>
+                            <Table.Row>
+                                <Table.HeaderCell scope="row">Sue</Table.HeaderCell>
+                                <Table.Cell>92</Table.Cell>
+                                <Table.Cell>D</Table.Cell>
+                                <Table.Cell>serfv sef fswefrg iokljhkl cwelkc</Table.Cell>
+                            </Table.Row>
+                        </Table.Body>
+                        <Table.Body>
+                            <Table.Row>
+                                <Table.HeaderCell scope="row">Paul</Table.HeaderCell>
+                                <Table.Cell>12</Table.Cell>
+                                <Table.Cell>-</Table.Cell>
+                                <Table.Cell>ffdcevrred </Table.Cell>
+                            </Table.Row>
+                            <Table.Row>
+                                <Table.HeaderCell scope="row">Ringo</Table.HeaderCell>
+                                <Table.Cell>23234</Table.Cell>
+                                <Table.Cell>A</Table.Cell>
+                                <Table.Cell>sdcswefr ce f esfcefds fdf </Table.Cell>
+                            </Table.Row>
+                            <Table.Row>
+                                <Table.HeaderCell scope="row">John</Table.HeaderCell>
+                                <Table.Cell>2312</Table.Cell>
+                                <Table.Cell>-</Table.Cell>
+                                <Table.Cell>sdfcvrfsdc sedfdffesdcwefsd fffer </Table.Cell>
+                            </Table.Row>
+                            <Table.Row>
+                                <Table.HeaderCell scope="row">George</Table.HeaderCell>
+                                <Table.Cell>3</Table.Cell>
+                                <Table.Cell>F</Table.Cell>
+                                <Table.Cell>ewefsd efedf efcsfwef </Table.Cell>
+                            </Table.Row>
+                        </Table.Body>
+                    </Table>
                 </Tabs.Tab>
                 <Tabs.Tab label="World" className="wysiwyg">
                     <p>TODO content for this tab.</p>

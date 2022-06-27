@@ -42,10 +42,10 @@ html {
   --font-bodySmallStrong: bold var(--font-size-small)/calc(1.2 * var(--scale)) var(--font-family);
 
   --font-bodyNormal: var(--font-size-normal)/calc(1.2 * var(--scale)) var(--font-family);
-  --font-bodyStrong: var(--font-size-normal)/calc(1.2 * var(--scale)) var(--font-family);
+  --font-bodyStrong: bold var(--font-size-normal)/calc(1.2 * var(--scale)) var(--font-family);
 
   --font-bodyLarge: var(--font-size-large)/calc(1.2 * var(--scale)) var(--font-family);
-  --font-bodyLargeStrong: var(--font-size-large)/calc(1.2 * var(--scale)) var(--font-family);
+  --font-bodyLargeStrong: bold var(--font-size-large)/calc(1.2 * var(--scale)) var(--font-family);
 
   --font-headerNormal: bold var(--font-size-header)/calc(1.2 * var(--scale)) var(--font-family);
   --font-headerStrong: bolder var(--font-size-header)/calc(1.2 * var(--scale)) var(--font-family);

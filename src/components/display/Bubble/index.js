@@ -34,6 +34,10 @@ const positionMap = {
 };
 
 function getArrowPosition(aligned) {
+    if(!aligned) {
+        return ['', '']
+    }
+
     const [side, position] = aligned.split('-');
 
     return [side, positionMap[position] ?? 'start']

@@ -1,0 +1,65 @@
+@import '../../../css/shared';
+
+
+.table {
+    --table-padding: var(--base-padding4);
+    --table-border: var(--border);
+
+    --table-header-bg: var(--c-grey30);
+    --table-body-bg: var(--c-grey10);
+    --table-body-alt-bg: var(--c-grey20);
+
+    --table-bg: var(--table-body-bg);
+
+    display: grid;
+    margin: 0;
+    padding: 0;
+    border: var(--table-border);
+}
+
+.thead {
+    display: contents;
+
+    --table-bg: var(--table-header-bg)
+}
+
+.tbody {
+    display: contents;
+
+    & > .tr:nth-child(even) {
+        --table-bg: var(--table-body-alt-bg);
+    }
+
+    // & + .tbody > .tr:first-of-type >.td,
+    // & + .tbody > .tr:first-of-type >.th {
+    //     border-top: 5px solid red;
+    // }
+
+    // &:not(:first-of-type) > .tr:first-of-type > .td,
+    // &:not(:first-of-type) > .tr:first-of-type > .th {
+    //     border-top: 1px dashed lightgray;
+    // }
+}
+
+.tfoot {
+    display: contents;
+}
+
+.tr {
+    display: contents;
+}
+
+.th {
+    margin: 0;
+    padding: var(--table-padding);
+    font: var(--font-bodyStrong);
+    background: var(--table-bg);
+    text-align: start;
+}
+
+.td {
+    margin: 0;
+    padding: var(--table-padding);
+    font: var(--font-bodyNormal);
+    background: var(--table-bg);
+}
