@@ -47,6 +47,13 @@
   }
 }
 
+@mixin onHoverOrFocus() {
+  &:hover,
+  :global(.focus_keyboard) &:focus {
+    @content;
+  }
+}
+
 
 $textMouseInteractionCol: car(--c-grey80);
 $blockMouseInteractionCol: var(--c-grey90);

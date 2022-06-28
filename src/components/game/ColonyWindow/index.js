@@ -45,9 +45,12 @@ export default function ColonyWindow() {
 
         <div className={classes.main}>
             <Tabs selectedIndex={selectedIndex} setSelectedIndex={setSelectedIndex}>
-                <Tabs.Tab label="Hello" className="wysiwyg">
-                    <p>The <Tooltip.Inline content={'foo bar'}>first tab</Tooltip.Inline></p>
-                    <p>The second line of the first tab</p>
+                <Tabs.Tab label="Hello">
+                    <div className="wysiwyg">
+                        <p>The <Tooltip.Inline content={'foo bar'}>first tab</Tooltip.Inline></p>
+                        <p>The second line of the first tab</p>
+                    </div>
+                    
                     <Table columns="auto auto auto auto">
                         {/*<div style={{
                             border: '2px solid red',
@@ -55,10 +58,10 @@ export default function ColonyWindow() {
                         }}></div>*/}
                         <Table.Head>
                             <Table.Row>
-                                <Table.HeaderCell scope="col">Name</Table.HeaderCell>
-                                <Table.HeaderCell scope="col">World</Table.HeaderCell>
-                                <Table.HeaderCell scope="col">Foo</Table.HeaderCell>
-                                <Table.HeaderCell scope="col">Bar</Table.HeaderCell>
+                                <Table.HeaderCell scope="col"><Table.ColumnSort sortDir="asc">Name</Table.ColumnSort></Table.HeaderCell>
+                                <Table.HeaderCell scope="col"><Table.ColumnSort>World</Table.ColumnSort></Table.HeaderCell>
+                                <Table.HeaderCell scope="col"><Table.ColumnSort>Foo</Table.ColumnSort></Table.HeaderCell>
+                                <Table.HeaderCell scope="col"><Table.ColumnSort>Bar</Table.ColumnSort></Table.HeaderCell>
                             </Table.Row>
                         </Table.Head>
                         <Table.Body>

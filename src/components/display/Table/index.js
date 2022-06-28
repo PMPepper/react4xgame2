@@ -1,7 +1,14 @@
 import { forwardRef } from 'react';
+import PropTypes from 'prop-types';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { solid } from '@fortawesome/fontawesome-svg-core/import.macro';
+
+//Components
+import IconStack from 'components/display/IconStack';
 
 //Utils
 import combineProps from 'helpers/react/combine-props';
+import classnames from 'helpers/css/class-list-to-string';
 
 //Other
 import classes from './Table.module.scss';
@@ -116,3 +123,44 @@ export const TableCell = Table.Cell = forwardRef(function TableCell({children, .
         {children}
     </td>
 });
+
+//sortDir being set means this is being sorted on
+
+export const ColumnSort = Table.ColumnSort = forwardRef(function ColumnSort({children, sort, sortDir, ...rest}, ref) {
+    const props = combineProps(
+        {
+            className: classnames(classes.columnSort, classes[`sortDir-${sortDir}`]) ,
+            ref
+        },
+        rest
+    );
+
+    const icon = sortDir === 'asc' ?
+        sortAscIcon
+        :
+        sortDir === 'desc' ?
+            sortDescIcon
+            :
+            sortIcon
+
+    return <button {...props}>
+        {children}
+        <span className={classes.icon}>{icon}</span>
+    </button>
+});
+
+ColumnSort.propTypes = {
+    sortDir: PropTypes.oneOf(['asc', 'desc'])
+}
+
+const sortIcon = <FontAwesomeIcon icon={solid('sort')} />
+
+const sortAscIcon = <IconStack>
+    <FontAwesomeIcon icon={solid('sort-down')} className={classes.faint} />
+    <FontAwesomeIcon icon={solid('sort-up')} />
+</IconStack>
+
+const sortDescIcon = <IconStack>
+    <FontAwesomeIcon icon={solid('sort-down')} />
+    <FontAwesomeIcon icon={solid('sort-up')} className={classes.faint} />
+</IconStack>

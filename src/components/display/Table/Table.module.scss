@@ -63,3 +63,39 @@
     font: var(--font-bodyNormal);
     background: var(--table-bg);
 }
+
+.columnSort{
+    @include blankBtn;
+
+    @include textInteraction($keyboardCol: var(--c-keyboard-alt));//TODO better colors for keyboard focus
+
+    display: flex;
+    align-items: center;
+
+    .icon {
+        visibility: hidden;
+        opacity: 0.5;
+    }
+
+    &.sortDir-asc,
+    &.sortDir-desc {
+        .icon {
+            visibility: visible;
+        }
+    }
+
+    @include onHoverOrFocus {
+        .icon {
+            visibility: visible;
+            opacity: 1;
+        }
+    }
+}
+
+.icon {
+    margin-left: var(--table-padding)
+}
+
+.faint {
+    opacity: 0.25;;
+}
