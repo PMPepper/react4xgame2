@@ -41,6 +41,12 @@ const tableColumns = [
         sortType: 'numeric'
     },
     {
+        name: 'salary',
+        label: 'Salary',
+        sortType: 'numeric',
+        format: 'numeric',
+    },
+    {
         name: 'role',
         label: 'Role',
         sortType: 'alphabetical'
@@ -55,48 +61,56 @@ const tableData = [[
     {
         name: 'Peter',
         age: 44,
+        salary: 25000,
         role: 'Janitor',
         notes: 'ecjefi sdcvkljerijsdcmkllcdsj cvijsefv iojsdcvmkl je jlsdcxmk j er'
     },
     {
         name: 'James',
         age: 29,
+        salary: 23450,
         role: 'Cook',
         notes: 'k dscjk sdefkl; kldxcsefokl;n sdfkl;d f kdf '
     },
     {
         name: 'Laura',
         age: 40,
+        salary: 23450,
         role: 'Cook',
         notes: 'opjkedkm sd kmwsefokdsxck nmlkldsfc kmsdckmlsef xcdf'
     },
     {
         name: 'Sarah',
         age: 53,
+        salary: 17500,
         role: 'Receptionist',
         notes: 'kmlj;cdklm  m kldxcfl;m sdefopjsdxcm,l lcds m'
     },
     {
         name: 'Kim',
         age: 35,
+        salary: 55000,
         role: 'Accountant',
         notes: 'mkl cde cmk efcijo sdmcv sdc efd dfscec dcf'
     },
     {
         name: 'Arthur',
         age: 65,
+        salary: 14500,
         role: 'Cleaner',
         notes: 'lkjsdefjk  c jlk; ewfc sxcl;kjsdefoj mdc jed'
     },
     {
         name: 'Anna',
         age: 19,
+        salary: 15000,
         role: 'Cleaner',
         notes: 'ljkscdio ;lkcd klwepojm,kdv knlcelk;kl cdjecded '
     },
     {
         name: 'Ian',
         age: 31,
+        salary: 37000,
         role: 'Gardener',
         notes: 'klndscknjlrv jklsdclkij sdciojioj vknm l;lkdecjcf'
     },
@@ -114,6 +128,16 @@ export default function ColonyWindow() {
 
     const items = useGetSystemItems(selectedSystemId);
 
+    //TEMP
+    const [sortCol, setSortCol] = useState(null);
+    const [sortDir, setSortDir] = useState(null);
+
+    const onSort = (sortCol, sortDir) => {
+        setSortCol(sortCol);
+        setSortDir(sortDir);
+    }
+    //END TEMP
+
     return <div className={classes.root}>
         <div className={classes.treeHolder}>
             <Tree caption="Some stuff about made up people" items={items} selectedItem={selectedTreeItem} setSelectedItem={setSelectedTreeItem} />
@@ -127,11 +151,11 @@ export default function ColonyWindow() {
                         <p>The second line of the first tab</p>
                     </div>
                     <div>
-                        <Table2 columns={tableColumns} data={tableData} />
+                        <Table2 caption="A table of some made up people" columns={tableColumns} data={tableData} onSort={onSort} sortDir={sortDir} sortCol={sortCol} />
                         <Table columns="auto auto auto auto">
                             <Table.Caption>Example table caption</Table.Caption>
                             <Table.Head>
-                                <Table.Row sticky>
+                                <Table.Row>
                                     <Table.HeaderCell scope="col"><Table.ColumnSort sortDir="asc">Name</Table.ColumnSort></Table.HeaderCell>
                                     <Table.HeaderCell scope="col"><Table.ColumnSort>World</Table.ColumnSort></Table.HeaderCell>
                                     <Table.HeaderCell scope="col"><Table.ColumnSort>Foo</Table.ColumnSort></Table.HeaderCell>

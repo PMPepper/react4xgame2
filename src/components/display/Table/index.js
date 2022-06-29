@@ -4,6 +4,7 @@ import { forwardRef } from 'react';
 import PropTypes from 'prop-types';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { solid } from '@fortawesome/fontawesome-svg-core/import.macro';
+import { t } from '@lingui/macro';
 
 //Components
 import IconStack from 'components/display/IconStack';
@@ -145,6 +146,7 @@ export const Caption = Table.Caption = forwardRef(function Caption({children, ..
 export const ColumnSort = Table.ColumnSort = forwardRef(function ColumnSort({children, sort, sortDir, ...rest}, ref) {
     const props = combineProps(
         {
+            "aria-roledescription": t`sort button`,
             className: classnames(classes.columnSort, classes[`sortDir-${sortDir}`]) ,
             ref
         },

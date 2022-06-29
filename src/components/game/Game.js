@@ -31,7 +31,7 @@ import roundTo from 'helpers/math/round-to';
 
 //Constants
 const windows = [
-  <WindowManager.Window key="colony" x={50} y={150} width={600} height={400} minWidth={400} minHeight={250} title={<Trans>Colony</Trans>}>
+  <WindowManager.Window key="colony" x={50} y={150} width={800} height={450} minWidth={400} minHeight={250} title={<Trans>Colony</Trans>}>
     <ColonyWindow />
   </WindowManager.Window>,
   <WindowManager.Window key="technology" x={600} y={500} width={350} height={150} minWidth={400} title={<Trans>Technology</Trans>}>
