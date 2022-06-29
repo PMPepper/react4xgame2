@@ -7,7 +7,8 @@ import Tabs from 'components/ui/Tabs';
 import Tree from 'components/ui/Tree';
 import Entity from 'components/game/Entity';
 import Tooltip from 'components/ui/Tooltip';
-import Table from 'components/display/Table'
+import Table from 'components/display/Table';
+import Table2 from 'components/ui/Table';
 
 //Hooks
 import { useGetContextState } from 'components/SelectableContext';
@@ -27,6 +28,81 @@ const planetIcon = <FontAwesomeIcon icon={solid("globe")} />;
 const asteroidIcon = <FontAwesomeIcon icon={solid("cookie")} />;
 //const moonIcon = <FontAwesomeIcon icon={solid("minus-square")} />;
 
+const tableColumns = [
+    {
+        name: 'name',
+        label: 'Name',
+        rowHeader: true,
+        sortType: 'alphabetical'
+    },
+    {
+        name: 'age',
+        label: 'Age',
+        sortType: 'numeric'
+    },
+    {
+        name: 'role',
+        label: 'Role',
+        sortType: 'alphabetical'
+    },
+    {
+        name: 'notes',
+        label: 'Notes',
+    }
+];
+
+const tableData = [[
+    {
+        name: 'Peter',
+        age: 44,
+        role: 'Janitor',
+        notes: 'ecjefi sdcvkljerijsdcmkllcdsj cvijsefv iojsdcvmkl je jlsdcxmk j er'
+    },
+    {
+        name: 'James',
+        age: 29,
+        role: 'Cook',
+        notes: 'k dscjk sdefkl; kldxcsefokl;n sdfkl;d f kdf '
+    },
+    {
+        name: 'Laura',
+        age: 40,
+        role: 'Cook',
+        notes: 'opjkedkm sd kmwsefokdsxck nmlkldsfc kmsdckmlsef xcdf'
+    },
+    {
+        name: 'Sarah',
+        age: 53,
+        role: 'Receptionist',
+        notes: 'kmlj;cdklm  m kldxcfl;m sdefopjsdxcm,l lcds m'
+    },
+    {
+        name: 'Kim',
+        age: 35,
+        role: 'Accountant',
+        notes: 'mkl cde cmk efcijo sdmcv sdc efd dfscec dcf'
+    },
+    {
+        name: 'Arthur',
+        age: 65,
+        role: 'Cleaner',
+        notes: 'lkjsdefjk  c jlk; ewfc sxcl;kjsdefoj mdc jed'
+    },
+    {
+        name: 'Anna',
+        age: 19,
+        role: 'Cleaner',
+        notes: 'ljkscdio ;lkcd klwepojm,kdv knlcelk;kl cdjecded '
+    },
+    {
+        name: 'Ian',
+        age: 31,
+        role: 'Gardener',
+        notes: 'klndscknjlrv jklsdclkij sdciojioj vknm l;lkdecjcf'
+    },
+
+]];
+
 //The component
 export default function ColonyWindow() {
     const selectedSystemId = useSelector(state => state.selectedSystemId);
@@ -40,7 +116,7 @@ export default function ColonyWindow() {
 
     return <div className={classes.root}>
         <div className={classes.treeHolder}>
-            <Tree items={items} selectedItem={selectedTreeItem} setSelectedItem={setSelectedTreeItem} />
+            <Tree caption="Some stuff about made up people" items={items} selectedItem={selectedTreeItem} setSelectedItem={setSelectedTreeItem} />
         </div>
 
         <div className={classes.main}>
@@ -50,67 +126,145 @@ export default function ColonyWindow() {
                         <p>The <Tooltip.Inline content={'foo bar'}>first tab</Tooltip.Inline></p>
                         <p>The second line of the first tab</p>
                     </div>
+                    <div>
+                        <Table2 columns={tableColumns} data={tableData} />
+                        <Table columns="auto auto auto auto">
+                            <Table.Caption>Example table caption</Table.Caption>
+                            <Table.Head>
+                                <Table.Row sticky>
+                                    <Table.HeaderCell scope="col"><Table.ColumnSort sortDir="asc">Name</Table.ColumnSort></Table.HeaderCell>
+                                    <Table.HeaderCell scope="col"><Table.ColumnSort>World</Table.ColumnSort></Table.HeaderCell>
+                                    <Table.HeaderCell scope="col"><Table.ColumnSort>Foo</Table.ColumnSort></Table.HeaderCell>
+                                    <Table.HeaderCell scope="col"><Table.ColumnSort>Bar</Table.ColumnSort></Table.HeaderCell>
+                                </Table.Row>
+                            </Table.Head>
+                            <Table.Body>
+                                <Table.Row>
+                                    <Table.HeaderCell scope="row">Sooty</Table.HeaderCell>
+                                    <Table.Cell>243</Table.Cell>
+                                    <Table.Cell>D</Table.Cell>
+                                    <Table.Cell>ef sfsefsdfcw fsdvcsdfs efsadczc edsdfcd sfc edfsdcsfe csed fsexce fasdfcfc edds</Table.Cell>
+                                </Table.Row>
+                                <Table.Row even>
+                                    <Table.HeaderCell scope="row">Sweep</Table.HeaderCell>
+                                    <Table.Cell>723</Table.Cell>
+                                    <Table.Cell>A</Table.Cell>
+                                    <Table.Cell>cesfdeef ced ce cessedf fdf </Table.Cell>
+                                </Table.Row>
+                                <Table.Row>
+                                    <Table.HeaderCell scope="row">Sue</Table.HeaderCell>
+                                    <Table.Cell>92</Table.Cell>
+                                    <Table.Cell>D</Table.Cell>
+                                    <Table.Cell>serfv sef fswefrg iokljhkl cwelkc</Table.Cell>
+                                </Table.Row>
+                            </Table.Body>
+                            <Table.Body>
+                                <Table.Row even>
+                                    <Table.HeaderCell scope="row">Paul</Table.HeaderCell>
+                                    <Table.Cell>12</Table.Cell>
+                                    <Table.Cell>-</Table.Cell>
+                                    <Table.Cell>ffdcevrred </Table.Cell>
+                                </Table.Row>
+                                <Table.Row>
+                                    <Table.HeaderCell scope="row">Ringo</Table.HeaderCell>
+                                    <Table.Cell>23234</Table.Cell>
+                                    <Table.Cell>A</Table.Cell>
+                                    <Table.Cell>sdcswefr ce f esfcefds fdf </Table.Cell>
+                                </Table.Row>
+                                <Table.Row even>
+                                    <Table.HeaderCell scope="row">John</Table.HeaderCell>
+                                    <Table.Cell>2312</Table.Cell>
+                                    <Table.Cell>-</Table.Cell>
+                                    <Table.Cell>sdfcvrfsdc sedfdffesdcwefsd fffer </Table.Cell>
+                                </Table.Row>
+                                <Table.Row>
+                                    <Table.HeaderCell scope="row">George</Table.HeaderCell>
+                                    <Table.Cell>3</Table.Cell>
+                                    <Table.Cell>F</Table.Cell>
+                                    <Table.Cell>ewefsd efedf efcsfwef </Table.Cell>
+                                </Table.Row>
+                            </Table.Body>
+                            <Table.Body>
+                                <Table.Row even>
+                                    <Table.HeaderCell scope="row">Paul</Table.HeaderCell>
+                                    <Table.Cell>12</Table.Cell>
+                                    <Table.Cell>-</Table.Cell>
+                                    <Table.Cell>ffdcevrred </Table.Cell>
+                                </Table.Row>
+                                <Table.Row>
+                                    <Table.HeaderCell scope="row">Ringo</Table.HeaderCell>
+                                    <Table.Cell>23234</Table.Cell>
+                                    <Table.Cell>A</Table.Cell>
+                                    <Table.Cell>sdcswefr ce f esfcefds fdf </Table.Cell>
+                                </Table.Row>
+                                <Table.Row even>
+                                    <Table.HeaderCell scope="row">John</Table.HeaderCell>
+                                    <Table.Cell>2312</Table.Cell>
+                                    <Table.Cell>-</Table.Cell>
+                                    <Table.Cell>sdfcvrfsdc sedfdffesdcwefsd fffer </Table.Cell>
+                                </Table.Row>
+                                <Table.Row>
+                                    <Table.HeaderCell scope="row">George</Table.HeaderCell>
+                                    <Table.Cell>3</Table.Cell>
+                                    <Table.Cell>F</Table.Cell>
+                                    <Table.Cell>ewefsd efedf efcsfwef </Table.Cell>
+                                </Table.Row>
+                            </Table.Body>
+                            <Table.Body>
+                                <Table.Row even>
+                                    <Table.HeaderCell scope="row">Paul</Table.HeaderCell>
+                                    <Table.Cell>12</Table.Cell>
+                                    <Table.Cell>-</Table.Cell>
+                                    <Table.Cell>ffdcevrred </Table.Cell>
+                                </Table.Row>
+                                <Table.Row>
+                                    <Table.HeaderCell scope="row">Ringo</Table.HeaderCell>
+                                    <Table.Cell>23234</Table.Cell>
+                                    <Table.Cell>A</Table.Cell>
+                                    <Table.Cell>sdcswefr ce f esfcefds fdf </Table.Cell>
+                                </Table.Row>
+                                <Table.Row even>
+                                    <Table.HeaderCell scope="row">John</Table.HeaderCell>
+                                    <Table.Cell>2312</Table.Cell>
+                                    <Table.Cell>-</Table.Cell>
+                                    <Table.Cell>sdfcvrfsdc sedfdffesdcwefsd fffer </Table.Cell>
+                                </Table.Row>
+                                <Table.Row>
+                                    <Table.HeaderCell scope="row">George</Table.HeaderCell>
+                                    <Table.Cell>3</Table.Cell>
+                                    <Table.Cell>F</Table.Cell>
+                                    <Table.Cell>ewefsd efedf efcsfwef </Table.Cell>
+                                </Table.Row>
+                            </Table.Body>
+                            <Table.Body>
+                                <Table.Row even>
+                                    <Table.HeaderCell scope="row">Paul</Table.HeaderCell>
+                                    <Table.Cell>12</Table.Cell>
+                                    <Table.Cell>-</Table.Cell>
+                                    <Table.Cell>ffdcevrred </Table.Cell>
+                                </Table.Row>
+                                <Table.Row>
+                                    <Table.HeaderCell scope="row">Ringo</Table.HeaderCell>
+                                    <Table.Cell>23234</Table.Cell>
+                                    <Table.Cell>A</Table.Cell>
+                                    <Table.Cell>sdcswefr ce f esfcefds fdf </Table.Cell>
+                                </Table.Row>
+                                <Table.Row even>
+                                    <Table.HeaderCell scope="row">John</Table.HeaderCell>
+                                    <Table.Cell>2312</Table.Cell>
+                                    <Table.Cell>-</Table.Cell>
+                                    <Table.Cell>sdfcvrfsdc sedfdffesdcwefsd fffer </Table.Cell>
+                                </Table.Row>
+                                <Table.Row>
+                                    <Table.HeaderCell scope="row">George</Table.HeaderCell>
+                                    <Table.Cell>3</Table.Cell>
+                                    <Table.Cell>F</Table.Cell>
+                                    <Table.Cell>ewefsd efedf efcsfwef </Table.Cell>
+                                </Table.Row>
+                            </Table.Body>
+                        </Table>
+                    </div>
                     
-                    <Table columns="auto auto auto auto">
-                        {/*<div style={{
-                            border: '2px solid red',
-                            gridArea: '3 / 1 / 6 / 3',
-                        }}></div>*/}
-                        <Table.Head>
-                            <Table.Row>
-                                <Table.HeaderCell scope="col"><Table.ColumnSort sortDir="asc">Name</Table.ColumnSort></Table.HeaderCell>
-                                <Table.HeaderCell scope="col"><Table.ColumnSort>World</Table.ColumnSort></Table.HeaderCell>
-                                <Table.HeaderCell scope="col"><Table.ColumnSort>Foo</Table.ColumnSort></Table.HeaderCell>
-                                <Table.HeaderCell scope="col"><Table.ColumnSort>Bar</Table.ColumnSort></Table.HeaderCell>
-                            </Table.Row>
-                        </Table.Head>
-                        <Table.Body>
-                            <Table.Row>
-                                <Table.HeaderCell scope="row">Sooty</Table.HeaderCell>
-                                <Table.Cell>243</Table.Cell>
-                                <Table.Cell>D</Table.Cell>
-                                <Table.Cell>ef sfsefsdfcw fsdvcsdfs efsadczc </Table.Cell>
-                            </Table.Row>
-                            <Table.Row>
-                                <Table.HeaderCell scope="row">Sweep</Table.HeaderCell>
-                                <Table.Cell>723</Table.Cell>
-                                <Table.Cell>A</Table.Cell>
-                                <Table.Cell>cesfdeef ced ce cessedf fdf </Table.Cell>
-                            </Table.Row>
-                            <Table.Row>
-                                <Table.HeaderCell scope="row">Sue</Table.HeaderCell>
-                                <Table.Cell>92</Table.Cell>
-                                <Table.Cell>D</Table.Cell>
-                                <Table.Cell>serfv sef fswefrg iokljhkl cwelkc</Table.Cell>
-                            </Table.Row>
-                        </Table.Body>
-                        <Table.Body>
-                            <Table.Row>
-                                <Table.HeaderCell scope="row">Paul</Table.HeaderCell>
-                                <Table.Cell>12</Table.Cell>
-                                <Table.Cell>-</Table.Cell>
-                                <Table.Cell>ffdcevrred </Table.Cell>
-                            </Table.Row>
-                            <Table.Row>
-                                <Table.HeaderCell scope="row">Ringo</Table.HeaderCell>
-                                <Table.Cell>23234</Table.Cell>
-                                <Table.Cell>A</Table.Cell>
-                                <Table.Cell>sdcswefr ce f esfcefds fdf </Table.Cell>
-                            </Table.Row>
-                            <Table.Row>
-                                <Table.HeaderCell scope="row">John</Table.HeaderCell>
-                                <Table.Cell>2312</Table.Cell>
-                                <Table.Cell>-</Table.Cell>
-                                <Table.Cell>sdfcvrfsdc sedfdffesdcwefsd fffer </Table.Cell>
-                            </Table.Row>
-                            <Table.Row>
-                                <Table.HeaderCell scope="row">George</Table.HeaderCell>
-                                <Table.Cell>3</Table.Cell>
-                                <Table.Cell>F</Table.Cell>
-                                <Table.Cell>ewefsd efedf efcsfwef </Table.Cell>
-                            </Table.Row>
-                        </Table.Body>
-                    </Table>
                 </Tabs.Tab>
                 <Tabs.Tab label="World" className="wysiwyg">
                     <p>TODO content for this tab.</p>

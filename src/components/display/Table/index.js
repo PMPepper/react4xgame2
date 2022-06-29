@@ -1,3 +1,5 @@
+//TODO 'sticky' table headers?
+
 import { forwardRef } from 'react';
 import PropTypes from 'prop-types';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -80,10 +82,10 @@ export const TableFoot = Table.Foot = forwardRef(function TableFoot({children, .
 });
 
 //Table row
-export const TableRow = Table.Row = forwardRef(function TableRow({children, ...rest}, ref) {
+export const TableRow = Table.Row = forwardRef(function TableRow({children, even, ...rest}, ref) {
     const props = combineProps(
         {
-            className: classes.tr,
+            className: classnames(classes.tr, even && classes.even),
             ref
         },
         rest
@@ -124,8 +126,22 @@ export const TableCell = Table.Cell = forwardRef(function TableCell({children, .
     </td>
 });
 
-//sortDir being set means this is being sorted on
+//Caption
+export const Caption = Table.Caption = forwardRef(function Caption({children, ...rest}, ref) {
+    const props = combineProps(
+        {
+            className: classes.caption,
+            ref
+        },
+        rest
+    )
 
+    return <caption {...props}>
+        {children}
+    </caption>
+});
+
+//sortDir being set means this is being sorted on
 export const ColumnSort = Table.ColumnSort = forwardRef(function ColumnSort({children, sort, sortDir, ...rest}, ref) {
     const props = combineProps(
         {

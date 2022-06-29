@@ -11,14 +11,20 @@
 }
 
 .treeHolder {
-    flex: 0 0 auto;
-    overflow: auto;
+    flex: 0 0 200px;
+    min-width: 200px;//link to scale?
+    overflow-x: hidden;
+    overflow-y: auto;
 
     @include section();
 }
 
 .main {
-    flex: 1 1 auto;
+    flex: 1 0 0;//grow to fill remaining available space
+    min-width: 0;//needed to make it work
+
+    overflow-x: hidden;
+    overflow-y: auto;
 
     @include section(true);
 }

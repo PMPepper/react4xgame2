@@ -14,21 +14,21 @@
     display: grid;
     margin: 0;
     padding: 0;
-    border: var(--table-border);
+    // border: var(--table-border);
+    border-bottom: var(--table-border);
 }
 
 .thead {
     display: contents;
 
-    --table-bg: var(--table-header-bg)
+    --table-bg: var(--table-header-bg);
+
+    // border: var(--table-border);
+    // border-top: 0; 
 }
 
 .tbody {
     display: contents;
-
-    & > .tr:nth-child(even) {
-        --table-bg: var(--table-body-alt-bg);
-    }
 
     // & + .tbody > .tr:first-of-type >.td,
     // & + .tbody > .tr:first-of-type >.th {
@@ -47,6 +47,27 @@
 
 .tr {
     display: contents;
+
+    &.even {
+        --table-bg: var(--table-body-alt-bg);
+    }
+}
+
+%cellBorder {
+    &:first-child {
+        border-left: var(--table-border);
+    }
+
+    &:last-child {
+        border-right: var(--table-border);
+    }
+
+    .table > :first-child > .tr:first-child > &,
+    .table > .caption + .thead > .tr:first-child > &,
+    .table > .caption + .tfoot > .tr:first-child > &,
+    .table > .caption + .tbody > .tr:first-child > & {
+        border-top: var(--table-border);
+    }
 }
 
 .th {
@@ -55,6 +76,21 @@
     font: var(--font-bodyStrong);
     background: var(--table-bg);
     text-align: start;
+
+    //If I want to add sticky headers later
+    // &[scope="col"] {
+    //     position: sticky;
+    //     top: 0;
+    //     z-index: 2;
+    // }
+
+    // &[scope="row"] {
+    //     position: sticky;
+    //     left: 0;
+    //     z-index: 1;
+    // }
+
+    @extend %cellBorder;
 }
 
 .td {
@@ -62,6 +98,14 @@
     padding: var(--table-padding);
     font: var(--font-bodyNormal);
     background: var(--table-bg);
+
+    @extend %cellBorder;
+}
+
+.caption {
+    font: var(--font-bodyStrong);
+    padding: var(--table-padding);
+    grid-column: 1 / -1;
 }
 
 .columnSort{

@@ -31,10 +31,10 @@ import roundTo from 'helpers/math/round-to';
 
 //Constants
 const windows = [
-  <WindowManager.Window key="colony" x={50} y={150} width={600} height={400} minWidth={250} maxWidth={500} minHeight={150} maxHeight={300} title={<Trans>Colony</Trans>}>
+  <WindowManager.Window key="colony" x={50} y={150} width={600} height={400} minWidth={400} minHeight={250} title={<Trans>Colony</Trans>}>
     <ColonyWindow />
   </WindowManager.Window>,
-  <WindowManager.Window key="technology" x={600} y={500} width={350} height={150} minWidth={200} maxWidth={700} title={<Trans>Technology</Trans>}>
+  <WindowManager.Window key="technology" x={600} y={500} width={350} height={150} minWidth={400} title={<Trans>Technology</Trans>}>
     <p>TODO content for this window</p>
   </WindowManager.Window>
 ]
