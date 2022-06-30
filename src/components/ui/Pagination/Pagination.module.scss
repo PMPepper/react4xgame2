@@ -1,0 +1,56 @@
+@import '../../../css/shared';
+
+
+.pagination {
+    display: flex;
+}
+
+.list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    
+    --pagination-border-color: var(--c-border);
+    --pagination-border-width: var(--border-width);
+    --pagination-border: var(--pagination-border-width) solid var(--pagination-border-color);
+
+    --pagination-item-bg: var(--c-grey0);
+    --pagination-item-current-bg: var(--c-grey20);
+    --pagination-item-padding: var(--base-padding4);
+
+    display: flex;
+    flex-flow: row nowrap;
+
+    border: var(--pagination-border);
+
+    font: var(--font-headerNormal);
+}
+
+.item {
+    display: flex;
+    flex: 0 0 auto;
+    background: var(--pagination-item-bg);
+    border-left: var(--pagination-border);
+
+    align-items: stretch;
+
+    &:first-child {
+        border-left: 0;
+    }
+    
+    &[aria-current] {
+        background: var(--pagination-item-current-bg);
+    }
+}
+
+.btn {
+    @include blankBtn;
+
+    @include blockInteraction();
+
+    padding: var(--pagination-item-padding);
+    min-width: 1.5em;
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+}

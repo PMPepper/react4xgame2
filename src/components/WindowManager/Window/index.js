@@ -78,7 +78,7 @@ export default function Window({
                     </button>}
                 />
             </HeaderComponent>
-            <div className={styles.body} inert={isFocusIn ? undefined : 'inert'}>{children}</div>
+            <div className={styles.body} /*inert={isFocusIn ? undefined : 'inert'}*/>{children}</div>
         </div>
         {onResize && <WindowResizeHandler styles={styles} onResize={onResize} />}
     </Component>

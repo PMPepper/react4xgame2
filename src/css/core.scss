@@ -33,22 +33,26 @@ html {
   --font-family: Arial, Helvetica, sans-serif;
 
   --font-size-small: calc(12px * var(--scale));
+  --font-size-small-lineHeight: calc(14px * var(--scale));
   --font-size-normal: calc(14px * var(--scale));
+  --font-size-normal-lineHeight: calc(17px * var(--scale));
   --font-size-large: calc(16px * var(--scale));
+  --font-size-large-lineHeight: calc(19px * var(--scale));
   --font-size-header: calc(20px * var(--scale));
+  --font-size-header-lineHeight: calc(24px * var(--scale));
 
   //Fonts: [stretch] [style] [variant] [weight] size[/lineHeight] family;
-  --font-bodySmall: var(--font-size-small)/calc(1.2 * var(--scale)) var(--font-family);
-  --font-bodySmallStrong: bold var(--font-size-small)/calc(1.2 * var(--scale)) var(--font-family);
+  --font-bodySmall: var(--font-size-small)/var(--font-size-small-lineHeight) var(--font-family);
+  --font-bodySmallStrong: bold var(--font-size-small)/var(--font-size-small-lineHeight) var(--font-family);
 
-  --font-bodyNormal: var(--font-size-normal)/calc(1.2 * var(--scale)) var(--font-family);
-  --font-bodyStrong: bold var(--font-size-normal)/calc(1.2 * var(--scale)) var(--font-family);
+  --font-bodyNormal: var(--font-size-normal)/var(--font-size-normal-lineHeight) var(--font-family);
+  --font-bodyStrong: bold var(--font-size-normal)/var(--font-size-normal-lineHeight) var(--font-family);
 
-  --font-bodyLarge: var(--font-size-large)/calc(1.2 * var(--scale)) var(--font-family);
-  --font-bodyLargeStrong: bold var(--font-size-large)/calc(1.2 * var(--scale)) var(--font-family);
+  --font-bodyLarge: var(--font-size-large)/var(--font-size-large-lineHeight) var(--font-family);
+  --font-bodyLargeStrong: bold var(--font-size-large)/var(--font-size-large-lineHeight) var(--font-family);
 
-  --font-headerNormal: bold var(--font-size-header)/calc(1.2 * var(--scale)) var(--font-family);
-  --font-headerStrong: bolder var(--font-size-header)/calc(1.2 * var(--scale)) var(--font-family);
+  --font-headerNormal: bold var(--font-size-header)/var(--font-size-header-lineHeight) var(--font-family);
+  --font-headerStrong: bolder var(--font-size-header)/var(--font-size-header-lineHeight) var(--font-family);
 
   --font-buttonNormal: var(--font-bodyNormal);
   --font-buttonLarge: var(--font-bodyLarge);

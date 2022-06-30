@@ -9,6 +9,7 @@ import Entity from 'components/game/Entity';
 import Tooltip from 'components/ui/Tooltip';
 import Table from 'components/display/Table';
 import Table2 from 'components/ui/Table';
+import Pagination from 'components/ui/Pagination';
 
 //Hooks
 import { useGetContextState } from 'components/SelectableContext';
@@ -152,6 +153,9 @@ export default function ColonyWindow() {
                     </div>
                     <div>
                         <Table2 caption="A table of some made up people" columns={tableColumns} data={tableData} onSort={onSort} sortDir={sortDir} sortCol={sortCol} />
+                        <br />
+                        <Pagination page={3} totalPages={12} />
+                        <br />
                         <Table columns="auto auto auto auto">
                             <Table.Caption>Example table caption</Table.Caption>
                             <Table.Head>
