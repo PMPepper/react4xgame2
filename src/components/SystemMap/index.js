@@ -16,7 +16,7 @@ import {useGetContextState} from 'components/SelectableContext';
 
 //Helpers
 import flatten from 'helpers/array/flatten';
-import {getColoniesBySystemBody, getRenderableEntities} from 'game/ClientState';
+import {getColoniesBySystemBody, getRenderableEntities} from 'game/Client/ClientState';
 
 //constants
 import {startFadeRadius, startFadeOrbitRadius} from 'components/game/GameConsts';

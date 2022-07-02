@@ -62,5 +62,6 @@
     &:not(.selected) {
         margin-right: -100%;
         visibility: hidden;
+        opacity: 0;//child elements can have visibility of visible, which makes them visible. Opacity = 0 fixes that, combined with inert property
     }
 }

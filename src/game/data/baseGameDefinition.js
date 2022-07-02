@@ -49,27 +49,27 @@ const worldDefinition = {
       //TODO
       //money, minerals, fuel, etc
     },
-    // {
-    //   isStartingWorld: true,
-    //   isSurveyed: true,
-    //   system: 'Sol',//ID from systemsSystems object (the key)
-    //   body: 'Luna',//body ID (what if random?)
-    //   populations: [
-    //     {
-    //       species: 'Humans',
-    //       population: 10000000,
-    //       structures: {
-    //         "1": 20,
-    //         "2": 5,
-    //         "5": 0
-    //       },
-    //     }
-    //   ],
-    //
-    //
-    //   //TODO
-    //   //money, minerals, fuel, etc
-    // },
+    {
+      isStartingWorld: true,
+      isSurveyed: true,
+      system: 'Sol',//ID from systemsSystems object (the key)
+      body: 'Luna',//body ID (what if random?)
+      populations: [
+        {
+          species: 'Humans',
+          population: 12890238,
+          structures: {
+            "1": 20,
+            "2": 5,
+            "5": 0
+          },
+        }
+      ],
+    
+    
+      //TODO
+      //money, minerals, fuel, etc
+    },
     // {
     //   isStartingWorld: true,
     //   isSurveyed: true,

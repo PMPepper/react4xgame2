@@ -1,15 +1,23 @@
 //TODO
+//Add sticky option for header row/column ?
+//Selectable row support
+//Disable row support
 import { forwardRef, useMemo } from 'react';
 import PropTypes from 'prop-types';
 
 //Components
-import TableDisplay from 'components/display/Table';
+import Table from 'components/display/Table';
 import Number from 'components/format/Number';
+import Pagination from 'components/ui/Pagination';
 
 //Helpers
 import reverse from 'helpers/sorting/reverse';
 import sortOnProp from 'helpers/sorting/sort-on-prop';
 import getNatsortCompare from 'helpers/sorting/get-natsort-compare';
+import classnames from 'helpers/css/class-list-to-string';
+
+//Other
+import classes from './DataTable.module.scss';
 
 //Consts
 const builtInFormats = {
@@ -37,9 +45,8 @@ const builtInSortTypes = {
 };
 
 
-
 //The component
-const Table = forwardRef(function Table({
+const DataTable = forwardRef(function DataTable({
     //Required props
     columns,
     data,
@@ -48,32 +55,48 @@ const Table = forwardRef(function Table({
     sortDir = null,
     caption = null,
 
+    tbodyClasses = null,
+    rowClasses = null,
+
+    page = 1,
+    rowsPerPage = null,
+    onSetPage = null,
+
     onSort = null,//function we call to apply sorting
 
     ...rest
 }, ref) {
+    
+    
     const columnWidths = useMemo(
         () => columns.map(({width}) => width ?? 'auto').join(' '),
         [columns]
     );
 
-    //sorting
-    const sortedData = useSortData(data, columns, sortCol, sortDir);
+    //normalise row data + count rows
+    const [normalisedData, totalRows] = useNormalisedRowData(data)
 
-    //TODO pagination
-    const paginatedData = sortedData;
+    //sorting
+    const sortedData = useSortData(normalisedData, columns, sortCol, sortDir);
+
+    //pagination
+    const hasPagination = rowsPerPage > 0 && totalRows > rowsPerPage;
+
+    const paginatedData = usePaginatedData(hasPagination, sortedData, page, rowsPerPage);
 
     //Rendering
-    let rowIndex = 1;
+    const totalPages = hasPagination ?
+        Math.ceil(totalRows / rowsPerPage)
+        :
+        null;
+    
+    let rowIndex = 0;
 
-    //refer to the Table diplay component as Table;
-    const Table = TableDisplay;
-
-    return <Table columns={columnWidths}>
+    return <Table columns={columnWidths} {...rest}>
         {caption && <Table.Caption>{caption}</Table.Caption>}
         <Table.Head>
             <Table.Row>
-                {columns.map(({name, label, sortType}) => {
+                {columns.map(({name, label, sortType, cellClasses}) => {
                     const isSortedColumn = sortCol === name;
                     const content = sortType ?
                         <Table.ColumnSort
@@ -90,6 +113,7 @@ const Table = forwardRef(function Table({
                         key={name}
                         scope="col"
                         aria-sort={isSortedColumn ? sortDir === 'asc' ? 'ascending' : 'descending' : undefined}
+                        className={classnames(isSortedColumn && classes.sortedCell, getClasses(cellClasses, null, true))}
                     >
                         {content}
                     </Table.HeaderCell>
@@ -98,26 +122,48 @@ const Table = forwardRef(function Table({
         </Table.Head>
 
         {paginatedData.map((rows, index) => {
-            return <Table.Body key={index}>
+            return <Table.Body key={index} className={getClasses(tbodyClasses)}>
                 {rows.map((row, index) => {
-                    return <Table.Row even={++rowIndex%2} key={index}>
+                    ++rowIndex;
+
+                    return <Table.Row even={rowIndex%2} key={index} className={getClasses(rowClasses, row, rowIndex)}>
                         {columns.map((column, index) => {
+                            const isSortedColumn = sortCol === column.name;
                             const Cell = column.rowHeader ? Table.HeaderCell : Table.Cell;
 
                             const content = getFormattedCellContent(row[column.name], column);
                             
-                            return <Cell key={index} scope={column.rowHeader ? 'row' : undefined}>{content}</Cell>
+                            return <Cell
+                                key={index}
+                                scope={column.rowHeader ? 'row' : undefined}
+                                className={classnames(isSortedColumn && classes.sortedCell, getClasses(column.cellClasses, row, column.rowHeader))}
+                            >
+                                {content}
+                            </Cell>
                         })}
                     </Table.Row>
                 })}
             </Table.Body>
         })}
+
+        {hasPagination && <Table.Foot>
+            <Table.Row>
+                <Table.Cell className={classes.paginationCell} span="1 / -1">
+                    <Pagination page={page} totalPages={totalPages} onSetPage={onSetPage} />
+                </Table.Cell>
+            </Table.Row>
+        </Table.Foot>}
     </Table>
 })
 
-export default Table;
+export default DataTable;
 
-Table.propTypes = {
+const classesPropType = PropTypes.oneOfType([
+    PropTypes.string,
+    PropTypes.func
+]);
+
+DataTable.propTypes = {
     columns: PropTypes.arrayOf(PropTypes.shape({
         //Required
         name: PropTypes.string.isRequired,
@@ -134,15 +180,30 @@ Table.propTypes = {
             PropTypes.func
         ]),
         width: PropTypes.string,//defaults to 'auto'
+        cellClasses: classesPropType,//func(row|null {for header}, isHeader [bool])
     })).isRequired,
 
     sortCol: PropTypes.string,
     sortDir: PropTypes.oneOf(['asc', 'desc']),
     caption: PropTypes.node,
 
+    tbodyClasses: classesPropType,
+    rowClasses: classesPropType,//func(row, rowIndex)
 };
 
 //internal helpers
+function getClasses(cellClasses, ...args) {
+    if(!cellClasses) {
+        return null;
+    }
+
+    if(typeof(cellClasses) === 'string') {
+        return cellClasses;
+    }
+
+    return cellClasses();
+}
+
 function getFormattedCellContent(value, {format, formatProps}) {
     if(!format) {
         return value;
@@ -151,6 +212,26 @@ function getFormattedCellContent(value, {format, formatProps}) {
     const formatFunc = format instanceof Function ? format : builtInFormats[format];
 
     return formatFunc(value, formatProps);
+}
+
+
+function useNormalisedRowData(data) {
+    return useMemo(
+        () => {
+            if(data[0] instanceof Array) {
+                return [
+                    data,
+                    data.reduce((count, rows) => count + rows.length, 0)
+                ]
+            }
+        
+            return [
+                [data],
+                data.length
+            ]
+        },
+        [data]
+    )
 }
 
 
@@ -182,6 +263,53 @@ function useSortData(data, columns, sortCol, sortDir) {
             })
         },
         [data, columns, sortCol, sortDir]
+    );
+}
+
+function usePaginatedData(hasPagination, sortedData, page, rowsPerPage) {
+    return useMemo(
+        () => {
+            if(!hasPagination) {
+                return sortedData;
+            }
+
+            const startIndex = (page - 1) * rowsPerPage;
+            const endIndex = page * rowsPerPage;
+            let curIndex = 0;
+            let curGroup = null;
+
+            const paginatedData = [];
+
+            for(let i = 0; i < sortedData.length; i++) {
+                const rows = sortedData[i];
+
+                if(curIndex + rows.length < startIndex) {
+                    curIndex += rows.length;
+                } else {
+                    curGroup = [];
+                    paginatedData.push(curGroup);
+
+                    for(let j = 0; j < rows.length; j++) {
+                        if(curIndex >= endIndex) {
+                            return paginatedData;
+                        }
+
+                        if(curIndex >= startIndex) {
+                            curGroup.push(rows[j])
+                        }
+
+                        curIndex++;
+                    }
+
+                    if(curIndex >= endIndex) {
+                        return paginatedData;
+                    }
+                }
+            }
+
+            return paginatedData;
+        },
+        [hasPagination, sortedData, page, rowsPerPage]
     );
 }
 

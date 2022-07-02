@@ -1,0 +1,14 @@
+@import '../../../css/shared';
+
+
+
+.paginationCell {
+    padding: var(--table-padding);
+    border-top: var(--table-border);
+    display: flex;
+    justify-content: space-around;
+}
+
+.sortedCell {
+    background: var(--table-bg) linear-gradient(90deg, rgba(0,0,0,0.10) 10px, rgba(0,0,0,0.05) 50%, rgba(0,0,0,0.10) calc(100% - 10px));
+}

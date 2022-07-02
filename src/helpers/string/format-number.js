@@ -7,7 +7,14 @@ export default function formatNumber(n, decimalPlaces = null, culture = null, op
       throw new Error('formatNumber:: decimalPlaces must be an integer, was :'+decimalPlaces);
     }
 
-    n = roundTo(n, decimalPlaces);
+    if(options?.notation === 'compact') {
+      options = {
+        ...options,
+        maximumFractionDigits: decimalPlaces
+      }
+    } else {
+      n = roundTo(n, decimalPlaces);
+    }
   }
 
   if(culture || options) {

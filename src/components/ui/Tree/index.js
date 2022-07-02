@@ -22,13 +22,13 @@ import {setKeyboardFocus} from 'dom/track-focus';
 
 
 //The component
-const Tree = forwardRef(function Tree({items, selectedItem, setSelectedItem, id, ...rest}, ref) {
+const Tree = forwardRef(function Tree({items, selectedItem, setSelectedItem, id, icons = true, ...rest}, ref) {
     id = useId(id, 'tree');
     const [state, dispatch] = useTree(items);
 
     const content = useMemo(
-        () => renderTree(id, items, selectedItem, setSelectedItem, dispatch, state.expanded),
-        [items, dispatch, state.expanded, selectedItem, setSelectedItem, id]
+        () => renderTree(id, items, selectedItem, setSelectedItem, dispatch, state.expanded, icons),
+        [items, dispatch, state.expanded, selectedItem, setSelectedItem, id, icons]
     );
 
     const onKeyDown = useCallback(
@@ -112,11 +112,12 @@ Tree.propTypes = {
         })
     ),
     selectedItem: PropTypes.arrayOf(isPositiveInteger),
-    setSelectedItem: PropTypes.func
+    setSelectedItem: PropTypes.func,
+    icons: PropTypes.bool,
 }
 
 
-function renderTree(rootId, items, selectedItem, setSelectedItem, dispatch, expanded, path = []) {
+function renderTree(rootId, items, selectedItem, setSelectedItem, dispatch, expanded, icons, path = []) {
     const selectedItemPathName = selectedItem?.length ? getPathName(selectedItem) : null;
     return <TreeDisplay.Group>
         {items.map(({icon, label, items}, index) => {
@@ -129,13 +130,14 @@ function renderTree(rootId, items, selectedItem, setSelectedItem, dispatch, expa
                 key={index}
                 icon={icon}
                 label={label}
-                children={hasChildren && expanded[pathName] ? renderTree(rootId, items, selectedItem, setSelectedItem, dispatch, expanded, newPath) : undefined}
+                children={hasChildren && expanded[pathName] ? renderTree(rootId, items, selectedItem, setSelectedItem, dispatch, expanded, icons, newPath) : undefined}
 
                 aria-selected={isSelected ? "true" : undefined}
                 aria-expanded={hasChildren ? (expanded[pathName] ? "true" : "false") : undefined}
                 aria-level={newPath.length}
                 data-tree={rootId}
                 data-tree-path={pathName}
+                hideIcon={!icons}
 
                 onExpandClick={(e) => {
                     e.preventDefault();

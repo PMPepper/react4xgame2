@@ -1,3 +1,4 @@
+//TODO display very large number of pages
 import {forwardRef} from "react";
 import PropTypes from "prop-types";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -6,13 +7,13 @@ import { t, Trans } from "@lingui/macro";
 
 //Helpers
 import combineProps from "helpers/react/combine-props";
+import classnames from "helpers/css/class-list-to-string";
 
 //Other
 import classes from './Pagination.module.scss';
 import isPositiveNonzeroInteger from "prop-types/is-positive-nonzero-integer";
 import Number from "components/format/Number";
 import make from "helpers/array/make";
-
 
 //Consts
 const firstPageIcon = <FontAwesomeIcon icon={solid('backward-step')} />;
@@ -22,7 +23,7 @@ const lastPageIcon = <FontAwesomeIcon icon={solid('forward-step')} />;
 
 
 //The component
-const Pagination = forwardRef(function Pagination({page, totalPages, onClickPage, firstAndLast, component: Component, ...rest}, ref) {
+const Pagination = forwardRef(function Pagination({page, totalPages, onSetPage, firstAndLast, component: Component, ...rest}, ref) {
     const isFirstPage = page <= 1;
     const isLastPage = page >= totalPages;
 
@@ -36,49 +37,54 @@ const Pagination = forwardRef(function Pagination({page, totalPages, onClickPage
 
     return <Component {...props}>
         <ul className={classes.list}>
-            {firstAndLast && <li className={classes.item}>
-                <button className={classes.btn} disabled={isFirstPage} aria-current={isFirstPage ? true : undefined}>
-                    {firstPageIcon}
-                    <span className="offscreen">{t`First page`}</span>
-                </button>
-            </li>}
+            {firstAndLast && <Item isCurrent={false} isDisabled={isFirstPage} onClick={onSetPage ? () => onSetPage(1) : null}>
+                {firstPageIcon}
+                <span className="offscreen">{t`First page`}</span>
+            </Item>}
+            
+            <Item isCurrent={false} isDisabled={isFirstPage} onClick={onSetPage ? () => onSetPage(page - 1) : null}>
+                {prevPageIcon}
+                <span className="offscreen">{t`Previous page`}</span>
+            </Item>
 
-            <li className={classes.item}>
-                <button className={classes.btn}  disabled={isFirstPage} aria-current={isFirstPage ? true : undefined}>
-                    {prevPageIcon}
-                    <span className="offscreen">{t`Previous page`}</span>
-                </button>
-            </li>
 
             {make(1, totalPages).map((curPage) => {
                 const isCurPage = curPage === page;
 
-                return <li className={classes.item} key={curPage}>
-                    <button className={classes.btn}  disabled={isCurPage} aria-current={isCurPage ? true : undefined}>
-                        <Trans id="pagination-selectPage">
-                            <span className="offscreen">Page</span>
-                            <Number children={curPage} />
-                        </Trans>
-                    </button>
-                </li>
+                return <Item key={curPage} isCurrent={isCurPage} onClick={onSetPage ? () => onSetPage(curPage) : null}>
+                    <Trans id="pagination-selectPage">
+                        <span className="offscreen">Page</span>
+                        <Number children={curPage} />
+                    </Trans>
+                </Item>
             })}
 
-            <li className={classes.item}>
-                <button className={classes.btn}  disabled={isLastPage} aria-current={isLastPage ? true : undefined}>
-                    {nextPageIcon}
-                    <span className="offscreen">{t`Next page`}</span>
-                </button>
-            </li>
+            <Item isDisabled={isLastPage} onClick={onSetPage ? () => onSetPage(page + 1) : null}>
+                {nextPageIcon}
+                <span className="offscreen">{t`Next page`}</span>
+            </Item>
 
-            {firstAndLast && <li className={classes.item}>
-                <button className={classes.btn}  disabled={isLastPage} aria-current={isLastPage ? true : undefined}>
-                    {lastPageIcon}
-                    <span className="offscreen">{t`Last page`}</span>
-                </button>
-           </li>}
+            {firstAndLast && <Item isDisabled={isLastPage} onClick={onSetPage ? () => onSetPage(totalPages) : null}>
+                {lastPageIcon}
+                <span className="offscreen">{t`Last page`}</span>
+            </Item>}
         </ul>
     </Component>
 });
+
+function Item({children, isCurrent = false, isDisabled = false, onClick = null}) {
+    return <li className={classnames(classes.item, isDisabled && classes.disabled)}  aria-current={isCurrent ? true : undefined}>
+        <button type="button" className={classnames(classes.btn, isDisabled && classes.disabled)} onClick={!isCurrent ? onClick : null}>
+            {children}
+        </button>
+    </li>
+}
+
+Item.propTypes = {
+    isCurrent: PropTypes.bool,
+    isDisabled: PropTypes.bool,
+    onClick: PropTypes.func
+}
 
 export default Pagination;
 
@@ -93,5 +99,5 @@ Pagination.propTypes = {
 
     component: PropTypes.elementType,
     firstAndLast: PropTypes.bool,
-    onClickPage: PropTypes.func,
+    onSetPage: PropTypes.func,
 }

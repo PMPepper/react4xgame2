@@ -98,10 +98,16 @@ export const TableRow = Table.Row = forwardRef(function TableRow({children, even
 });
 
 //Table header cell
-export const TableHeaderCell = Table.HeaderCell = forwardRef(function TableHeaderCell({children, ...rest}, ref) {
+export const TableHeaderCell = Table.HeaderCell = forwardRef(function TableHeaderCell({children, span = null, ...rest}, ref) {
     const props = combineProps(
         {
             className: classes.th,
+            style: span ? 
+                {
+                    "grid-column": span
+                }
+                :
+                undefined,
             ref
         },
         rest
@@ -113,10 +119,16 @@ export const TableHeaderCell = Table.HeaderCell = forwardRef(function TableHeade
 });
 
 //Table header cell
-export const TableCell = Table.Cell = forwardRef(function TableCell({children, ...rest}, ref) {
+export const TableCell = Table.Cell = forwardRef(function TableCell({children, span = null, ...rest}, ref) {
     const props = combineProps(
         {
             className: classes.td,
+            style: span ? 
+                {
+                    gridColumn: span
+                }
+                :
+                undefined,
             ref
         },
         rest

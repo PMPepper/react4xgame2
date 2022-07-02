@@ -48,7 +48,7 @@ Tree.Group.propTypes = {
 };
 
 
-Tree.Item = forwardRef(function Tree({component: Component, className, icon, label, children, onExpandClick, ...rest}, ref) {
+Tree.Item = forwardRef(function Tree({component: Component, className, icon, label, children, onExpandClick, hideIcon, ...rest}, ref) {
     const expanded = rest['aria-expanded'];
     
     return <Component className={classNames(classes.itemWrapper)} ref={ref}>
@@ -57,7 +57,7 @@ Tree.Item = forwardRef(function Tree({component: Component, className, icon, lab
                 {expanded === "true" && openedIcon}
                 {expanded === "false" && closedIcon}
             </span>
-            <span className={classes.itemIcon} aria-hidden="true">{icon}</span>
+            {!hideIcon && <span className={classes.itemIcon} aria-hidden="true">{icon}</span>}
             <span className={classes.itemLabel}>{label}</span>
         </div>
         {children}
@@ -67,6 +67,7 @@ Tree.Item = forwardRef(function Tree({component: Component, className, icon, lab
 Tree.Item.defaultProps = {
     component: 'li',
     role: "presentational",
+    hideIcon: false,
 };
 
 Tree.Item.propTypes = {
@@ -74,4 +75,5 @@ Tree.Item.propTypes = {
     role: PropTypes.string,
     icon: PropTypes.node,
     label: PropTypes.node.isRequired,
+    hideIcon: PropTypes.bool,
 };

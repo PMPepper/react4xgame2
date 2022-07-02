@@ -48,6 +48,7 @@ export default function createWorldFromDefinition(definition) {
     const bodyChildren = new Map();
 
     //now create the bodies
+    //TODO sort by orbit order
     const bodies = systemDefinition.bodies.map(bodyDefinition => {
       const bodyMass = bodyDefinition.mass || 1;
       const orbitingId = bodyDefinition.parent && systemBodiesBySystemBodyDefinitionName[bodyDefinition.parent] && (systemBodiesBySystemBodyDefinitionName[bodyDefinition.parent].id || null);
@@ -58,27 +59,6 @@ export default function createWorldFromDefinition(definition) {
         getMovementFromOrbitDefinition(bodyDefinition.orbit, bodyMass, orbitingId, orbitingId ? systemBodiesBySystemBodyDefinitionName[bodyDefinition.parent].mass.value : 0), 
         generateAvailableMinerals(bodyDefinition, definition)
       );
-
-      // const body = state._newEntity('systemBody', {
-      //   systemId: system.id,
-      //   mass: {
-      //     value: bodyMass
-      //   },
-      //   movement: ,
-      //   systemBody: {
-      //     type: bodyDefinition.type,
-      //     radius: bodyDefinition.radius,
-      //     day: bodyDefinition.day,
-      //     axialTilt: bodyDefinition.axialTilt,
-      //     tidalLock: !!bodyDefinition.tidalLock,
-      //     albedo: bodyDefinition.albedo || 0,
-      //     luminosity: bodyDefinition.luminosity || 0,
-      //     children: [],
-      //     position: null,
-      //   },
-      //   render: {type: 'systemBody'},
-      //   availableMinerals: 
-      // });
 
       if(orbitingId) {
         const orbitingEntity = state.entities[orbitingId];
@@ -100,14 +80,14 @@ export default function createWorldFromDefinition(definition) {
       return body;
     });
 
-    //now sort out orbit order
-    bodyChildren.forEach((orbiters, orbited) => {
-      orbiters.sort((a, b) => (a?.orbit?.radius ?? 0) - (b?.orbit?.radius ?? 0))
+    // //now sort out orbit order
+    // bodyChildren.forEach((orbiters, orbited) => {
+    //   orbiters.sort((a, b) => (a?.orbit?.radius ?? 0) - (b?.orbit?.radius ?? 0))
 
-      orbiters.forEach(({id}) => {
-        orbited.systemBody.children.push(id)
-      })
-    });
+    //   orbiters.forEach(({id}) => {
+    //     orbited.systemBody.children.push(id)
+    //   })
+    // });
 
     //update system with body ids
     system.systemBodyIds = bodies.map(body => body.id);

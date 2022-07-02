@@ -14,16 +14,17 @@
     --pagination-border-width: var(--border-width);
     --pagination-border: var(--pagination-border-width) solid var(--pagination-border-color);
 
-    --pagination-item-bg: var(--c-grey0);
-    --pagination-item-current-bg: var(--c-grey20);
+    --pagination-item-bg: var(--c-grey20);
+    --pagination-item-current-bg: var(--c-grey30);
     --pagination-item-padding: var(--base-padding4);
 
     display: flex;
     flex-flow: row nowrap;
 
     border: var(--pagination-border);
+    border-radius: var(--border-radius);
 
-    font: var(--font-headerNormal);
+    font: var(--font-bodyLarge);
 }
 
 .item {
@@ -40,6 +41,8 @@
     
     &[aria-current] {
         background: var(--pagination-item-current-bg);
+        font: var(--font-bodyLargeStrong);
+        pointer-events: none;
     }
 }
 
@@ -53,4 +56,15 @@
     display: flex;
     justify-content: space-around;
     align-items: center;
+
+    color: currentColor;
+
+    &.disabled {
+        opacity: 0.5;
+        pointer-events: none;
+    }
+}
+
+.icon {
+    font: var(--font-headerNormal);
 }

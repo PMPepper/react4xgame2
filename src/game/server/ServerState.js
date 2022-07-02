@@ -118,15 +118,27 @@ export default class ServerState {
         albedo: bodyDefinition.albedo || 0,
         luminosity: bodyDefinition.luminosity || 0,
         children: [],
-        position: orbitingEntity ?
-          [...orbitingEntity.systemBody.position, orbitingEntity.systemBody.children.length]
-          :
-          [],
       },
       render: {type: 'systemBody'},
       availableMinerals
     });
 
+    //Add into children array
+    if(orbitingEntity) {
+      const insertBefore = orbitingEntity.systemBody.children.findIndex((childId) => {
+        const child = this.entities[childId];
+
+        //only works with orbits, but system bodies should always use orbits, right?
+        return child.movement.radius > movement.radius;
+      })
+
+      if(insertBefore === -1) {
+        orbitingEntity.systemBody.children.push(body.id);
+      } else {
+        orbitingEntity.systemBody.children.splice(insertBefore, null, body.id);
+      }
+    }
+    
     //register position as 'hidden' getter
     Object.defineProperty(body, "position", {
       enumerable: false,

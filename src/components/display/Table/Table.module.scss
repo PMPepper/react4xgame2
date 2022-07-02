@@ -124,7 +124,7 @@
     &.sortDir-asc,
     &.sortDir-desc {
         .icon {
-            visibility: visible;
+            visibility: unset;
         }
     }
 
