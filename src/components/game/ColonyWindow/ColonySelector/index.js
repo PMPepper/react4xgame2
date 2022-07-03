@@ -78,7 +78,8 @@ export default function ColonySelector({selectedColonyId, setSelectedColonyId}) 
         label: <Trans id="colonySelector.systemLabel">
             <Entity.Name id={selectedSystemId} /> (pop. <Entity.TotalPopulation id={selectedSystemId} compact decimalPlaces={1} />)
         </Trans>,
-        items: coloniesList
+        items: coloniesList,
+        expanded: true
     }];
 
     return <>

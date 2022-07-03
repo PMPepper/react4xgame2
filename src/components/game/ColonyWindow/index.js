@@ -5,6 +5,10 @@ import { useState } from 'react';
 //Components
 import Tabs from 'components/ui/Tabs';
 import ColonySelector from './ColonySelector';
+import MiningTab from './MiningTab';
+import IndustryTab from './IndustryTab';
+import ResearchTab from './ResearchTab';
+import ShipyardsTab from './ShipyardsTab';
 
 //TEMP
 import TestTab from './TestTab';
@@ -17,32 +21,34 @@ import classes from './ColonyWindow.module.scss';
 
 //The component
 export default function ColonyWindow() {
-    //const selectedSystemId = useSelector(state => state.selectedSystemId);
-
     //Internal state
     const [selectedIndex, setSelectedIndex] = useState(0);//tab index
     const [selectedColonyId, setSelectedColonyId] = useState(null);
 
+    //Render
     return <div className={classes.root}>
         <div className={classes.treeHolder}>
             <ColonySelector selectedColonyId={selectedColonyId} setSelectedColonyId={setSelectedColonyId} />
         </div>
 
         <div className={classes.main}>
-            <Tabs selectedIndex={selectedIndex} setSelectedIndex={setSelectedIndex}>
-                <Tabs.Tab label="Hello">
+            {selectedColonyId && <Tabs selectedIndex={selectedIndex} setSelectedIndex={setSelectedIndex}>
+                <Tabs.Tab label="Mining">
+                    <MiningTab selectedColonyId={selectedColonyId} />
+                </Tabs.Tab>
+                <Tabs.Tab label="Industry">
+                    <IndustryTab selectedColonyId={selectedColonyId} />
+                </Tabs.Tab>
+                <Tabs.Tab label="Research">
+                    <ResearchTab selectedColonyId={selectedColonyId} />
+                </Tabs.Tab>
+                <Tabs.Tab label="Shipyards">
+                    <ShipyardsTab selectedColonyId={selectedColonyId} />
+                </Tabs.Tab>
+                <Tabs.Tab label="Tests">
                     <TestTab />
                 </Tabs.Tab>
-                <Tabs.Tab label="World" className="wysiwyg">
-                    <p>TODO content for this tab.</p>
-                    <p>Some more text</p>
-                </Tabs.Tab>
-                <Tabs.Tab label="Foo Bar" className="wysiwyg">
-                    <p>A different tab with different content</p>
-                    <p>Yet another paragraph</p>
-                    <p>And one final line for good measure</p>
-                </Tabs.Tab>
-            </Tabs>
+            </Tabs>}
         </div>
     </div>
 }

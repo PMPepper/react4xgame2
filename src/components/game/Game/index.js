@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState, useMemo } from 'react';
+import { useCallback, useEffect, useState, useMemo, useContext, createContext } from 'react';
 import { useSelector, useDispatch } from 'react-redux'
 import { Trans, t } from '@lingui/macro';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -11,8 +11,8 @@ import SelectableContext from 'components/SelectableContext';
 import WindowManager from 'components/WindowManager';
 import SystemMap from 'components/SystemMap';
 import FPSStats, {PerformanceStats, ExternalPerformanceStats} from 'components/dev/FPSStats';
-import TimeControls from './TimeControls';
-import SelectSystem from './SelectSystem';
+import TimeControls from 'components/game/TimeControls';
+import SelectSystem from 'components/game/SelectSystem';
 import ContextMenu from 'components/ui/ContextMenu';
 import Menu from 'components/ui/Menu';
 import Memo from 'components/ui/Memo';
@@ -28,6 +28,14 @@ import useWindowSize from 'hooks/useWindowSize';
 //Helpers
 import mean from 'helpers/math/mean';
 import roundTo from 'helpers/math/round-to';
+
+//Contexts
+const GameConfigContext = createContext();
+GameConfigContext.displayName = 'GameConfigContext';
+
+export function useGameConfig() {
+  return useContext(GameConfigContext);
+}
 
 //Constants
 const windows = [
@@ -115,15 +123,17 @@ export default function Game({
   );
 
   return <div className={styles.game}>
-    <FPSStats />
-    {/*<DisplayStats formatAvgValue={values => `${values.length > 1 ? Math.round(mean(...values)) : '-'} Ticks/s`} values={setClientStateValues} style={{right: '80px'}} />*/}
-    <PerformanceStats name="updatingGame :: decode data" formatAvgValue={minMaxMean} style={{right: '155px'}} />
-    <PerformanceStats name="updatingGame :: merge state" formatAvgValue={minMaxMean} style={{right: '230px'}} />
-    <ExternalPerformanceStats name="server :: updatingGame :: toBinary" formatAvgValue={minMaxMean} style={{right: '305px'}} />
-    <SelectableContext value={clientState}>
-      <Memo useChildren>{content}</Memo>
-      {contextMenu && <Memo useChildren>{contextMenu}</Memo>}
-    </SelectableContext>
+    <GameConfigContext.Provider value={client.initialGameState}>
+      <FPSStats />
+      {/*<DisplayStats formatAvgValue={values => `${values.length > 1 ? Math.round(mean(...values)) : '-'} Ticks/s`} values={setClientStateValues} style={{right: '80px'}} />*/}
+      <PerformanceStats name="updatingGame :: decode data" formatAvgValue={minMaxMean} style={{right: '155px'}} />
+      <PerformanceStats name="updatingGame :: merge state" formatAvgValue={minMaxMean} style={{right: '230px'}} />
+      <ExternalPerformanceStats name="server :: updatingGame :: toBinary" formatAvgValue={minMaxMean} style={{right: '305px'}} />
+      <SelectableContext value={clientState}>
+        <Memo useChildren>{content}</Memo>
+        {contextMenu && <Memo useChildren>{contextMenu}</Memo>}
+      </SelectableContext>
+    </GameConfigContext.Provider>
   </div>
 }
 

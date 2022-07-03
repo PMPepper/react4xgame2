@@ -1,0 +1,10 @@
+@import '../../../css/shared';
+
+
+.stack {
+    --stack-gap: var(--base-padding4);
+
+    display: flex;
+    flex-flow: column nowrap;
+    gap: var(--stack-gap); 
+}

@@ -21,7 +21,7 @@ import classes from './DataTable.module.scss';
 
 //Consts
 const builtInFormats = {
-    numeric: (value) => <Number>{value}</Number>,
+    numeric: (value, options) => <Number {...options}>{value}</Number>,
     date: null,
     datetime: null,
 };
