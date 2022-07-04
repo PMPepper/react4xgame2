@@ -1,24 +1,22 @@
-import { forwardRef, Children, useEffect, useRef, useCallback } from "react";
+import { forwardRef, Children, useEffect, useRef } from "react";
 import PropTypes from "prop-types";
-import { useDispatch } from "react-redux";
 
 //Components
 import TabsDisplay from 'components/display/Tabs';
 
 //Hooks
 import useId from "hooks/useId";
-import usePathSelector from "hooks/usePathSelector";
 
 //Helpers
 import makeFocusInOut from "helpers/react/make-focus-in-out";
 import combineProps from "helpers/react/combine-props";
-
 
 //Prop types
 import isPositiveInteger from "prop-types/is-positive-integer";
 
 //Other
 import { setKeyboardFocus } from "dom/track-focus";
+import { useTab } from "redux/factories/tab";
 
 //The component
 const Tabs = forwardRef(function Tabs({children, selectedIndex, setSelectedIndex, id, ...props}, ref) {
@@ -119,14 +117,7 @@ Tabs.Tab.propTypes = {
 
 
 const TabsRedux = Tabs.Redux = forwardRef(function TabsRedux({path, ...rest}, ref) {
-    const selectedIndex = usePathSelector(path, state => state);
-    const dispatch = useDispatch();
-
-    const setSelectedIndex = useCallback(
-        (selectedIndex) => dispatch({type: `${path}/setSelectedIndex`, payload: selectedIndex}),
-        [path]
-    );
-console.log(selectedIndex);
+    const {state: selectedIndex, setSelectedIndex} = useTab(path);
 
     const props = combineProps(
         rest,

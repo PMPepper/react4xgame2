@@ -19,7 +19,7 @@ const mineralsTableColumns = [
     },
     {
         name: 'quantity',
-        label: <Trans id="mineralsTable.quantity">Quantity (t)</Trans>,
+        label: <Trans id="mineralsTable.quantity">Quantity (<abbr title="metric tons">t</abbr>)</Trans>,
         sortType: 'numeric',
         format: 'numeric',
         formatOptions: {
@@ -37,7 +37,7 @@ const mineralsTableColumns = [
     },
     {
         name: 'production',
-        label: <Trans id="mineralsTable.production">Production (t/year)</Trans>,
+        label: <Trans id="mineralsTable.production">Production (<abbr title="metric tons">t</abbr>/year)</Trans>,
         sortType: 'numeric',
         format: 'numeric',
         formatOptions: {
@@ -46,7 +46,7 @@ const mineralsTableColumns = [
     },
     {
         name: 'stockpile',
-        label: <Trans id="mineralsTable.stockpile">Stockpile (t)</Trans>,
+        label: <Trans id="mineralsTable.stockpile">Stockpile (<abbr title="metric tons">t</abbr>)</Trans>,
         sortType: 'numeric',
         format: 'numeric',
         formatOptions: {
@@ -78,11 +78,11 @@ export default function MiningTab({selectedColonyId}) {
     ];
 
     return <Stack>
-        <DataTable
+        <DataTable.Redux
+            path="colonyWindow.miningTab.mineralsDataTable"
             caption={<Trans>Colony minerals overview</Trans>}
             columns={mineralsTableColumns}
             data={mineralsTableData}
-            //onSort={onSort} sortDir={sortDir} sortCol={sortCol}
         />
     </Stack>
 }

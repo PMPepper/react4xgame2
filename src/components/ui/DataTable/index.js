@@ -10,6 +10,9 @@ import Table from 'components/display/Table';
 import Number from 'components/format/Number';
 import Pagination from 'components/ui/Pagination';
 
+//Hooks
+import { useDataTable } from 'redux/factories/dataTable';
+
 //Helpers
 import reverse from 'helpers/sorting/reverse';
 import sortOnProp from 'helpers/sorting/sort-on-prop';
@@ -63,7 +66,7 @@ const DataTable = forwardRef(function DataTable({
     rowsPerPage = null,
     onSetPage = null,
 
-    onSort = null,//function we call to apply sorting
+    onSetSort = null,//function we call to apply sorting
 
     ...rest
 }, ref) {
@@ -102,7 +105,7 @@ const DataTable = forwardRef(function DataTable({
                     const content = sortType ?
                         <Table.ColumnSort
                             sortDir={isSortedColumn ? sortDir : undefined}
-                            onClick={onSort ? () => onSort(name, isSortedColumn && sortDir === 'asc' ? 'desc' : 'asc') : null}
+                            onClick={onSetSort ? () => onSetSort(name, isSortedColumn && sortDir === 'asc' ? 'desc' : 'asc') : null}
                         >
                             {label}
                         </Table.ColumnSort>
@@ -175,7 +178,7 @@ DataTable.propTypes = {
             PropTypes.oneOf(Object.keys(builtInFormats)),
             PropTypes.func
         ]),
-        //formatProps: can be anything
+        //formatOptions: can be anything
         sortType: PropTypes.oneOfType([
             PropTypes.oneOf(Object.keys(builtInSortTypes)),
             PropTypes.func
@@ -193,14 +196,14 @@ DataTable.propTypes = {
 };
 
 
-export const DataTableReact = DataTable.React = forwardRef(function DataTableReact({name, path, ...rest}, ref) {
-    //sortCol = null,
-    //sortDir = null,
-    //page
-    //rowsPerPage
-    
+export const DataTableRedux = DataTable.Redux = forwardRef(function DataTableRedux({name, path, ...rest}, ref) {
+    const {state, onSetSort, onSetPage} = useDataTable(path);
+
     const props = combineProps(
         {
+            ...state,
+            onSetSort,
+            onSetPage,
             ref
         },
         rest
@@ -224,14 +227,14 @@ function getClasses(cellClasses, ...args) {
     return cellClasses();
 }
 
-function getFormattedCellContent(value, {format, formatProps}) {
+function getFormattedCellContent(value, {format, formatOptions}) {
     if(!format) {
         return value;
     }
 
     const formatFunc = format instanceof Function ? format : builtInFormats[format];
 
-    return formatFunc(value, formatProps);
+    return formatFunc(value, formatOptions);
 }
 
 

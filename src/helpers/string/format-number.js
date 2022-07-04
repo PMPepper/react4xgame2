@@ -2,7 +2,7 @@ import roundTo from 'helpers/math/round-to';
 
 
 export default function formatNumber(n, decimalPlaces = null, culture = null, options = null) {
-  if(decimalPlaces) {
+  if(decimalPlaces !== null && decimalPlaces !== undefined) {
     if(!Number.isInteger(+decimalPlaces)) {
       throw new Error('formatNumber:: decimalPlaces must be an integer, was :'+decimalPlaces);
     }

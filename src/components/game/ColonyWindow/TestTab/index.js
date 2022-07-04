@@ -14,7 +14,7 @@ export default function TestTab() {
 
     const [page, setPage] = useState(1);
 
-    const onSort = (sortCol, sortDir) => {
+    const onSetSort = (sortCol, sortDir) => {
         setSortCol(sortCol);
         setSortDir(sortDir);
     }
@@ -25,7 +25,7 @@ export default function TestTab() {
             <p>The second line of the first tab</p>
         </div>
         <div>
-            <DataTable caption="A table of some made up people" columns={tableColumns} data={tableData} onSort={onSort} sortDir={sortDir} sortCol={sortCol} page={page} rowsPerPage={5} onSetPage={setPage} />
+            <DataTable caption="A table of some made up people" columns={tableColumns} data={tableData} onSetSort={onSetSort} sortDir={sortDir} sortCol={sortCol} page={page} rowsPerPage={5} onSetPage={setPage} />
             <br />
             <Table columns="auto auto auto auto">
                 <Table.Caption>Example table caption</Table.Caption>

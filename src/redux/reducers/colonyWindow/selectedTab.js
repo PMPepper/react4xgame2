@@ -1,5 +1,7 @@
-import makeTabSlice from 'redux/slices/tab';
+import makeTabSlice from 'redux/factories/tab';
 
-const slice = makeTabSlice('colonyWindow.selectedTab')
+const {reducer, hook} = makeTabSlice('colonyWindow.selectedTab')
 
-export default slice;
+export default reducer;
+
+export const useSelectedTab = hook;
