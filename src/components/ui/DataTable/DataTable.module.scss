@@ -12,3 +12,19 @@
 .sortedCell {
     background: var(--table-bg) linear-gradient(90deg, rgba(0,0,0,0.10) 10px, rgba(0,0,0,0.05) 50%, rgba(0,0,0,0.10) calc(100% - 10px));
 }
+
+.left {
+    --table-textAlign: left;
+}
+
+.right {
+    --table-textAlign: right;
+}
+
+.start {
+    --table-textAlign: start;
+}
+
+.end {
+    --table-textAlign: end;
+}

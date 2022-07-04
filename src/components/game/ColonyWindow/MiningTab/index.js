@@ -15,7 +15,8 @@ const mineralsTableColumns = [
         name: 'name',
         label: <Trans id="mineralsTable.name">Name</Trans>,
         rowHeader: true,
-        sortType: 'alphabetical'
+        sortType: 'alphabetical',
+        textAlign: 'start',
     },
     {
         name: 'quantity',
@@ -23,7 +24,7 @@ const mineralsTableColumns = [
         sortType: 'numeric',
         format: 'numeric',
         formatOptions: {
-            decimalPlaces: 0//TODO this isn't working?
+            decimalPlaces: 0
         }
     },
     {

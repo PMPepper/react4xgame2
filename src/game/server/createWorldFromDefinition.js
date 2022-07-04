@@ -220,9 +220,9 @@ function generateAvailableMinerals(bodyDefinition, definition) {
       const access = Math.ceil(Math.random() * 10) / 10//TODO smaller bodies tend towards higher access
 
       return quantity === 0 || access === 0 ?
-        {quantity: 0, access: 0}
+        {quantity: 0, initialQuantity: 0, access: 0, initialAccess: 0}
         :
-        {quantity, access};
+        {quantity, initialQuantity: quantity, access, initialAccess: access};
     });
   }
 }

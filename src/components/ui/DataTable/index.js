@@ -100,7 +100,7 @@ const DataTable = forwardRef(function DataTable({
         {caption && <Table.Caption>{caption}</Table.Caption>}
         <Table.Head>
             <Table.Row>
-                {columns.map(({name, label, sortType, cellClasses}) => {
+                {columns.map(({name, label, sortType, cellClasses, textAlign}) => {
                     const isSortedColumn = sortCol === name;
                     const content = sortType ?
                         <Table.ColumnSort
@@ -117,7 +117,7 @@ const DataTable = forwardRef(function DataTable({
                         key={name}
                         scope="col"
                         aria-sort={isSortedColumn ? sortDir === 'asc' ? 'ascending' : 'descending' : undefined}
-                        className={classnames(isSortedColumn && classes.sortedCell, getClasses(cellClasses, null, true))}
+                        className={classnames(isSortedColumn && classes.sortedCell, textAlign && classes[textAlign], getClasses(cellClasses, null, true))}
                     >
                         {content}
                     </Table.HeaderCell>
@@ -140,7 +140,7 @@ const DataTable = forwardRef(function DataTable({
                             return <Cell
                                 key={index}
                                 scope={column.rowHeader ? 'row' : undefined}
-                                className={classnames(isSortedColumn && classes.sortedCell, getClasses(column.cellClasses, row, column.rowHeader))}
+                                className={classnames(isSortedColumn && classes.sortedCell, column.textAlign && classes[column.textAlign], getClasses(column.cellClasses, row, column.rowHeader))}
                             >
                                 {content}
                             </Cell>
@@ -173,6 +173,7 @@ DataTable.propTypes = {
         name: PropTypes.string.isRequired,
         label: PropTypes.node.isRequired,
         //optional
+        textAlign: PropTypes.oneOf(['left', 'right', 'center', 'start', 'end']),
         rowHeader: PropTypes.bool,
         format: PropTypes.oneOfType([
             PropTypes.oneOf(Object.keys(builtInFormats)),

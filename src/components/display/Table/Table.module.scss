@@ -11,10 +11,11 @@
 
     --table-bg: var(--table-body-bg);
 
+    --table-textAlign: center;
+
     display: grid;
     margin: 0;
     padding: 0;
-    // border: var(--table-border);
     border-bottom: var(--table-border);
 }
 
@@ -22,9 +23,6 @@
     display: contents;
 
     --table-bg: var(--table-header-bg);
-
-    // border: var(--table-border);
-    // border-top: 0; 
 }
 
 .tbody {
@@ -75,7 +73,7 @@
     padding: var(--table-padding);
     font: var(--font-bodyStrong);
     background: var(--table-bg);
-    text-align: start;
+    text-align: var(--table-textAlign);
 
     //If I want to add sticky headers later
     // &[scope="col"] {
@@ -98,6 +96,7 @@
     padding: var(--table-padding);
     font: var(--font-bodyNormal);
     background: var(--table-bg);
+    text-align: var(--table-textAlign);
 
     @extend %cellBorder;
 }
@@ -113,7 +112,7 @@
 
     @include textInteraction($keyboardCol: var(--c-keyboard-alt));//TODO better colors for keyboard focus
 
-    display: flex;
+    display: inline-flex;
     align-items: center;
 
     .icon {
