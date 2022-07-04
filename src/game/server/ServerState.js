@@ -3,6 +3,7 @@ import { isObject } from 'lodash';
 //Helpers
 import forEach from 'helpers/object/forEach';
 import getSystemBodyPosition from 'helpers/app/getSystemBodyPosition';
+import * as utils from './utils';
 
 //Other
 import calculatePopulationWorkers from './entityProcessorFactories/colony/calculatePopulationWorkers';
@@ -118,6 +119,7 @@ export default class ServerState {
         albedo: bodyDefinition.albedo || 0,
         luminosity: bodyDefinition.luminosity || 0,
         children: [],
+        position: [],
       },
       render: {type: 'systemBody'},
       availableMinerals
@@ -134,8 +136,19 @@ export default class ServerState {
 
       if(insertBefore === -1) {
         orbitingEntity.systemBody.children.push(body.id);
+
+        utils.setSystemBodyPosition(body.id, this.entities)
       } else {
         orbitingEntity.systemBody.children.splice(insertBefore, null, body.id);
+
+        //update position of siblings after this one, and their children
+        orbitingEntity.systemBody.children
+          .slice(insertBefore)
+          .forEach((systemBodyId) => {
+            utils.setSystemBodyPosition(systemBodyId, this.entities);
+
+            this.entitiesLastUpdated[systemBodyId] = this.gameTime;//mark as updated
+        })
       }
     }
     

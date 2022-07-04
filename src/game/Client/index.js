@@ -1,4 +1,4 @@
-import {set as setSelectedSystemId} from 'redux/selectedSystemId';
+import {set as setSelectedSystemId} from 'redux/reducers/selectedSystemId';
 
 import find from 'helpers/object/find';
 import { fromState, mergeState, calculateSystemBodyPositions } from './ClientState';

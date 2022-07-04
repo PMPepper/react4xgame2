@@ -9,7 +9,7 @@ import { useContextSelector } from 'components/SelectableContext';
 import sortOnPropNatsort from 'helpers/sorting/sort-on-prop-natsort';
 
 //Actions
-import {set as setSelectedColonyId} from 'redux/selectedSystemId';
+import {set as setSelectedColonyId} from 'redux/reducers/selectedSystemId';
 
 //Other
 import styles from './SelectSystem.module.scss';

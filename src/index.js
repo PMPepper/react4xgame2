@@ -19,7 +19,7 @@ import WorkerConnector from 'game/WorkerConnector';
 
 import baseGameDefinition from 'game/data/baseGameDefinition';//TEMP CODE
 
-import store from 'redux/index';
+import store from 'redux/reducers/index';
 
 //i18n
 import { i18n } from "@lingui/core";

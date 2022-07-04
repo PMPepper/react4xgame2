@@ -15,6 +15,7 @@ import reverse from 'helpers/sorting/reverse';
 import sortOnProp from 'helpers/sorting/sort-on-prop';
 import getNatsortCompare from 'helpers/sorting/get-natsort-compare';
 import classnames from 'helpers/css/class-list-to-string';
+import combineProps from 'helpers/react/combine-props';
 
 //Other
 import classes from './DataTable.module.scss';
@@ -190,6 +191,25 @@ DataTable.propTypes = {
     tbodyClasses: classesPropType,
     rowClasses: classesPropType,//func(row, rowIndex)
 };
+
+
+export const DataTableReact = DataTable.React = forwardRef(function DataTableReact({name, path, ...rest}, ref) {
+    //sortCol = null,
+    //sortDir = null,
+    //page
+    //rowsPerPage
+    
+    const props = combineProps(
+        {
+            ref
+        },
+        rest
+    );
+
+    return <DataTable {...props} />
+})
+
+
 
 //internal helpers
 function getClasses(cellClasses, ...args) {

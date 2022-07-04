@@ -20,7 +20,7 @@ import Entity from 'components/game/Entity';
 import ColonyWindow from 'components/game/ColonyWindow';
 
 //reducers
-import{set as setSystemMapFollowing} from 'redux/systemMapFollowing';
+import{set as setSystemMapFollowing} from 'redux/reducers/systemMapFollowing';
 
 //Hooks
 import useWindowSize from 'hooks/useWindowSize';
