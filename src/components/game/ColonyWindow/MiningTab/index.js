@@ -15,6 +15,9 @@ import { useContextSelector } from "components/SelectableContext";
 import { DAY_ANNUAL_FRACTION } from 'game/Consts';
 import { useMemo } from "react";
 import mapToSortedArray from "helpers/object/map-to-sorted-array";
+import { shallowEqual } from "react-redux";
+import useGetEntitiesByIds from "components/game/Game/useGetEntitiesByIds";
+import Entity from "components/game/Entity";
 
 //TODO depletion
 const mineralsTableColumns = [
@@ -89,6 +92,14 @@ const productionTableColumns = [
         sortType: 'alphabetical',
         textAlign: 'start',
     },
+    {
+        name: 'species',
+        label: <Trans id="mineralsProductionTable.name">Operated by</Trans>,
+        rowHeader: true,
+        sortType: 'alphabetical',
+        //textAlign: 'start',
+    },
+
     {//number of facilitites
         name: 'count',
         label: <Trans id="mineralsProductionTable.count">#</Trans>,
@@ -128,7 +139,10 @@ export default function MiningTab({selectedColonyId}) {
 
     const colony = useContextSelector(state => state.entities[selectedColonyId]);
     const colonySystemBody = useContextSelector(state => state.entities[colony?.systemBodyId]);
-console.log(colony)
+console.log(colony, structures)
+
+    const colonyPopulations = useGetEntitiesByIds(colony.populationIds);
+    const populationSpecies = useGetEntitiesByIds(Object.values(colonyPopulations).map(({speciesId}) => speciesId));
 
 
     const mineralsTableData = useMemo(
@@ -152,21 +166,44 @@ console.log(colony)
     const productionTableData = useMemo(
         () => {
 
-            return mapToSortedArray(
-                colony.colony.structuresWithCapability.mining,
-                (count, facilityId) => {
+            return Object.keys(colony.colony.populationStructuresWithCapability).reduce((output, populationId) => {
+                const population = colonyPopulations[populationId];
 
-                    return {
-                        name: structures[facilityId].name,//TODO translate?
+                if(!population) {
+                    return output;
+                }
+
+
+                const species = populationSpecies[population.speciesId];
+                console.log(species);
+
+                const mineTypes = colony.colony.populationStructuresWithCapability[populationId].mining;
+
+                Object.keys(mineTypes).forEach((structureId) => {
+                    const count = mineTypes[structureId];
+
+                    output.push({
+                        name: structures[structureId].name,//TODO translate?
+                        species: <Entity.Name id={species.id} />,
                         count,
-                        productionPerFacility: 0,//TODO
-                        speciesMod: 0,
-                        totalProductionPerFacility: 0,
+                        productionPerFacility: structures[structureId].capabilities.mining,
+                        speciesMod: structures[structureId].workers === 0 ? null : 0,
+                        totalProductionPerFacility: null,
                         totalProduction: 0,
-                    }
-                },
-                null,
-            )
+                    })
+                });
+
+                return output;
+            }, [])
+
+            // return mapToSortedArray(
+            //     colony.colony.populationStructureWithCapability,
+            //     (count, facilityId) => {
+
+            //         return 
+            //     },
+            //     null,
+            // )
         },
         [structures, colony.colony.structuresWithCapability.mining]
     );

@@ -50,10 +50,15 @@
     justify-content: var(--table-textAlign);
 
     outline: var(--table-border);
+
+    &[scope="row"] {
+        align-items: center;
+    }
 }
 
 .td {
     display: flex;
+    align-items: center;
     margin: 0;
     padding: var(--table-padding);
     font: var(--font-bodyNormal);

@@ -126,6 +126,8 @@ export default function createWorldFromDefinition(definition) {
 
     const factionSystemBodyBySystemBodyId = {};
 
+    //TODO link faction to species
+
     //Now link factions to systems
     Object.keys(factionDefinition.startingSystems).forEach(systemDefinitionId => {
       const systemDefinition = definition.systems[systemDefinitionId];
@@ -166,6 +168,8 @@ export default function createWorldFromDefinition(definition) {
       }
     });
 
+    const factionSpeciesIds = new Map();
+
     //now add starting colonies
     factionDefinition.startingColonies.forEach(startingColonyDefinition => {
       const systemBody = systemBodiesBySystemDefinitionIdBySystemBodyDefinitionName[startingColonyDefinition.system][startingColonyDefinition.body];
@@ -183,6 +187,8 @@ export default function createWorldFromDefinition(definition) {
           const entity = state.createPopulation(faction.id, colony.id, species.id, populationDefinition.population);
 
           populationId = entity.id;
+
+          factionSpeciesIds.set(species.id, species.species.name);
         }
 
         if(populationDefinition.structures) {//assign structures to colony
@@ -196,6 +202,18 @@ export default function createWorldFromDefinition(definition) {
         factionSystemBodyBySystemBodyId[systemBody.id].isSurveyed = true;
       }
     });
+
+    //now link species to faction
+    factionSpeciesIds.forEach((name, speciesId) => {
+      debugger;
+      state._addFactionEntity(
+        faction.id, 
+        speciesId, 
+        {
+          name
+        }
+      );
+    })
   })
 
   return state;
