@@ -205,7 +205,6 @@ export default function createWorldFromDefinition(definition) {
 
     //now link species to faction
     factionSpeciesIds.forEach((name, speciesId) => {
-      debugger;
       state._addFactionEntity(
         faction.id, 
         speciesId, 

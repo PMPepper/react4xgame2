@@ -1,23 +1,24 @@
-//import {  } from "react";
+//TODO
+//-minerals total footer
+//-minerals useage table
+//-minerals depletion column
+//-minerals production more columns + column groups
+
+import { useMemo } from "react";
 
 //Components
 import { Trans } from "@lingui/macro";
 import Stack from "components/layout/Stack"
 import DataTable from "components/ui/DataTable";
+import Entity from "components/game/Entity";
 
 //Hooks
 import { useGameConfig } from "components/game/Game";
 import { useContextSelector } from "components/SelectableContext";
-
-
+import useGetEntitiesByIds from "components/game/Game/useGetEntitiesByIds";
 
 //Consts
 import { DAY_ANNUAL_FRACTION } from 'game/Consts';
-import { useMemo } from "react";
-import mapToSortedArray from "helpers/object/map-to-sorted-array";
-import { shallowEqual } from "react-redux";
-import useGetEntitiesByIds from "components/game/Game/useGetEntitiesByIds";
-import Entity from "components/game/Entity";
 
 //TODO depletion
 const mineralsTableColumns = [
@@ -97,37 +98,37 @@ const productionTableColumns = [
         label: <Trans id="mineralsProductionTable.name">Operated by</Trans>,
         rowHeader: true,
         sortType: 'alphabetical',
-        //textAlign: 'start',
     },
 
     {//number of facilitites
         name: 'count',
         label: <Trans id="mineralsProductionTable.count">#</Trans>,
-        sort: 'numeric',
+        sortType: 'numeric',
         format: 'numeric'
     },
     {//production per facility base
-        name: 'productionPerFacility',
-        label: <Trans id="mineralsProductionTable.productionPerFacility">Production (<abbr title="metric tons">t</abbr>/mine/year)</Trans>,
-        sort: 'numeric',
+        name: 'productionPerMine',
+        label: <Trans id="mineralsProductionTable.productionPerMine">Production (<abbr title="metric tons">t</abbr>/mine/year)</Trans>,
+        sortType: 'numeric',
         format: 'numeric'
     },
+    //TODO labour efficiency
     {//species modifier
         name: 'speciesMod',
         label: <Trans id="mineralsProductionTable.speciesMod">Species mod</Trans>,
-        sort: 'numeric',
+        sortType: 'numeric',
         format: 'numeric'
     },
     {//production per mine
-        name: 'totalProductionPerFacility',
-        label: <Trans id="mineralsProductionTable.totalProductionPerFacility">Tot. prod. (<abbr title="metric tons">t</abbr>/mine/year)</Trans>,
-        sort: 'numeric',
+        name: 'totalProductionPerMine',
+        label: <Trans id="mineralsProductionTable.totalProductionPerMine">Tot. prod. (<abbr title="metric tons">t</abbr>/mine/year)</Trans>,
+        sortType: 'numeric',
         format: 'numeric'
     },
     {//Total production
         name: 'totalProduction',
         label: <Trans id="mineralsProductionTable.totalProduction">Total production</Trans>,
-        sort: 'numeric',
+        sortType: 'numeric',
         format: 'numeric'
     }
 ];
@@ -139,11 +140,10 @@ export default function MiningTab({selectedColonyId}) {
 
     const colony = useContextSelector(state => state.entities[selectedColonyId]);
     const colonySystemBody = useContextSelector(state => state.entities[colony?.systemBodyId]);
-console.log(colony, structures)
+//console.log(colony, structures)
 
     const colonyPopulations = useGetEntitiesByIds(colony.populationIds);
     const populationSpecies = useGetEntitiesByIds(Object.values(colonyPopulations).map(({speciesId}) => speciesId));
-
 
     const mineralsTableData = useMemo(
         () => {
@@ -165,45 +165,45 @@ console.log(colony, structures)
 
     const productionTableData = useMemo(
         () => {
-
             return Object.keys(colony.colony.populationStructuresWithCapability).reduce((output, populationId) => {
-                const population = colonyPopulations[populationId];
+                const isAutomated = +populationId === 0;
+                const population = isAutomated ?
+                    null
+                    :
+                    colonyPopulations[populationId];
 
                 if(!population) {
                     return output;
                 }
 
-
-                const species = populationSpecies[population.speciesId];
-                console.log(species);
-
+                const species = isAutomated ?
+                    null
+                    :
+                    populationSpecies[population.speciesId];
+                
                 const mineTypes = colony.colony.populationStructuresWithCapability[populationId].mining;
 
                 Object.keys(mineTypes).forEach((structureId) => {
                     const count = mineTypes[structureId];
 
+                    const productionPerMine = structures[structureId].capabilities.mining * colony.colony.populationUnitCapabilityProduction[population.id].mining[structureId]
+
                     output.push({
                         name: structures[structureId].name,//TODO translate?
                         species: <Entity.Name id={species.id} />,
                         count,
-                        productionPerFacility: structures[structureId].capabilities.mining,
-                        speciesMod: structures[structureId].workers === 0 ? null : 0,
-                        totalProductionPerFacility: null,
-                        totalProduction: 0,
+                        productionPerMine: structures[structureId].capabilities.mining,
+                        speciesMod: isAutomated ?
+                            null
+                            :
+                            species.species.miningRate,
+                        totalProductionPerMine: productionPerMine,
+                        totalProduction: productionPerMine * count,
                     })
                 });
 
                 return output;
-            }, [])
-
-            // return mapToSortedArray(
-            //     colony.colony.populationStructureWithCapability,
-            //     (count, facilityId) => {
-
-            //         return 
-            //     },
-            //     null,
-            // )
+            }, []);
         },
         [structures, colony.colony.structuresWithCapability.mining]
     );
@@ -221,7 +221,7 @@ console.log(colony, structures)
             path="colonyWindow.miningTab.productionDataTable"
             caption={<Trans>Colony minerals production overview</Trans>}
             columns={productionTableColumns}
-            //colGroups={mineralTableGroups}
+            //colGroups={productionTableGroups}
             data={productionTableData}
         />
     </Stack>

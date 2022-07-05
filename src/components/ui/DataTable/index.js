@@ -6,9 +6,10 @@ import { forwardRef, useMemo } from 'react';
 import PropTypes from 'prop-types';
 
 //Components
-import Table, { TableRow } from 'components/display/Table';
+import Table from 'components/display/Table';
 import Number from 'components/format/Number';
 import Pagination from 'components/ui/Pagination';
+import { OverflowTooltip } from 'components/ui/Tooltip';
 
 //Hooks
 import { useDataTable } from 'redux/factories/dataTable';
@@ -247,6 +248,7 @@ function useRenderHead(columns, colGroups, sortCol, sortDir, onSetSort, classes,
             columns.forEach(({name, label, sortType, cellClasses, textAlign}, index) => {
                 const hasGroup = !!colHasGroup?.[index];
                 const isSortedColumn = sortCol === name;
+                label = <OverflowTooltip>{label}</OverflowTooltip>;
                 const content = sortType ?
                     <Table.ColumnSort
                         sortDir={isSortedColumn ? sortDir : undefined}

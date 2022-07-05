@@ -51,6 +51,8 @@
 
     outline: var(--table-border);
 
+    overflow: hidden;
+
     &[scope="row"] {
         align-items: center;
     }
@@ -81,6 +83,7 @@
 
     display: inline-flex;
     align-items: center;
+    overflow: hidden;
 
     .icon {
         visibility: hidden;
