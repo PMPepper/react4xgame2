@@ -1,19 +1,19 @@
-export default function populationFactory(lastTime, time) {
+import { DAY_ANNUAL_FRACTION } from 'game/Consts';
+
+import calculatePopulationGrowth from 'game/server/entityProcessorFactories/colony/calculatePopulationGrowth';
+
+
+export default function populationFactory(lastTime, time, init) {
   const lastDay = Math.floor(lastTime / 86400);
   const today = Math.floor(time / 86400);
 
-  if(lastDay !== today) {
+  if(lastDay !== today || init) {
     return function population(entity, entities) {
       if(entity.type === 'population') {
-        const species = entities[entity.speciesId];
-        const dayGrowthRate = Math.pow(species.species.growthRate, 1/365.25);
 
-        //TODO affected by environment
-        //TODO do not grow on colony ships, transports etc
+        calculatePopulationGrowth(init, entity, entities[entity.colonyId], entities);
 
-        entity.population.quantity *= dayGrowthRate;
-
-        return true;
+        return ['population'];
       }
 
       return false;

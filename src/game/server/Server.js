@@ -9,7 +9,9 @@ import createWorldFromDefinition from './createWorldFromDefinition';
 import FactionClientTypes from '../FactionClientTypes';
 import Enum from 'classes/Enum';
 
+import populationFactory from './entityProcessorFactories/population';
 import colonyFactory from './entityProcessorFactories/colony';
+import mineralDepletionFactory from './entityProcessorFactories/mineralDepletion';
 import ServerClient, { ENUM_CLIENT_TYPE } from './ServerClient';
 
 //Constants
@@ -33,7 +35,7 @@ export default class Server {
   clients;//a client is a player/ai connected to a faction by a connector method with a permissions e.g. Bob spectating Martians on clientId 1
   clientLastUpdatedTime = null
 
-  entityProcessorFactories = [colonyFactory];
+  entityProcessorFactories = [populationFactory, colonyFactory, mineralDepletionFactory];
 
   constructor(connector) {
     this.connector = connector;
@@ -415,22 +417,24 @@ export default class Server {
       const newGameTime = this.state.gameTime;
 
       let processors = this._getEntityProcessors(lastGameTime, newGameTime);
-      let result;
+      let facetsUpdated;
 
       //for each entity
       for(let i = 0; i < numEntities; ++i) {
         let entityId = entityIds[i];
-        result = processors(entities[entityId], entities, factionEntities);
+        facetsUpdated = processors(entities[entityId], entities, factionEntities);
 
-        if(result) {
+        if(facetsUpdated) {
           //this entity was mutated
           entitiesLastUpdated[entityId] = newGameTime;
 
-          if(result instanceof Array) {
-            result.forEach(id => {
-              entitiesLastUpdated[id] = newGameTime;
-            });
+          //which facets were updated?
+          const entity = entities[entityId];
+
+          for(let j = 0; j < facetsUpdated.length; j++) {
+            entity[facetsUpdated[j]].lastUpdateTime = newGameTime;
           }
+
         }
       }
     }
@@ -538,9 +542,9 @@ function getUpdatedFacets(entity, clientLastUpdated) {
       output = output || {};
 
       //remove lastUpdateTime from data being sent, as not needed
-      const {lastUpdateTime, ...data} = facet;
+      //const {lastUpdateTime, ...data} = facet;
 
-      output[facetName] = data;
+      output[facetName] = facet;
     }
   })
 

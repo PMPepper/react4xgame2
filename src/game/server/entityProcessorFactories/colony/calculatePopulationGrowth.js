@@ -5,9 +5,9 @@ import {DAY_ANNUAL_FRACTION} from 'game/Consts';
 export default function calculatePopulationGrowth(init, population, colony, entities) {
   const species = entities[population.speciesId];
   //const systemBody = entities[colony.systemBodyId];
-  const dayGrowthRate = init ? 1 : Math.pow(species.species.growthRate, DAY_ANNUAL_FRACTION);
+  const dayGrowthRate = init ? 1 : species.species.growthRate ** DAY_ANNUAL_FRACTION;
 
-  //TODO affected by environment
+  //TODO affected by environment, colony etc
   //TODO do not grow on colony ships, transports etc
 
   //update population

@@ -1,10 +1,10 @@
 import forEach from 'helpers/object/forEach';
 
-import calculatePopulationGrowth from 'game/server/entityProcessorFactories/colony/calculatePopulationGrowth';
+
 import calculatePopulationProductionCapabilites from 'game/server/entityProcessorFactories/colony/calculatePopulationProductionCapabilites';
 import calculateTechnologyModifiers from 'game/server/entityProcessorFactories/colony/calculateTechnologyModifiers';
 
-const DAY_ANNUAL_FRACTION = 1/365.25
+import { DAY_ANNUAL_FRACTION } from 'game/Consts';
 
 export default function colonyFactory(lastTime, time, init) {
   const lastDay = Math.floor(lastTime / 86400);
@@ -21,7 +21,6 @@ export default function colonyFactory(lastTime, time, init) {
         const technologyModifiers = calculateTechnologyModifiers(faction.faction.technology)
         const systemBody = entities[entity.systemBodyId];
         const factionSystemBody = factionEntities[entity.factionId][entity.systemBodyId];
-        const additionalModifiedEntityIDs = [];
 
         const structureDefinitions = gameConfig.structures;
         const capabilityProductionTotals = {};//the total procution this colony is capable of for each capability (mining, research, etc)
@@ -33,8 +32,6 @@ export default function colonyFactory(lastTime, time, init) {
         //for each population, calculate population growth, total number of workers and production output
         for(i = 0, l = entity.populationIds.length; i < l; ++i) {
           let population = entities[entity.populationIds[i]];
-
-          calculatePopulationGrowth(init, population, entity, entities);
 
           //keep track of totals
           totalPopulation += population.population.quantity;
@@ -81,11 +78,6 @@ export default function colonyFactory(lastTime, time, init) {
             }
 
             colonyFacet.minerals[mineralId] = colonyFacet.minerals[mineralId] + dailyProduction;
-
-            //TODO this will have to change to allow splitting update across threads
-            systemBody.availableMinerals[mineralId].quantity -= dailyProduction;
-
-            additionalModifiedEntityIDs.push(systemBody.id);
           })
         }
 
@@ -96,8 +88,7 @@ export default function colonyFactory(lastTime, time, init) {
 
         colonyFacet.lastUpdateTime = time;
 
-//console.log(colonyFacet, additionalModifiedEntityIDs);
-        return additionalModifiedEntityIDs;
+        return ['colony'];
       }
 
       return false;

@@ -7,7 +7,7 @@ const config = {
   },
 
   baseSpecies: {
-    growthRate: 1.05,
+    growthRate: 1.05,//per annum
     production: 1,
     research: 1,
     mining: 1,

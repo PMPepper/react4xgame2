@@ -6,7 +6,7 @@ import { forwardRef, useMemo } from 'react';
 import PropTypes from 'prop-types';
 
 //Components
-import Table from 'components/display/Table';
+import Table, { TableRow } from 'components/display/Table';
 import Number from 'components/format/Number';
 import Pagination from 'components/ui/Pagination';
 
@@ -55,6 +55,7 @@ const DataTable = forwardRef(function DataTable({
     columns,
     data,
     //Optional props
+    colGroups = null,
     sortCol = null,
     sortDir = null,
     caption = null,
@@ -96,34 +97,12 @@ const DataTable = forwardRef(function DataTable({
     
     let rowIndex = 0;
 
+    const header = useRenderHead(columns, colGroups, sortCol, sortDir, onSetSort, classes, caption ? 2 : 1);
+
     return <Table columns={columnWidths} {...rest}>
         {caption && <Table.Caption>{caption}</Table.Caption>}
-        <Table.Head>
-            <Table.Row>
-                {columns.map(({name, label, sortType, cellClasses, textAlign}) => {
-                    const isSortedColumn = sortCol === name;
-                    const content = sortType ?
-                        <Table.ColumnSort
-                            sortDir={isSortedColumn ? sortDir : undefined}
-                            onClick={onSetSort ? () => onSetSort(name, isSortedColumn && sortDir === 'asc' ? 'desc' : 'asc') : null}
-                        >
-                            {label}
-                        </Table.ColumnSort>
-                        :
-                        label;
-                    
-
-                    return <Table.HeaderCell
-                        key={name}
-                        scope="col"
-                        aria-sort={isSortedColumn ? sortDir === 'asc' ? 'ascending' : 'descending' : undefined}
-                        className={classnames(isSortedColumn && classes.sortedCell, textAlign && classes[textAlign], getClasses(cellClasses, null, true))}
-                    >
-                        {content}
-                    </Table.HeaderCell>
-                })}
-            </Table.Row>
-        </Table.Head>
+        
+        {header}
 
         {paginatedData.map((rows, index) => {
             return <Table.Body key={index} className={getClasses(tbodyClasses)}>
@@ -152,7 +131,7 @@ const DataTable = forwardRef(function DataTable({
 
         {hasPagination && <Table.Foot>
             <Table.Row>
-                <Table.Cell className={classes.paginationCell} span="1 / -1">
+                <Table.Cell className={classes.paginationCell} colSpan="1 / -1">
                     <Pagination page={page} totalPages={totalPages} onSetPage={onSetPage} />
                 </Table.Cell>
             </Table.Row>
@@ -216,6 +195,97 @@ export const DataTableRedux = DataTable.Redux = forwardRef(function DataTableRed
 
 
 //internal helpers
+function useRenderHead(columns, colGroups, sortCol, sortDir, onSetSort, classes, startRow = 1) {
+    const [groupCells, colHasGroup] = useMemo(
+        () => {
+            if(!colGroups || colGroups.length == 0) {
+                return [null, null];
+            }
+
+            const groupCells = [];
+            const colHasGroup = [];
+
+            if(colGroups?.length > 0) {
+                colGroups.forEach(({label, colSpan, startColumn}) => {
+                    startColumn = typeof(startColumn) === 'string' ? 
+                        getColumnIndexByName(columns, startColumn) + 1
+                        :
+                        startColumn;
+                    
+                    const endColumn = colSpan ?
+                        startColumn + colSpan - 1
+                        :
+                        startColumn + 1;
+                    
+                    const cell = <Table.HeaderCell
+                        key={`${startColumn} / ${endColumn + 1}`}
+                        scope="col"
+                        rowSpan={`${startRow} / ${startRow + 1}`}
+                        colSpan={`${startColumn} / ${endColumn + 1}`}
+                    >
+                        {label}
+                    </Table.HeaderCell>
+
+                    groupCells[startColumn - 1] = cell;
+
+                    for(let i = startColumn - 1; i < endColumn; i++) {
+                        colHasGroup[i] = true;
+                    }
+                })
+            }
+
+            return [groupCells, colHasGroup];
+        },
+        [columns, colGroups]
+    );
+
+    return useMemo(
+        () => {
+            const headerCells = [];
+            const hasColGroups = groupCells !== null;
+
+            columns.forEach(({name, label, sortType, cellClasses, textAlign}, index) => {
+                const hasGroup = !!colHasGroup?.[index];
+                const isSortedColumn = sortCol === name;
+                const content = sortType ?
+                    <Table.ColumnSort
+                        sortDir={isSortedColumn ? sortDir : undefined}
+                        onClick={onSetSort ? () => onSetSort(name, isSortedColumn && sortDir === 'asc' ? 'desc' : 'asc') : null}
+                    >
+                        {label}
+                    </Table.ColumnSort>
+                    :
+                    label;
+
+                const cell = <Table.HeaderCell
+                    key={name}
+                    scope="col"
+                    aria-sort={isSortedColumn ? sortDir === 'asc' ? 'ascending' : 'descending' : undefined}
+                    className={classnames(isSortedColumn && classes.sortedCell, textAlign && classes[textAlign], getClasses(cellClasses, null, true))}
+                    rowSpan={hasColGroups && !hasGroup ? `${startRow} / ${startRow + 2}` : undefined}
+                >
+                    {content}
+                </Table.HeaderCell>
+
+                if(hasColGroups && !hasGroup) {
+                    groupCells[index] = cell;
+                } else {
+                    headerCells.push(cell);
+                }
+            });
+
+            return <Table.Head>
+                {groupCells?.length > 0 && <Table.Row>
+                    {groupCells}
+                </Table.Row>}
+                <Table.Row>
+                    {headerCells}
+                </Table.Row>
+            </Table.Head>
+        },
+        [columns, groupCells, colHasGroup, sortCol, sortDir, onSetSort, classes, startRow]
+    )
+}
 function getClasses(cellClasses, ...args) {
     if(!cellClasses) {
         return null;
@@ -339,4 +409,8 @@ function usePaginatedData(hasPagination, sortedData, page, rowsPerPage) {
 
 function getColumnByName(columns, name) {
     return columns.find((column) => column.name === name);
+}
+
+function getColumnIndexByName(columns, name) {
+    return columns.findIndex((column) => column.name === name);
 }
