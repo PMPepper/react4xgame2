@@ -1,9 +1,9 @@
 import forEach from 'helpers/object/forEach';
 
-export default function getTechnologyModifiers(technologies) {
+export default function getTechnologyModifiers(factionTechnologies) {
   const modifiers = {};
 
-  forEach(technologies, technology => {
+  forEach(factionTechnologies, technology => {
     if(technology.modifyCapabilities) {
       forEach(technology.modifyCapabilities, (modifier, capability) => {
         if(!(capability in modifiers)) {

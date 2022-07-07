@@ -5,10 +5,7 @@ import forEach from 'helpers/object/forEach';
 import getSystemBodyPosition from 'helpers/app/getSystemBodyPosition';
 import * as utils from './utils';
 
-//Other
-import calculatePopulationWorkers from './entityProcessorFactories/colony/calculatePopulationWorkers';
-
-
+import calculatePopulationWorkers from 'game/utils/calculatePopulationWorkers';
 
 //The class
 export default class ServerState {
@@ -227,23 +224,19 @@ export default class ServerState {
 
       population: {
         quantity,
-
         supportWorkers: 0,
         effectiveWorkers: 0,
       }
     });
 
     //Init worker counts
-    calculatePopulationWorkers(entity, this.entities);
-
-    // if(colony) {
-    //   this.addPopulationToColony(colony.id, entity.id);
-    // }
+    calculatePopulationWorkers(entity, this.entities[speciesId], colony ? this.entities[colony.systemBodyId] : null, colony);
 
     return entity;
   }
 
-  addPopulationToColony(colonyId, populationId) {
+  addPopulationToColony(colonyId, populationId) {//is this used? No, but might get used later
+    debugger;
     const colony = this.getEntityById(colonyId, 'colony');
     const population = this.getEntityById(populationId, 'population');
 

@@ -140,7 +140,7 @@ export default function MiningTab({selectedColonyId}) {
 
     const colony = useContextSelector(state => state.entities[selectedColonyId]);
     const colonySystemBody = useContextSelector(state => state.entities[colony?.systemBodyId]);
-//console.log(colony, structures)
+
 
     const colonyPopulations = useGetEntitiesByIds(colony.populationIds);
     const populationSpecies = useGetEntitiesByIds(Object.values(colonyPopulations).map(({speciesId}) => speciesId));
@@ -165,45 +165,48 @@ export default function MiningTab({selectedColonyId}) {
 
     const productionTableData = useMemo(
         () => {
-            return Object.keys(colony.colony.populationStructuresWithCapability).reduce((output, populationId) => {
-                const isAutomated = +populationId === 0;
-                const population = isAutomated ?
-                    null
-                    :
-                    colonyPopulations[populationId];
+            return [[]];
+            //TODO read from populations
+            
+            // return Object.keys(colony.colony.populationStructuresWithCapability).reduce((output, populationId) => {
+            //     const isAutomated = +populationId === 0;
+            //     const population = isAutomated ?
+            //         null
+            //         :
+            //         colonyPopulations[populationId];
 
-                if(!population) {
-                    return output;
-                }
+            //     if(!population) {
+            //         return output;
+            //     }
 
-                const species = isAutomated ?
-                    null
-                    :
-                    populationSpecies[population.speciesId];
+            //     const species = isAutomated ?
+            //         null
+            //         :
+            //         populationSpecies[population.speciesId];
                 
-                const mineTypes = colony.colony.populationStructuresWithCapability[populationId].mining;
+            //     const mineTypes = colony.colony.populationStructuresWithCapability[populationId].mining;
 
-                Object.keys(mineTypes).forEach((structureId) => {
-                    const count = mineTypes[structureId];
+            //     Object.keys(mineTypes).forEach((structureId) => {
+            //         const count = mineTypes[structureId];
 
-                    const productionPerMine = structures[structureId].capabilities.mining * colony.colony.populationUnitCapabilityProduction[population.id].mining[structureId]
+            //         const productionPerMine = structures[structureId].capabilities.mining * colony.colony.populationUnitCapabilityProduction[population.id].mining[structureId]
 
-                    output.push({
-                        name: structures[structureId].name,//TODO translate?
-                        species: <Entity.Name id={species.id} />,
-                        count,
-                        productionPerMine: structures[structureId].capabilities.mining,
-                        speciesMod: isAutomated ?
-                            null
-                            :
-                            species.species.miningRate,
-                        totalProductionPerMine: productionPerMine,
-                        totalProduction: productionPerMine * count,
-                    })
-                });
+            //         output.push({
+            //             name: structures[structureId].name,//TODO translate?
+            //             species: <Entity.Name id={species.id} />,
+            //             count,
+            //             productionPerMine: structures[structureId].capabilities.mining,
+            //             speciesMod: isAutomated ?
+            //                 null
+            //                 :
+            //                 species.species.miningRate,
+            //             totalProductionPerMine: productionPerMine,
+            //             totalProduction: productionPerMine * count,
+            //         })
+            //     });
 
-                return output;
-            }, []);
+            //     return output;
+            // }, []);
         },
         [structures, colony.colony.structuresWithCapability.mining]
     );

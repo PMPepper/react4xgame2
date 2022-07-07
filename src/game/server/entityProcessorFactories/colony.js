@@ -1,11 +1,15 @@
+//Helpers
 import forEach from 'helpers/object/forEach';
 
+//Utils
+//import getTechnologyModifiers from 'game/utils/getTechnologyModifiers';
+import getEntitiesByIds from 'game/utils/getEntitiesByIds';
 
-import calculatePopulationProductionCapabilites from 'game/server/entityProcessorFactories/colony/calculatePopulationProductionCapabilites';
-import calculateTechnologyModifiers from 'game/server/entityProcessorFactories/colony/calculateTechnologyModifiers';
-
+//Consts
 import { DAY_ANNUAL_FRACTION } from 'game/Consts';
 
+
+//The factory
 export default function colonyFactory(lastTime, time, init) {
   const lastDay = Math.floor(lastTime / 86400);
   const today = Math.floor(time / 86400);
@@ -15,59 +19,39 @@ export default function colonyFactory(lastTime, time, init) {
     return function colony(entity, entities, factionEntities, gameConfig) {
       if(entity.type === 'colony') {
         let i, l, totalPopulation = 0, totalEffectiveWorkers = 0, totalSupportWorkers = 0;
+        const colony = entity;
+        const colonyFacet = colony.colony;
+        const populations = getEntitiesByIds(colony.populationIds, entities);
+        const systemBody = entities[colony.systemBodyId];
+        const factionSystemBody = factionEntities[colony.factionId][colony.systemBodyId];
 
-        const colonyFacet = entity.colony;
-        const faction = entities[entity.factionId];
-        const technologyModifiers = calculateTechnologyModifiers(faction.faction.technology)
-        const systemBody = entities[entity.systemBodyId];
-        const factionSystemBody = factionEntities[entity.factionId][entity.systemBodyId];
+        //Reset values
+        colonyFacet.capabilityProductionTotals = {};
+        colonyFacet.structuresWithCapability = {};
+        
+        //Combine population values
+        populations.forEach((population) => {
+          totalPopulation += Math.floor(population.population.quantity);
+          totalEffectiveWorkers += Math.floor(population.population.effectiveWorkers);
+          totalSupportWorkers += Math.floor(population.population.supportWorkers);
 
-        const structureDefinitions = gameConfig.structures;
-        const capabilityProductionTotals = {};//the total procution this colony is capable of for each capability (mining, research, etc)
-        const structuresWithCapability = {};//total structures for each capability [capability][structureId] = number of structures
+          addPopulationProductionToColony(population, colony)
+        });
 
-        colonyFacet.populationCapabilityProductionTotals = {};
-        colonyFacet.populationStructuresWithCapability = {};
+        //TODO automated structures
+        // const structureDefinitions = gameConfig.structures;
+        // const technologyModifiers = getTechnologyModifiers(entities[colony.factionId.faction.technology)
+        // //calculate production for structures that do not have a population (e.g. automated miners)
+        // const automatedProductionTotals = calculatePopulationProductionCapabilites(entity, 0, technologyModifiers, structureDefinitions, entities, capabilityProductionTotals, structuresWithCapability);
 
-        //for each population, calculate population growth, total number of workers and production output
-        for(i = 0, l = entity.populationIds.length; i < l; ++i) {
-          let population = entities[entity.populationIds[i]];
 
-          //keep track of totals
-          totalPopulation += population.population.quantity;
-          totalEffectiveWorkers += population.population.effectiveWorkers;
-          totalSupportWorkers += population.population.supportWorkers;
-
-          let populationProductionTotals = calculatePopulationProductionCapabilites(entity, population.id, technologyModifiers, structureDefinitions, entities, capabilityProductionTotals, structuresWithCapability);
-
-          //record population production values
-          colonyFacet.populationCapabilityProductionTotals[population.id] = populationProductionTotals.capabilityProductionTotals;
-          colonyFacet.populationStructuresWithCapability[population.id] = populationProductionTotals.structuresWithCapability;
-          colonyFacet.populationUnitCapabilityProduction[population.id] = populationProductionTotals.unitCapabilityProduction;
-        }
-
-        //calculate production for structures that do not have a population (e.g. automated miners)
-        const automatedProductionTotals = calculatePopulationProductionCapabilites(entity, 0, technologyModifiers, structureDefinitions, entities, capabilityProductionTotals, structuresWithCapability);
-
-        //record automated production values
-        colonyFacet.populationCapabilityProductionTotals[0] = automatedProductionTotals.capabilityProductionTotals;
-        colonyFacet.populationStructuresWithCapability[0] = automatedProductionTotals.structuresWithCapability;
-        colonyFacet.populationUnitCapabilityProduction[0] = automatedProductionTotals.unitCapabilityProduction;
-
-        //record total workforce
-        colonyFacet.totalPopulation = Math.floor(totalPopulation);
-        colonyFacet.totalEffectiveWorkers = Math.floor(totalEffectiveWorkers);
-        colonyFacet.totalSupportWorkers = Math.floor(totalSupportWorkers);
-
-        //record total production
-        colonyFacet.capabilityProductionTotals = capabilityProductionTotals;
-        colonyFacet.structuresWithCapability = structuresWithCapability;
+        const {capabilityProductionTotals} = colonyFacet;
 
         //mining
         if(capabilityProductionTotals.mining && factionSystemBody.isSurveyed) {
           //can mine
           //-how much you can mine per year
-          const miningProduction = capabilityProductionTotals.mining;//calculateProduction('mining', capabilityProductionTotals.mining, technologyModifiers.miningMod, gameConfig);//totalStructureCapabilities.mining * labourEfficiency * technologyModifiers.miningMod * 1;//TODO include species mining rate here + any other adjustments (morale etc)
+          const miningProduction = capabilityProductionTotals.mining;
 
           forEach(gameConfig.minerals, (mineralName, mineralId) => {
             const systemBodyMinerals = systemBody.availableMinerals[mineralId];
@@ -77,7 +61,7 @@ export default function colonyFactory(lastTime, time, init) {
               dailyProduction = systemBodyMinerals.quantity
             }
 
-            colonyFacet.minerals[mineralId] = colonyFacet.minerals[mineralId] + dailyProduction;
+            colonyFacet.minerals[mineralId] += dailyProduction;
           })
         }
 
@@ -85,8 +69,6 @@ export default function colonyFactory(lastTime, time, init) {
         if(capabilityProductionTotals.research) {
           //TODO
         }
-
-        colonyFacet.lastUpdateTime = time;
 
         return ['colony'];
       }
@@ -96,4 +78,22 @@ export default function colonyFactory(lastTime, time, init) {
   }
 
   return null
+}
+
+
+function addPopulationProductionToColony(population, colony) {
+  if(!population.population.productionCapabilities?.capabilityProductionTotals) {
+    return
+  }
+  
+  forEach(population.population.productionCapabilities.capabilityProductionTotals, (count, capability) => {
+    colony.colony.capabilityProductionTotals[capability] = (colony.colony.capabilityProductionTotals[capability] ?? 0) + count;
+
+    //if not yet created, add capability object
+    !colony.colony.structuresWithCapability[capability] && (colony.colony.structuresWithCapability[capability] = {})
+
+    forEach(population.population.productionCapabilities.structuresWithCapability[capability], (count, structureId) => {
+      colony.colony.structuresWithCapability[capability][structureId] = (colony.colony.structuresWithCapability[capability][structureId] ?? 0) + count;
+    })
+  });
 }

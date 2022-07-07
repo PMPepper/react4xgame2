@@ -1,3 +1,5 @@
+//TODO move to game/utils?
+
 //TODO caching of results
 import toEntity from "./toEntity";
 
