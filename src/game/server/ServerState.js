@@ -179,9 +179,6 @@ export default class ServerState {
         buildQueue: [],
         capabilityProductionTotals: {},
         structuresWithCapability: {},
-        populationCapabilityProductionTotals: {},
-        populationStructuresWithCapability: {},
-        populationUnitCapabilityProduction: {},
       }
     });
 
@@ -226,6 +223,14 @@ export default class ServerState {
         quantity,
         supportWorkers: 0,
         effectiveWorkers: 0,
+        structuresWithCapability: {},
+        capabilityProductionTotals: {},
+        unitCapabilityProduction: {},
+
+        //population specific modifiers, between 0 and 1
+        environmentalMod: 1,
+        stabilityMod: 1,
+        labourEfficiencyMod: 1
       }
     });
 

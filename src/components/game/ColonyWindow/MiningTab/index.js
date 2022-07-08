@@ -165,9 +165,51 @@ export default function MiningTab({selectedColonyId}) {
 
     const productionTableData = useMemo(
         () => {
-            return [[]];
+            return Object.keys(colony.colony.structures).reduce((output, populationId) => {
+                const populationStructures = colony.colony.structures[populationId];
+                const isAutomated = +populationId === 0;
+                const population = isAutomated ?
+                    null
+                    :
+                    colonyPopulations[populationId];
+                const populationFacet = population?.population;
+                
+                const species = isAutomated ?
+                    null
+                    :
+                    populationSpecies[population.speciesId];
+                
+                Object.keys(populationStructures).forEach((structureId) => {
+                    const structureDefinition = structures[structureId];
+
+                    if(structureDefinition.capabilities.mining) {
+                        const count = populationStructures[structureId];
+
+                        const productionPerMine = populationFacet.unitCapabilityProduction.mining[structureId];
+
+                        output.push({
+                            name: structureDefinition.name,//TODO translate?
+                            species: <Entity.Name id={species.id} />,
+                            count,
+                            productionPerMine: structureDefinition.capabilities.mining,
+                            labourEfficiencyMod: isAutomated ? null : populationFacet.labourEfficiencyMod,
+                            stabilityMod: isAutomated ? null : populationFacet.stabilityMod,
+                            environmentalMod: isAutomated ? null : populationFacet.environmentalMod,
+                            speciesMod: isAutomated ?
+                                null
+                                :
+                                species.species.miningRate,
+                            totalProductionPerMine: productionPerMine,
+                            totalProduction: productionPerMine * count,
+                        })
+                    }
+                });
+
+                return output;
+
+            }, [])
             //TODO read from populations
-            
+
             // return Object.keys(colony.colony.populationStructuresWithCapability).reduce((output, populationId) => {
             //     const isAutomated = +populationId === 0;
             //     const population = isAutomated ?
@@ -208,7 +250,7 @@ export default function MiningTab({selectedColonyId}) {
             //     return output;
             // }, []);
         },
-        [structures, colony.colony.structuresWithCapability.mining]
+        [structures, colony.colony.structures, colonyPopulations, populationSpecies]
     );
 
     return <Stack>

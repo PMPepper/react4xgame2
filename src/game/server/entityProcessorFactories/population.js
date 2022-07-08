@@ -30,7 +30,7 @@ export default function populationFactory(lastTime, time, init) {
         //now caclulate worker efficiency, etc
         calculatePopulationProductionCapabilites(population, species, systemBody, colony, technologyModifiers, gameConfig.structures)
 
-        console.log(colony, population);
+        console.log('population: ', init, colony, population);
 
         return ['population'];
       }
@@ -64,19 +64,17 @@ function calculateLabourEfficiency(population, totalRequiredWorkforce) {
 }
 
 function calculatePopulationProductionCapabilites(population, species, systemBody, colony, factionTechnologyModifiers, structureDefinitions) {
+  const populationFacet = population.population;
   const populationStructures = colony.colony.structures[population.id];
-  const populationProductionCapabilites = {
-      structuresWithCapability: {},
-      capabilityProductionTotals: {},
-      unitCapabilityProduction: {},
+  
+  populationFacet.structuresWithCapability = {};
+  populationFacet.capabilityProductionTotals = {};
+  populationFacet.unitCapabilityProduction = {};
 
-      //Modifiers, between 0 and 1
-      environmentalMod: 1,//TODO
-      stabilityMod: 1,//TODO
-      labourEfficiencyMod: 1,
-  };
-
-  population.population.productionCapabilities = populationProductionCapabilites;
+  //population specific modifiers, between 0 and 1
+  populationFacet.environmentalMod = 1;//TODO
+  populationFacet.stabilityMod = 1;//TODO
+  populationFacet.labourEfficiencyMod = 1;
 
   if(!populationStructures) {
       return 
@@ -99,7 +97,7 @@ function calculatePopulationProductionCapabilites(population, species, systemBod
   });
 
   //calculate labour efficiency
-  populationProductionCapabilites.labourEfficiencyMod = calculateLabourEfficiency(population, totalRequiredWorkforce);
+  populationFacet.labourEfficiencyMod = calculateLabourEfficiency(population, totalRequiredWorkforce);
 
   //TODO calculate stability, env. mod, etc
 
@@ -113,24 +111,23 @@ function calculatePopulationProductionCapabilites(population, species, systemBod
           const speciesModifier = species?.species[capability] || 1;
           const technologyModifier = factionTechnologyModifiers[capability] || 1;
 
-          //...calculate how much this set of structures will produce...
+          //...calculate how much this set of structures will produce
           const productionPerUnit = value * technologyModifier * (structureDefinition.workers > 0 ? 
-              populationProductionCapabilites.labourEfficiencyMod * populationProductionCapabilites.stabilityMod * populationProductionCapabilites.environmentalMod * speciesModifier
+              populationFacet.labourEfficiencyMod * populationFacet.stabilityMod * populationFacet.environmentalMod * speciesModifier
               :
               1
             );
           const totalProduction = productionPerUnit * quantity;
-
-          //...now do the same just for this population....
-          if(!(capability in populationProductionCapabilites.structuresWithCapability)) {
-              populationProductionCapabilites.capabilityProductionTotals[capability] = 0;
-              populationProductionCapabilites.structuresWithCapability[capability] = {};
-              populationProductionCapabilites.unitCapabilityProduction[capability] = {};
+          
+          if(!(capability in populationFacet.structuresWithCapability)) {
+              populationFacet.capabilityProductionTotals[capability] = 0;
+              populationFacet.structuresWithCapability[capability] = {};
+              populationFacet.unitCapabilityProduction[capability] = {};
           }
 
-          populationProductionCapabilites.capabilityProductionTotals[capability] += totalProduction;
-          populationProductionCapabilites.structuresWithCapability[capability][structureId] = quantity;
-          populationProductionCapabilites.unitCapabilityProduction[capability][structureId] = productionPerUnit;
+          populationFacet.capabilityProductionTotals[capability] += totalProduction;
+          populationFacet.structuresWithCapability[capability][structureId] = quantity;
+          populationFacet.unitCapabilityProduction[capability][structureId] = productionPerUnit;
       });
   });//end foreach structure type
 }

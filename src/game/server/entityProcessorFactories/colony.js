@@ -70,6 +70,8 @@ export default function colonyFactory(lastTime, time, init) {
           //TODO
         }
 
+        console.log('Colony: ', init, colony, populations);
+
         return ['colony'];
       }
 
@@ -82,17 +84,17 @@ export default function colonyFactory(lastTime, time, init) {
 
 
 function addPopulationProductionToColony(population, colony) {
-  if(!population.population.productionCapabilities?.capabilityProductionTotals) {
+  if(!population.population.capabilityProductionTotals) {
     return
   }
-  
-  forEach(population.population.productionCapabilities.capabilityProductionTotals, (count, capability) => {
+
+  forEach(population.population.capabilityProductionTotals, (count, capability) => {
     colony.colony.capabilityProductionTotals[capability] = (colony.colony.capabilityProductionTotals[capability] ?? 0) + count;
 
     //if not yet created, add capability object
     !colony.colony.structuresWithCapability[capability] && (colony.colony.structuresWithCapability[capability] = {})
 
-    forEach(population.population.productionCapabilities.structuresWithCapability[capability], (count, structureId) => {
+    forEach(population.population.structuresWithCapability[capability], (count, structureId) => {
       colony.colony.structuresWithCapability[capability][structureId] = (colony.colony.structuresWithCapability[capability][structureId] ?? 0) + count;
     })
   });

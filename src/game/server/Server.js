@@ -35,7 +35,8 @@ export default class Server {
   clients;//a client is a player/ai connected to a faction by a connector method with a permissions e.g. Bob spectating Martians on clientId 1
   clientLastUpdatedTime = null
 
-  entityProcessorFactories = [populationFactory, colonyFactory, mineralDepletionFactory];
+  //Array of arrays, second level arrays contain processor that can run in parallel
+  entityProcessorFactories = [[populationFactory], [colonyFactory], [mineralDepletionFactory]];
 
   constructor(connector) {
     this.connector = connector;
@@ -393,14 +394,14 @@ export default class Server {
     const {entities, gameTime, entityIds, entitiesLastUpdated, factionEntities} = this.state;
     const numEntities = entityIds.length;
     
-    let processors = null;
-
     if(step === null) {
       //initial entity initialisation
-      processors = this._getEntityProcessors(gameTime, gameTime, true);
+      const processorsArray = this._getEntityProcessors(gameTime, gameTime, true);
 
-      for(let j = 0; j < numEntities; ++j) {
-        processors(entities[entityIds[j]], entities, factionEntities);
+      for(let i = 0; i < processorsArray.length; i++) {
+        for(let j = 0; j < numEntities; ++j) {
+          processorsArray[i](entities[entityIds[j]], entities, factionEntities);
+        }
       }
 
       return;
@@ -416,46 +417,74 @@ export default class Server {
 
       const newGameTime = this.state.gameTime;
 
-      let processors = this._getEntityProcessors(lastGameTime, newGameTime);
+      const processorsArray = this._getEntityProcessors(lastGameTime, newGameTime);
       let facetsUpdated;
 
-      //for each entity
-      for(let i = 0; i < numEntities; ++i) {
-        let entityId = entityIds[i];
-        facetsUpdated = processors(entities[entityId], entities, factionEntities);
+      //need to separate entities that need to run in order from entities that can run in parallel
 
-        if(facetsUpdated) {
-          //this entity was mutated
-          entitiesLastUpdated[entityId] = newGameTime;
+      for(let pi = 0; pi < processorsArray.length; pi++) {
+        const processors = processorsArray[pi];
 
-          //which facets were updated?
-          const entity = entities[entityId];
+        //for each entity
+        for(let i = 0; i < numEntities; ++i) {
+          let entityId = entityIds[i];
 
-          for(let j = 0; j < facetsUpdated.length; j++) {
-            entity[facetsUpdated[j]].lastUpdateTime = newGameTime;
+          facetsUpdated = processors(entities[entityId], entities, factionEntities);
+
+          if(facetsUpdated) {
+            //this entity was mutated
+            entitiesLastUpdated[entityId] = newGameTime;
+
+            //which facets were updated?
+            const entity = entities[entityId];
+
+            for(let j = 0; j < facetsUpdated.length; j++) {
+              entity[facetsUpdated[j]].lastUpdateTime = newGameTime;
+            }
+
           }
-
         }
       }
+      
     }
   }
 
   _getEntityProcessors(lastGameTime, gameTime, init = false) {
-
     //create entity processors
-    const entityProcessors = this.entityProcessorFactories.map(factory => (factory(lastGameTime, gameTime, init))).filter(processor => (!!processor));
+    return this.entityProcessorFactories
+      .map(processorCollection => {
+        const entityProcessors = processorCollection.map(factory => (factory(lastGameTime, gameTime, init))).filter(processor => (!!processor));
 
-    //create composed function for processing all entities
-    //called for each entity - any processor the mutates the entity must return true
-    return (entity, entities, factionEntities) => {
-      let entityWasMutated = false;
+        //create composed function for processing all entities
+        //called for each entity - any processor the mutates the entity must return true
+        return (entity, entities, factionEntities) => {
+          let entityWasMutated = false;
 
-      for(let i = 0, l = entityProcessors.length; i < l;++i) {
-        entityWasMutated = entityProcessors[i](entity, entities, factionEntities, this.state.gameConfig) || entityWasMutated;
-      }
+          for(let i = 0, l = entityProcessors.length; i < l;++i) {
+            entityWasMutated = entityProcessors[i](entity, entities, factionEntities, this.state.gameConfig) || entityWasMutated;
+          }
 
-      return entityWasMutated;
-    }
+          return entityWasMutated;
+        }
+      })
+    
+
+// //create entity processors
+// const entityProcessors = this.entityProcessorFactories.map(factory => (factory(lastGameTime, gameTime, init))).filter(processor => (!!processor));
+
+// //create composed function for processing all entities
+// //called for each entity - any processor the mutates the entity must return true
+// return (entity, entities, factionEntities) => {
+//   let entityWasMutated = false;
+
+//   for(let i = 0, l = entityProcessors.length; i < l;++i) {
+//     entityWasMutated = entityProcessors[i](entity, entities, factionEntities, this.state.gameConfig) || entityWasMutated;
+//   }
+
+//   return entityWasMutated;
+// }
+
+    
   }
 
   _getClientState(clientId, full = false) {
