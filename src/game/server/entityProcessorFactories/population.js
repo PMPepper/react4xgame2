@@ -108,7 +108,7 @@ function calculatePopulationProductionCapabilites(population, species, systemBod
 
       //for every type of thing (capability) this structure can do (e.g. mining, reseach, etc)...
       forEach(structureDefinition.capabilities, (value, capability) => {
-          const speciesModifier = species?.species[capability] || 1;
+          const speciesModifier = species?.species[`${capability}Rate`] || 1;
           const technologyModifier = factionTechnologyModifiers[capability] || 1;
 
           //...calculate how much this set of structures will produce

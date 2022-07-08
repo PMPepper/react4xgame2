@@ -4,6 +4,7 @@
 //Disable row support
 import { forwardRef, useMemo } from 'react';
 import PropTypes from 'prop-types';
+import { Trans } from '@lingui/macro';
 
 //Components
 import Table from 'components/display/Table';
@@ -27,8 +28,9 @@ import classes from './DataTable.module.scss';
 //Consts
 const builtInFormats = {
     numeric: (value, options) => <Number {...options}>{value}</Number>,
-    date: null,
-    datetime: null,
+    percent: (value, options) => <Trans id="datatable.formatPercent"><Number children={value * 100} decimalPlaces={0} {...options} />%</Trans>,
+    date: null,//TODO
+    datetime: null,//TODO
 };
 
 const builtInSortTypes = {

@@ -106,30 +106,60 @@ const productionTableColumns = [
         sortType: 'numeric',
         format: 'numeric'
     },
-    {//production per facility base
-        name: 'productionPerMine',
-        label: <Trans id="mineralsProductionTable.productionPerMine">Production (<abbr title="metric tons">t</abbr>/mine/year)</Trans>,
-        sortType: 'numeric',
-        format: 'numeric'
-    },
-    //TODO labour efficiency
     {//species modifier
         name: 'speciesMod',
-        label: <Trans id="mineralsProductionTable.speciesMod">Species mod</Trans>,
+        label: <Trans id="mineralsProductionTable.speciesMod">Species</Trans>,
+        sortType: 'numeric',
+        format: 'percent'
+    },
+    {//envirno modifier
+        name: 'environmentalMod',
+        label: <Trans id="mineralsProductionTable.environmentalMod">Environment</Trans>,
+        sortType: 'numeric',
+        format: 'percent'
+    },
+    {//stability modifier
+        name: 'stabilityMod',
+        label: <Trans id="mineralsProductionTable.stabilityMod">Stability</Trans>,
+        sortType: 'numeric',
+        format: 'percent'
+    },
+    {//labour modifier
+        name: 'labourEfficiencyMod',
+        label: <Trans id="mineralsProductionTable.labourEfficiencyMod">Labour availability</Trans>,
+        sortType: 'numeric',
+        format: 'percent'
+    },
+    {//production per facility base
+        name: 'productionPerMine',
+        label: <Trans id="mineralsProductionTable.productionPerMine">Base mine</Trans>,
         sortType: 'numeric',
         format: 'numeric'
     },
-    {//production per mine
+    {//total production per mine
         name: 'totalProductionPerMine',
-        label: <Trans id="mineralsProductionTable.totalProductionPerMine">Tot. prod. (<abbr title="metric tons">t</abbr>/mine/year)</Trans>,
+        label: <Trans id="mineralsProductionTable.totalProductionPerMine">Inc. modifier</Trans>,
         sortType: 'numeric',
         format: 'numeric'
     },
     {//Total production
         name: 'totalProduction',
-        label: <Trans id="mineralsProductionTable.totalProduction">Total production</Trans>,
+        label: <Trans id="mineralsProductionTable.totalProduction">Total</Trans>,
         sortType: 'numeric',
         format: 'numeric'
+    }
+];
+
+const productionTableGroups = [
+    {
+        startColumn: 'speciesMod',
+        colSpan: 4,
+        label: <Trans id="productionTable.modifiers">Production modifiers</Trans>,
+    },
+    {
+        startColumn: 'productionPerMine',
+        colSpan: 3,
+        label: <Trans id="productionTable.production">Production (<abbr title="metric tons">t</abbr>/year)</Trans>,
     }
 ];
 
@@ -208,47 +238,6 @@ export default function MiningTab({selectedColonyId}) {
                 return output;
 
             }, [])
-            //TODO read from populations
-
-            // return Object.keys(colony.colony.populationStructuresWithCapability).reduce((output, populationId) => {
-            //     const isAutomated = +populationId === 0;
-            //     const population = isAutomated ?
-            //         null
-            //         :
-            //         colonyPopulations[populationId];
-
-            //     if(!population) {
-            //         return output;
-            //     }
-
-            //     const species = isAutomated ?
-            //         null
-            //         :
-            //         populationSpecies[population.speciesId];
-                
-            //     const mineTypes = colony.colony.populationStructuresWithCapability[populationId].mining;
-
-            //     Object.keys(mineTypes).forEach((structureId) => {
-            //         const count = mineTypes[structureId];
-
-            //         const productionPerMine = structures[structureId].capabilities.mining * colony.colony.populationUnitCapabilityProduction[population.id].mining[structureId]
-
-            //         output.push({
-            //             name: structures[structureId].name,//TODO translate?
-            //             species: <Entity.Name id={species.id} />,
-            //             count,
-            //             productionPerMine: structures[structureId].capabilities.mining,
-            //             speciesMod: isAutomated ?
-            //                 null
-            //                 :
-            //                 species.species.miningRate,
-            //             totalProductionPerMine: productionPerMine,
-            //             totalProduction: productionPerMine * count,
-            //         })
-            //     });
-
-            //     return output;
-            // }, []);
         },
         [structures, colony.colony.structures, colonyPopulations, populationSpecies]
     );
@@ -266,7 +255,7 @@ export default function MiningTab({selectedColonyId}) {
             path="colonyWindow.miningTab.productionDataTable"
             caption={<Trans>Colony minerals production overview</Trans>}
             columns={productionTableColumns}
-            //colGroups={productionTableGroups}
+            colGroups={productionTableGroups}
             data={productionTableData}
         />
     </Stack>
