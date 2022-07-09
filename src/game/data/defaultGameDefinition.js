@@ -7,13 +7,20 @@ const config = {
   },
 
   baseSpecies: {
-    growthRate: 1.05,//per annum
-    production: 1,
-    research: 1,
-    mining: 1,
-    support: 0.2,//base fraction of how many individuals are needed for support jobs in a colony (e.g. agriculture, bureaucracy etc)
-    workerMultiplier: 1,//how many individuals are needed to operate something, e.g. if a factory needs a base of 1000 workers, and this value is 2, then you'll need 500 workers to operate the factory
-    crewMultiplier: 1,//As above, but for crewing ships
+    growthRate: 1.05,//per annum (base rate, affected by conditions)
+    //production modifiers - higher equals better
+    productionRate: 1,
+    researchRate: 1,
+    miningRate: 1,
+
+    //How many workers are required to operate a facility
+    workerMod: 1,
+
+    crewMod: 1,//how many individuals are needed to operate ships
+    lifeSupportMod: 1,//how much crew space, life support euqipmnet etc is needed to keep an individual alive
+
+    support: 0.8,//base fraction of how many individuals are needed for support jobs in a colony (e.g. agriculture, bureaucracy etc)
+    
   },
   minerals: {
     "1": "Thatcherite",//coru

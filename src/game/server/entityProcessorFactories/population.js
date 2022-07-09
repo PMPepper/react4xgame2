@@ -84,7 +84,7 @@ function calculatePopulationProductionCapabilites(population, species, systemBod
       //TODO disabled structures, industries, etc
 
       //record required workforce
-      totalRequiredWorkforce += structureDefinition.workers * quantity;
+      totalRequiredWorkforce += structureDefinition.workers * quantity * species.species.workerMod;
   });
 
   //calculate labour efficiency

@@ -6,7 +6,8 @@ const worldDefinition = {
   startDate: '2000-01-01T00:00:00',
   systems: systems,
   species: {
-    Humans: {name: 'Humans', growthRate: 1.05, miningRate: 1.2, researchRate: 1, constructionRate: 1}
+    Humans: {name: 'Humans', growthRate: 1.05, miningRate: 1.0, researchRate: 1.05, constructionRate: 1},
+    Munchkins: {name: 'Munchkins', growthRate: 1.1, miningRate: 1.2, researchRate: 0.7, constructionRate: 1.25, workerMod: 5, crewMod: 5, lifeSupportMod: 0.25},
   },
   factions: [{
     name: 'Humans',
@@ -43,6 +44,14 @@ const worldDefinition = {
             "1": 200,
             "2": 100,
             "5": 10
+          }
+        },
+        {
+          species: 'Munchkins',
+          population: 95023789,
+          structures: {
+            "1": 20,
+            "2": 10,
           }
         }
       ],
