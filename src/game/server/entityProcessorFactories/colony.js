@@ -9,78 +9,87 @@ import getEntitiesByIds from 'game/utils/getEntitiesByIds';
 import { DAY_ANNUAL_FRACTION } from 'game/Consts';
 
 
-//The factory
-export default function colonyFactory(lastTime, time, init) {
-  const lastDay = Math.floor(lastTime / 86400);
-  const today = Math.floor(time / 86400);
 
-  //only update once a day
-  if(lastDay !== today || init) {
-    return function colony(entity, entities, factionEntities, gameConfig) {
-      if(entity.type === 'colony') {
-        let i, l, totalPopulation = 0, totalEffectiveWorkers = 0, totalSupportWorkers = 0;
-        const colony = entity;
-        const colonyFacet = colony.colony;
-        const populations = getEntitiesByIds(colony.populationIds, entities);
-        const systemBody = entities[colony.systemBodyId];
-        const factionSystemBody = factionEntities[colony.factionId][colony.systemBodyId];
+export default {
+  type: 'colony',
+  frequency: 'day',
+  init: true,
+  processor(colony, entities, factionEntities, gameConfig, init) {
+    let totalPopulation = 0, totalEffectiveWorkers = 0, totalSupportWorkers = 0;
 
-        //Reset values
-        colonyFacet.capabilityProductionTotals = {};
-        colonyFacet.structuresWithCapability = {};
-        
-        //Combine population values
-        populations.forEach((population) => {
-          totalPopulation += Math.floor(population.population.quantity);
-          totalEffectiveWorkers += Math.floor(population.population.effectiveWorkers);
-          totalSupportWorkers += Math.floor(population.population.supportWorkers);
+    const colonyFacet = colony.colony;
+    const populations = getEntitiesByIds(colony.populationIds, entities);
+    const systemBody = entities[colony.systemBodyId];
+    const factionSystemBody = factionEntities[colony.factionId][colony.systemBodyId];
 
-          addPopulationProductionToColony(population, colony)
-        });
+    //Reset values
+    colonyFacet.capabilityProductionTotals = {};
+    colonyFacet.structuresWithCapability = {};
+    
+    //Combine population values
+    populations.forEach((population) => {
+      totalPopulation += Math.floor(population.population.quantity);
+      totalEffectiveWorkers += Math.floor(population.population.effectiveWorkers);
+      totalSupportWorkers += Math.floor(population.population.supportWorkers);
 
-        //TODO automated structures
-        // const structureDefinitions = gameConfig.structures;
-        // const technologyModifiers = getTechnologyModifiers(entities[colony.factionId.faction.technology)
-        // //calculate production for structures that do not have a population (e.g. automated miners)
-        // const automatedProductionTotals = calculatePopulationProductionCapabilites(entity, 0, technologyModifiers, structureDefinitions, entities, capabilityProductionTotals, structuresWithCapability);
+      addPopulationProductionToColony(population, colony)
+    });
+
+    //TODO automated structures
+    // const structureDefinitions = gameConfig.structures;
+    // const technologyModifiers = getTechnologyModifiers(entities[colony.factionId.faction.technology)
+    // //calculate production for structures that do not have a population (e.g. automated miners)
+    // const automatedProductionTotals = calculatePopulationProductionCapabilites(entity, 0, technologyModifiers, structureDefinitions, entities, capabilityProductionTotals, structuresWithCapability);
 
 
-        const {capabilityProductionTotals} = colonyFacet;
+    const {capabilityProductionTotals} = colonyFacet;
 
-        //mining
-        if(capabilityProductionTotals.mining && factionSystemBody.isSurveyed) {
-          //can mine
-          //-how much you can mine per year
-          const miningProduction = capabilityProductionTotals.mining;
+    //mining
+    if(capabilityProductionTotals.mining && factionSystemBody.isSurveyed) {
+      //can mine
+      //-how much you can mine per year
+      const miningProduction = capabilityProductionTotals.mining;
 
-          forEach(gameConfig.minerals, (mineralName, mineralId) => {
-            const systemBodyMinerals = systemBody.availableMinerals[mineralId];
-            let dailyProduction = miningProduction * systemBodyMinerals.access * DAY_ANNUAL_FRACTION;
+      forEach(gameConfig.minerals, (mineralName, mineralId) => {
+        const systemBodyMinerals = systemBody.availableMinerals[mineralId];
+        let dailyProduction = miningProduction * systemBodyMinerals.access * DAY_ANNUAL_FRACTION;
 
-            if(dailyProduction > systemBodyMinerals.quantity) {
-              dailyProduction = systemBodyMinerals.quantity
-            }
-
-            colonyFacet.minerals[mineralId] += dailyProduction;
-          })
+        if(dailyProduction > systemBodyMinerals.quantity) {
+          dailyProduction = systemBodyMinerals.quantity
         }
 
-        //Research
-        if(capabilityProductionTotals.research) {
-          //TODO
-        }
-
-        console.log('Colony: ', init, colony, populations);
-
-        return ['colony'];
-      }
-
-      return false;
+        colonyFacet.minerals[mineralId] += dailyProduction;
+      })
     }
-  }
 
-  return null
+    //Research
+    if(capabilityProductionTotals.research) {
+      //TODO
+    }
+
+    console.log('Colony: ', init, colony, populations);
+
+    return ['colony'];
+  }
 }
+
+// //The factory
+//  function colonyFactory(lastTime, time, init) {
+//   const lastDay = Math.floor(lastTime / 86400);
+//   const today = Math.floor(time / 86400);
+
+//   //only update once a day
+//   if(lastDay !== today || init) {
+//     return function colony(entity, entities, factionEntities, gameConfig) {
+//       if(entity.type === 'colony') {
+        
+
+//       return false;
+//     }
+//   }
+
+//   return null
+// }
 
 
 function addPopulationProductionToColony(population, colony) {

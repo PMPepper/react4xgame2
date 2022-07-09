@@ -9,37 +9,28 @@ import calculatePopulationWorkers from 'game/utils/calculatePopulationWorkers';
 import { DAY_ANNUAL_FRACTION } from 'game/Consts';
 
 
-//The factory
-export default function populationFactory(lastTime, time, init) {
-  const lastDay = Math.floor(lastTime / 86400);
-  const today = Math.floor(time / 86400);
+//he processor
+export default {
+  type: 'population',
+  frequency: 'day',
+  init: true,
+  processor(population, entities, factionEntities, gameConfig, init) {
+    const colony = entities[population.colonyId];
+    const systemBody = entities[colony.systemBodyId]
+    const species = entities[population.speciesId];
+    const faction = entities[population.factionId];
+    const technologyModifiers = getTechnologyModifiers(faction.faction.technology)
 
-  if(lastDay !== today || init) {
-    return function population(entity, entities, factionEntities, gameConfig) {
-      if(entity.type === 'population') {
-        const population = entity;
-        const colony = entities[population.colonyId];
-        const systemBody = entities[colony.systemBodyId]
-        const species = entities[population.speciesId];
-        const faction = entities[population.factionId];
-        const technologyModifiers = getTechnologyModifiers(faction.faction.technology)
+    //Growth
+    calculatePopulationGrowth(init, population, colony, systemBody, species)
 
-        //Growth
-        calculatePopulationGrowth(init, population, colony, systemBody, species)
+    //now caclulate worker efficiency, etc
+    calculatePopulationProductionCapabilites(population, species, systemBody, colony, technologyModifiers, gameConfig.structures)
 
-        //now caclulate worker efficiency, etc
-        calculatePopulationProductionCapabilites(population, species, systemBody, colony, technologyModifiers, gameConfig.structures)
+    console.log('population: ', init, colony, population);
 
-        console.log('population: ', init, colony, population);
-
-        return ['population'];
-      }
-
-      return false;
-    }
+    return ['population'];
   }
-
-  return null
 }
 
 

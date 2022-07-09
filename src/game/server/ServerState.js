@@ -25,6 +25,7 @@ export default class ServerState {
   entities = null;
   entityId = null;//used to keep track of assigned entity IDs - increments after each entity is created
   entityIds = null;
+  entitiesByType = null;
   entitiesLastUpdated = null;
 
   factionEntities = null;
@@ -47,6 +48,7 @@ export default class ServerState {
     this.factions = {};
     this.entities = {};
     this.entityIds = [];
+    this.entitiesByType = {};
     this.entitiesLastUpdated = {};
     this.factionEntities = {};
     this.factionEntitiesLastUpdated = {};
@@ -309,6 +311,10 @@ export default class ServerState {
     this.entityIds.push(newEntity.id);
     this.entitiesLastUpdated[newEntity.id] = this.gameTime;
 
+    !this.entitiesByType[type] && (this.entitiesByType[type] = [])
+
+    this.entitiesByType[type].push(newEntity.id);
+
     //automatically add ref to this entity in linked entities
     //-props to check for links
     const idProps = ['factionId', 'speciesId', 'systemBodyId', 'systemId', 'speciesId', 'colonyId'];
@@ -373,9 +379,11 @@ export default class ServerState {
 
   _removeEntity(entity) {
     const entityId = typeof(entity) === 'object' ? entity.id : entity;
+    entity = this.entities[entityId];
 
-    if(this.entities[entityId]) {
+    if(entity) {
       this.entityIds.splice(this.entityIds.indexOf(entityId), 1);
+      this.entitiesByType[entity.type].splice(this.entitiesByType[entity.type].indexOf(entityId), 1);
 
       //remove factionEntity(s)
       Object.keys(this.factions).forEach(factionId => {

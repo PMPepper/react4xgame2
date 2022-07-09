@@ -36,7 +36,7 @@ export default class Server {
   clientLastUpdatedTime = null
 
   //Array of arrays, second level arrays contain processor that can run in parallel
-  entityProcessorFactories = [[populationFactory], [colonyFactory], [mineralDepletionFactory]];
+  entityProcessors = [[populationFactory], [colonyFactory], [mineralDepletionFactory]];
 
   constructor(connector) {
     this.connector = connector;
@@ -391,100 +391,68 @@ export default class Server {
   }
 
   _advanceTime(step = 1) {
-    const {entities, gameTime, entityIds, entitiesLastUpdated, factionEntities} = this.state;
-    const numEntities = entityIds.length;
-    
-    if(step === null) {
-      //initial entity initialisation
-      const processorsArray = this._getEntityProcessors(gameTime, gameTime, true);
+    //DEV performance testing
+    //const startTime = performance.now()
 
-      for(let i = 0; i < processorsArray.length; i++) {
-        for(let j = 0; j < numEntities; ++j) {
-          processorsArray[i](entities[entityIds[j]], entities, factionEntities);
-        }
-      }
+    const advanceToTime = step === null ? null : Math.floor(this.totalElapsedTime);
 
-      return;
-    }
+    const {entities, gameConfig, entityIds, entitiesByType, entitiesLastUpdated, factionEntities} = this.state;
 
-    const advanceToTime = Math.floor(this.totalElapsedTime);
+    const isInit = advanceToTime === null;
+    const {entityProcessors} = this;
 
-    while(this.state.gameTime < advanceToTime) {
-      let lastGameTime = this.state.gameTime;
+    while(isInit ||  this.state.gameTime < advanceToTime) {//TODO just run loop once if init = true
+      const lastTime = this.state.gameTime;
 
-      //update game time
-      this.state.gameTime = Math.min(this.state.gameTime + step, advanceToTime);
+      //update game time (if applicable)
+      this.state.gameTime = isInit ? lastTime : Math.min(lastTime + step, advanceToTime);
 
-      const newGameTime = this.state.gameTime;
+      const time = this.state.gameTime;
+      const isDayStep = Math.floor(lastTime / 86400) !== Math.floor(time / 86400)
 
-      const processorsArray = this._getEntityProcessors(lastGameTime, newGameTime);
-      let facetsUpdated;
+      //Iterate though entity processor sets
+      for(let i = 0; i < entityProcessors.length; i++) {
+        const entityProcessorSet = entityProcessors[i];//these can be run in parallel
 
-      //need to separate entities that need to run in order from entities that can run in parallel
+        for(let i = 0; i < entityProcessorSet.length; i++) {
+          const {type, frequency, init, processor} = entityProcessorSet[i];
 
-      for(let pi = 0; pi < processorsArray.length; pi++) {
-        const processors = processorsArray[pi];
+          //Should this processor run at this time?
+          if((isInit && init) || (!isInit && (frequency === 'second' || frequency === 'day' && isDayStep))) {
+            const processorEntityIds = type === '*' ?
+              entityIds
+              :
+              entitiesByType[type];
 
-        //for each entity
-        for(let i = 0; i < numEntities; ++i) {
-          let entityId = entityIds[i];
+            for(let i = 0; i < processorEntityIds.length; i++) {
+              const entityId = processorEntityIds[i];
+              const entity = entities[entityId];
 
-          facetsUpdated = processors(entities[entityId], entities, factionEntities);
+              const updatedFacets = processor(entity, entities, factionEntities, gameConfig, isInit, time);
 
-          if(facetsUpdated) {
-            //this entity was mutated
-            entitiesLastUpdated[entityId] = newGameTime;
+              if(updatedFacets) {//this entity was mutated
+                //entity.lastUpdateTime = time;//do I need this?
+                entitiesLastUpdated[entityId] = time;
 
-            //which facets were updated?
-            const entity = entities[entityId];
-
-            for(let j = 0; j < facetsUpdated.length; j++) {
-              entity[facetsUpdated[j]].lastUpdateTime = newGameTime;
+                for(let i = 0; i < updatedFacets.length; i++) {//mark updated facets
+                  entity[updatedFacets[i]].lastUpdateTime = time;
+                }
+              }
             }
-
           }
         }
+
+        //End of entity processor set
       }
-      
+
+      if(isInit) {
+        break;
+      }
     }
-  }
 
-  _getEntityProcessors(lastGameTime, gameTime, init = false) {
-    //create entity processors
-    return this.entityProcessorFactories
-      .map(processorCollection => {
-        const entityProcessors = processorCollection.map(factory => (factory(lastGameTime, gameTime, init))).filter(processor => (!!processor));
-
-        //create composed function for processing all entities
-        //called for each entity - any processor the mutates the entity must return true
-        return (entity, entities, factionEntities) => {
-          let entityWasMutated = false;
-
-          for(let i = 0, l = entityProcessors.length; i < l;++i) {
-            entityWasMutated = entityProcessors[i](entity, entities, factionEntities, this.state.gameConfig) || entityWasMutated;
-          }
-
-          return entityWasMutated;
-        }
-      })
-    
-
-// //create entity processors
-// const entityProcessors = this.entityProcessorFactories.map(factory => (factory(lastGameTime, gameTime, init))).filter(processor => (!!processor));
-
-// //create composed function for processing all entities
-// //called for each entity - any processor the mutates the entity must return true
-// return (entity, entities, factionEntities) => {
-//   let entityWasMutated = false;
-
-//   for(let i = 0, l = entityProcessors.length; i < l;++i) {
-//     entityWasMutated = entityProcessors[i](entity, entities, factionEntities, this.state.gameConfig) || entityWasMutated;
-//   }
-
-//   return entityWasMutated;
-// }
-
-    
+    //DEV performance testing
+    // const end = performance.now()
+    // console.log(end - startTime, step);
   }
 
   _getClientState(clientId, full = false) {
