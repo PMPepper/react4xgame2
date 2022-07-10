@@ -28,6 +28,7 @@ const mineralsTableColumns = [
         rowHeader: true,
         sortType: 'alphabetical',
         textAlign: 'start',
+        format: 'truncate',
     },
     {
         name: 'quantity',
@@ -92,12 +93,14 @@ const productionTableColumns = [
         rowHeader: true,
         sortType: 'alphabetical',
         textAlign: 'start',
+        format: 'truncate',
     },
     {
         name: 'species',
         label: <Trans id="mineralsProductionTable.name">Operated by</Trans>,
         rowHeader: true,
         sortType: 'alphabetical',
+        format: 'truncate',
     },
 
     {//number of facilitites

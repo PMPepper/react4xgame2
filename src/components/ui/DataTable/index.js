@@ -11,6 +11,7 @@ import Table from 'components/display/Table';
 import Number from 'components/format/Number';
 import Pagination from 'components/ui/Pagination';
 import { OverflowTooltip } from 'components/ui/Tooltip';
+import Truncate from 'components/layout/Truncate';
 
 //Hooks
 import { useDataTable } from 'redux/factories/dataTable';
@@ -29,6 +30,7 @@ import classes from './DataTable.module.scss';
 const builtInFormats = {
     numeric: (value, options) => <Number {...options}>{value}</Number>,
     percent: (value, options) => <Trans id="datatable.formatPercent"><Number children={value * 100} decimalPlaces={0} {...options} />%</Trans>,
+    truncate: (value, options) => <OverflowTooltip {...options}>{value}</OverflowTooltip>,
     date: null,//TODO
     datetime: null,//TODO
 };

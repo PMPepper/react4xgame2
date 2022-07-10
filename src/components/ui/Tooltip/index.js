@@ -7,6 +7,7 @@ import PropTypes from 'prop-types';
 //Components
 import Bubble from "components/display/Bubble";
 import Portal from "components/ui/Portal";
+import Truncate from "components/layout/Truncate";
 import AbsolutelyPositioned from "components/ui/AbsolutelyPositioned";
 
 //Hooks
@@ -138,7 +139,7 @@ export const InlineTooltip = Tooltip.Inline = function InlineTooltip({children, 
 export const OverflowTooltip = Tooltip.Overflow = function OverflowTooltip({children, ...props}) {
     const [ref, isTruncated] = useIsTruncated();
     
-    return <Tooltip {...props} content={children} forceOpen={isTruncated ? null : false} disableAria><span ref={ref} className={classes.overflow}>{children}</span></Tooltip>
+    return <Tooltip {...props} content={children} forceOpen={isTruncated ? null : false} disableAria><Truncate ref={ref}>{children}</Truncate></Tooltip>
 }
 
 

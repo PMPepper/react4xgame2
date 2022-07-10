@@ -1,0 +1,6 @@
+@import '../../../css/shared';
+
+
+.truncate {
+    @include truncate;
+}
