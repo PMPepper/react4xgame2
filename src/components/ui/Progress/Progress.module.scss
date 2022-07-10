@@ -1,0 +1,126 @@
+@import '../../../css/shared';
+
+@mixin barStyle() {
+    --progress-background: var(--c-grey0);
+    background: var(--c-grey0);
+    border: var(--border);
+    border-radius: var(--border-radius);
+}
+
+@mixin valueStyle() {
+    background: var(--c-grey50);
+    border-radius: var(--border-radius);
+
+    // $cStripe1: rgba($grey80, 0.2);
+    // $cStripe2: rgba($grey80, 0.4);
+
+    //background-image: linear-gradient(135deg, $cStripe1 25%, $cStripe2 25%, $cStripe2 50%, $cStripe1 50%, $cStripe1 75%, $cStripe2 75%, $cStripe2 100%);
+    //background-size: 56.57px 56.57px;
+
+//   @at-root {
+//     // .colour_orange#{&} {
+//     //   background: rgba($pallet28, 0.2);
+//     //   border-bottom: 0.1rem solid $pallet28;
+//     // }
+//   }
+}
+
+.progress {
+    width: 100%;
+    height: var(--base-padding);
+
+    &.thin {
+        height: var(--base-padding2);
+    }
+
+    vertical-align: top;
+    appearance: none;
+    -webkit-appearance: none;
+
+    //needed for firefox
+    background: transparent;
+    border: none;
+
+    &.showValues {
+        position: relative;
+
+        &::after {
+            content: attr(data-progress-values);
+
+            margin: auto;
+            position: absolute;
+            top: 0;
+            left: 0;
+            bottom: 0;
+            right: 0;
+            z-index: 1;
+
+            height: 1em;
+            line-height: 1;
+
+            text-align: center;
+
+            color: var(--c-grey0);
+
+            font: var(--font-bodySmall);
+
+            clip-path: inset(0 calc(100% - var(--progress-value)) 0 0);
+        }
+
+        &::before {
+            content: attr(data-progress-values);
+    
+            margin: auto;
+            position: absolute;
+            top: 0;
+            left: 0;
+            bottom: 0;
+            right: 0;
+            z-index: 1;
+    
+            height: 1em;
+            line-height: 1;
+    
+            text-align: center;
+    
+            font: var(--font-bodySmall);
+        }
+    }
+
+    &::-webkit-progress-bar {
+        @include barStyle();
+    }
+
+    &::-moz-progress-bar {
+        @include valueStyle();
+    }
+
+    border-radius: 0;
+    overflow: hidden;
+
+    //Fallback style
+    color: var(--c-grey50);
+}
+
+::-webkit-progress-value {
+    @include valueStyle();
+    position: absolute;
+    top:0;
+    left:0;
+    bottom: 0;
+}
+
+.gauge {
+    @include barStyle();
+    height: 100%;
+}
+
+.bar {
+    @include valueStyle();
+    display: block;
+    position: absolute;
+    top:0;
+    left:0;
+    bottom: 0;
+    width: var(--progress-value);
+}
