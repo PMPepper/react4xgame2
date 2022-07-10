@@ -1,0 +1,15 @@
+
+
+.horizontal {
+    overflow: visible auto;
+}
+
+.vertical {
+    overflow: auto visible;
+    height: 100%;
+}
+
+.horizontal.vertical {
+    overflow: auto auto;
+    height: 100%;
+}

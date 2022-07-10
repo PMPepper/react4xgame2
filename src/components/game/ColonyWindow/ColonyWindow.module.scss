@@ -23,8 +23,7 @@
     flex: 1 0 0;//grow to fill remaining available space
     min-width: 0;//needed to make it work
 
-    overflow-x: hidden;
-    overflow-y: auto;
+    overflow: hidden;
 
     @include section(true);
 }

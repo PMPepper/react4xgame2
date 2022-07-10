@@ -1,3 +1,4 @@
+//TODO size to content, or size to parent?
 import { forwardRef } from "react";
 import PropTypes from "prop-types";
 import classnames from "classnames";
@@ -7,8 +8,8 @@ import classes from './Tabs.module.scss';
 
 
 //The components
-const Tabs = forwardRef(function Tabs({children, component: Component, className, ...rest}, ref) {
-    return <Component className={classnames(classes.tabs, className)} {...rest} ref={ref}>
+const Tabs = forwardRef(function Tabs({children, component: Component, className, sizeToParent, ...rest}, ref) {
+    return <Component className={classnames(classes.tabs, className, sizeToParent && classes.sizeToParent)} {...rest} ref={ref}>
         {children}
     </Component>
 });
@@ -16,11 +17,13 @@ const Tabs = forwardRef(function Tabs({children, component: Component, className
 export default Tabs;
 
 Tabs.defaultProps = {
-    component: 'div'
+    component: 'div',
+    sizeToParent: false,
 };
 
 Tabs.propTypes = {
-    className: PropTypes.string
+    className: PropTypes.string,
+    sizeToParent: PropTypes.bool,
 };
 
 
@@ -63,23 +66,25 @@ Tabs.TabsList.propTypes = {
 };
 
 
-Tabs.TabContents = forwardRef(function TabContents({children, component: Component, className, ...rest}, ref) {
-    return <Component className={classnames(classes.tabContents, className)} {...rest} ref={ref}>
+Tabs.TabContents = forwardRef(function TabContents({children, component: Component, className, sizeToParent, ...rest}, ref) {
+    return <Component className={classnames(classes.tabContents, className, sizeToParent && classes.sizeToParent)} {...rest} ref={ref}>
         {children}
     </Component>
 });
 
 Tabs.TabContents.defaultProps = {
-    component: 'div'
+    component: 'div',
+    sizeToParent: false,
 };
 
 Tabs.TabContents.propTypes = {
-    className: PropTypes.string
+    className: PropTypes.string,
+    sizeToParent: PropTypes.bool,
 };
 
 
-Tabs.TabContent = forwardRef(function TabContent({children, component: Component, className, selected, ...rest}, ref) {
-    return <Component inert={selected ? undefined : "inert"} className={classnames(classes.tabContent, className, selected && classes.selected)} {...rest} ref={ref}>
+Tabs.TabContent = forwardRef(function TabContent({children, component: Component, className, selected, sizeToParent, ...rest}, ref) {
+    return <Component inert={selected ? undefined : "inert"} className={classnames(classes.tabContent, className, selected && classes.selected, sizeToParent && classes.sizeToParent)} {...rest} ref={ref}>
         {children}
     </Component>
 });
@@ -88,9 +93,11 @@ Tabs.TabContent.defaultProps = {
     selected: false,
     component: 'div',
     role: "tabpanel",
+    sizeToParent: false,
 };
 
 Tabs.TabContent.propTypes = {
     selected: PropTypes.bool,
-    className: PropTypes.string
+    className: PropTypes.string,
+    sizeToParent: PropTypes.bool,
 };

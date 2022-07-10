@@ -5,6 +5,7 @@ import { Trans } from "@lingui/macro";
 //Components
 import Entity from 'components/game/Entity';
 import Tabs from 'components/ui/Tabs';
+import Overflow from 'components/layout/Overflow';
 import ColonySelector from './ColonySelector';
 import MiningTab from './MiningTab';
 import IndustryTab from './IndustryTab';
@@ -38,20 +39,20 @@ export default function ColonyWindow() {
         </div>
 
         <div className={classes.main}>
-            {selectedColonyId && <Tabs.Redux path="colonyWindow.selectedTab">
-                <Tabs.Tab label="Mining">
+            {selectedColonyId && <Tabs.Redux path="colonyWindow.selectedTab" sizeToParent>
+                <Tabs.Tab label="Mining" component={Overflow}>
                     <MiningTab selectedColonyId={selectedColonyId} />
                 </Tabs.Tab>
-                <Tabs.Tab label="Industry">
+                <Tabs.Tab label="Industry" component={Overflow}>
                     <IndustryTab selectedColonyId={selectedColonyId} />
                 </Tabs.Tab>
-                <Tabs.Tab label="Research">
+                <Tabs.Tab label="Research" component={Overflow}>
                     <ResearchTab selectedColonyId={selectedColonyId} />
                 </Tabs.Tab>
-                <Tabs.Tab label="Shipyards">
+                <Tabs.Tab label="Shipyards" component={Overflow}>
                     <ShipyardsTab selectedColonyId={selectedColonyId} />
                 </Tabs.Tab>
-                <Tabs.Tab label="Tests">
+                <Tabs.Tab label="Tests" component={Overflow}>
                     <TestTab />
                 </Tabs.Tab>
             </Tabs.Redux>}

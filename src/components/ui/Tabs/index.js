@@ -19,7 +19,7 @@ import { setKeyboardFocus } from "dom/track-focus";
 import { useTab } from "redux/factories/tab";
 
 //The component
-const Tabs = forwardRef(function Tabs({children, selectedIndex, setSelectedIndex, id, ...props}, ref) {
+const Tabs = forwardRef(function Tabs({children, selectedIndex, setSelectedIndex, id, sizeToParent, ...props}, ref) {
     id = useId(id, 'tab');
     const tabsListElemRef = useRef();
     const childArray = Children.toArray(children);
@@ -65,7 +65,7 @@ const Tabs = forwardRef(function Tabs({children, selectedIndex, setSelectedIndex
     );
 
 
-    return <TabsDisplay {...props} ref={ref}>
+    return <TabsDisplay {...props} sizeToParent={sizeToParent} ref={ref}>
         <TabsDisplay.TabsList onFocus={makeFocusInOut(onFocusIn)} onKeyDown={onKeyDown} ref={tabsListElemRef}>
             {childArray.map(({key, props: {label}}, index) => <TabsDisplay.Tab
                 data-tab-index={index}
@@ -80,13 +80,14 @@ const Tabs = forwardRef(function Tabs({children, selectedIndex, setSelectedIndex
             </TabsDisplay.Tab>)}
         </TabsDisplay.TabsList>
 
-        <TabsDisplay.TabContents>{
+        <TabsDisplay.TabContents sizeToParent={sizeToParent}>{
             childArray.map(({key, props: {children, label, ...rest}}, index) => {
                 return <TabsDisplay.TabContent
                     key={key}
                     selected={index === selectedIndex}
                     id={`${id}-panel-${index}`}
                     aria-labelledby={`${id}-tab-${index}`}
+                    sizeToParent={sizeToParent}
                     {...rest}
                 >
                     {children}
@@ -97,11 +98,13 @@ const Tabs = forwardRef(function Tabs({children, selectedIndex, setSelectedIndex
 });
 
 Tabs.defaultProps = {
-    selectedIndex: 0
+    selectedIndex: 0,
+    sizeToParent: false,
 };
 
 Tabs.propTypes = {
-    selectedIndex: isPositiveInteger
+    selectedIndex: isPositiveInteger,
+    sizeToParent: PropTypes.bool,
 }
 
 export default Tabs;
