@@ -55,8 +55,8 @@ export default function TimeControls({setIsPaused, setDesiredSpeed}) {
         </Button>
 
         <Button selected={desiredGameSpeed === 5} onClick={() => setDesiredSpeed(5)}>
-          <span className="offscreen"><Trans id="toolbar.x86400">Play at 1 day per second</Trans></span>
-          <FontAwesomeIcon icon={solid('play')} /> x 86400 (chunks)
+          <span className="offscreen"><Trans id="toolbar.604800">Play at 1 week per second</Trans></span>
+          <FontAwesomeIcon icon={solid('play')} /> x 604800 
         </Button>
         
       </div>

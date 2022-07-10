@@ -8,7 +8,7 @@ import { DAY_ANNUAL_FRACTION } from 'game/Consts';
 
 //The entity processor
 export default {
-    type: 'systemBody',
+    type: 'systemBody',//TODO this is very inefficient, as I only care about systembodies that have colonies
     frequency: 'day',
     init: false,
     processor(systemBody, entities, factionEntities, gameConfig) {

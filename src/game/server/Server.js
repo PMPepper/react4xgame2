@@ -25,12 +25,11 @@ export default class Server {
 
   phase = ServerPhase.INITIALISING;
 
-  totalElapsedTime = null;
   targetTickRate = 60;
   timeMultiplier = 60;//3 * 24 * 3600;//time multiplier
-  gameSecondsPerStep = 1;//60;//game seconds to process per step - higher = less processing, but risks resolution based issues
   gameSpeed;
   isPaused = false;
+  realElapsedTime = null;//used to track sub-second time intervals, as gameTick only fires once per second
 
   clients;//a client is a player/ai connected to a faction by a connector method with a permissions e.g. Bob spectating Martians on clientId 1
   clientLastUpdatedTime = null
@@ -60,9 +59,10 @@ export default class Server {
     //initialise the world based on supplied definition
     this.state = createWorldFromDefinition(definition);
 
-    this.totalElapsedTime = this.state.gameTime = Math.floor(new Date(definition.startDate).valueOf() / 1000);
+    //Initialise time - state keeps track of actual game time, down to the second, realElapsedTime handles sub-second time 
+    this.realElapsedTime = this.state.gameTime = Math.floor(new Date(definition.startDate).valueOf() / 1000);
 
-    this._advanceTime(null);
+    this._advanceTime(true);
 
     //c/onsole.log('[Server] created world: ', this.entities);
 
@@ -348,23 +348,18 @@ export default class Server {
     switch(newGameSpeed) {
       case 1:
         this.timeMultiplier = 1;
-        this.gameSecondsPerStep = 1;
         break;
       case 2:
         this.timeMultiplier = 60;
-        this.gameSecondsPerStep = 1;
         break;
       case 3:
         this.timeMultiplier = 3600;
-        this.gameSecondsPerStep = 1;
         break;
       case 4:
         this.timeMultiplier = 86400;
-        this.gameSecondsPerStep = 60;
         break;
       case 5:
         this.timeMultiplier = 7 * 86400;
-        this.gameSecondsPerStep = 360;
         break;
       default:
         throw new Error('Unknown speed value');
@@ -379,10 +374,12 @@ export default class Server {
 
     if(!this.isPaused) {
       const effectiveElapsedTime = elapsedTime * this.timeMultiplier;
+      this.realElapsedTime += effectiveElapsedTime;
+      const ticksToAdvanceBy = Math.floor(this.realElapsedTime - this.state.gameTime);
 
-      this.totalElapsedTime += effectiveElapsedTime;
-
-      this._advanceTime(this.gameSecondsPerStep);
+      if(ticksToAdvanceBy > 0) {
+        this._advanceTime(false, ticksToAdvanceBy);
+      }
     }
 
     Object.values(this.clients).forEach(client => {
@@ -390,22 +387,23 @@ export default class Server {
     });
   }
 
-  _advanceTime(step = 1) {
+  _advanceTime(isInit, ticksToAdvanceBy = null) {
+    const {entities, gameConfig, entityIds, entitiesByType, entitiesLastUpdated, factionEntities} = this.state;
+    const {entityProcessors} = this;
+
+    const advanceToTime = isInit ?
+      null
+      :
+      Math.floor(this.state.gameTime + ticksToAdvanceBy);
+
     //DEV performance testing
     //const startTime = performance.now()
 
-    const advanceToTime = step === null ? null : Math.floor(this.totalElapsedTime);
-
-    const {entities, gameConfig, entityIds, entitiesByType, entitiesLastUpdated, factionEntities} = this.state;
-
-    const isInit = advanceToTime === null;
-    const {entityProcessors} = this;
-
-    while(isInit ||  this.state.gameTime < advanceToTime) {//TODO just run loop once if init = true
+    while(isInit ||  this.state.gameTime < advanceToTime) {
       const lastTime = this.state.gameTime;
 
       //update game time (if applicable)
-      this.state.gameTime = isInit ? lastTime : Math.min(lastTime + step, advanceToTime);
+      this.state.gameTime = isInit ? lastTime : Math.min(lastTime + 1, advanceToTime);
 
       const time = this.state.gameTime;
       const isDayStep = Math.floor(lastTime / 86400) !== Math.floor(time / 86400)
@@ -431,7 +429,6 @@ export default class Server {
               const updatedFacets = processor(entity, entities, factionEntities, gameConfig, isInit, time);
 
               if(updatedFacets) {//this entity was mutated
-                //entity.lastUpdateTime = time;//do I need this?
                 entitiesLastUpdated[entityId] = time;
 
                 for(let i = 0; i < updatedFacets.length; i++) {//mark updated facets
@@ -452,7 +449,7 @@ export default class Server {
 
     //DEV performance testing
     // const end = performance.now()
-    // console.log(end - startTime, step);
+    // console.log(end - startTime, ticksToAdvanceBy);
   }
 
   _getClientState(clientId, full = false) {
