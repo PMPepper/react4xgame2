@@ -179,6 +179,7 @@ export default class ServerState {
         researchInProgress: {},//progress on research projects on this colony
 
         buildQueue: [],
+        buildInProgress: {},
         capabilityProductionTotals: {},
         structuresWithCapability: {},
       }

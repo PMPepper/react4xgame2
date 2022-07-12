@@ -203,6 +203,79 @@ const config = {
       requireTechnologyIds: ['pe'],
     },
   },
+  constructionProjects: {//TODO only shipyweard tasks?
+    "msy": {
+      name: 'Military shipyard',
+      bp: 20000,
+      minerals: {
+        "4": 200,
+        "5": 100,
+        "10": 100
+      },
+      shipyard: {
+        isMilitary: true,
+        capacity: 1000,
+        slipways: 1
+      }
+    },
+    "csy": {
+      name: 'Civilian shipyard',
+      bp: 20000,
+      minerals: {
+        "4": 200,
+        "5": 100,
+        "1": 100
+      },
+      shipyard: {
+        isMilitary: false,
+        capacity: 10000,
+        slipways: 1
+      }
+    },
+    "1u3": {
+      name: 'Upgrade conventional industry to PE industry',
+      bp: 600,
+      minerals: {
+        "4": 60,
+        "3": 30,
+        "2": 30,
+      },
+      requiredStructures: {
+        "1": 1
+      },
+      producedStructures: {
+        "3": 1
+      }
+    },
+    "2u4": {
+      name: 'Upgrade conventional mine to PE mine',
+      bp: 600,
+      minerals: {
+        "4": 60,
+        "1": 30,
+      },
+      requiredStructures: {
+        "2": 1
+      },
+      producedStructures: {
+        "4": 1
+      }
+    },
+    "5u6": {
+      name: 'Upgrade conventional research facility to PE research facility',
+      bp: 12000,
+      minerals: {
+        "4": 120,
+        "9": 120,
+      },
+      requiredStructures: {
+        "5": 1
+      },
+      producedStructures: {
+        "6": 1
+      }
+    },
+  },
   researchAreas: {
     "1": "Biology",
     "2": "Industrial",
