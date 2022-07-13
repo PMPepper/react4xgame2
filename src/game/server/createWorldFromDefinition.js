@@ -5,6 +5,7 @@ import ServerState from './ServerState';
 //Helpers
 import orbitPeriod from 'helpers/physics/orbit-period';
 import map from 'helpers/object/map';
+import forEach from 'helpers/object/forEach';
 
 //Data
 import defaultGameDefinition from '../data/defaultGameDefinition';
@@ -15,11 +16,27 @@ export default function createWorldFromDefinition(definition) {
   //merge in the default game definition
   definition = {...defaultGameDefinition, ...definition};
 
+  //TODO
+  const constructionProjects = JSON.parse(JSON.stringify(definition.constructionProjects));
+
+  //now add constuction project for each type of structure
+  forEach(definition.structures, (structure, id) => {
+    constructionProjects[`struct-${id}`] = {
+      name: structure.name,
+      bp: structure.bp,
+      minerals: structure.minerals,
+      producedStructures: {
+        [id]: 1
+      },
+      requireTechnologyIds: structure.requireTechnologyIds || [],
+    }
+  })
+
   //Basic props
   const state = new ServerState(
     {...definition.minerals},
     JSON.parse(JSON.stringify(definition.structures)),
-    JSON.parse(JSON.stringify(definition.structures)),
+    constructionProjects,
     {...definition.researchAreas},
     JSON.parse(JSON.stringify(definition.research)),
     JSON.parse(JSON.stringify(definition.technology)),

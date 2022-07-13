@@ -105,6 +105,7 @@ export default class Server {
       factions: this.state.factions,
       minerals: this.state.minerals,
       structures: this.state.structures,
+      constructionProjects: this.state.constructionProjects,
       research: this.state.research,
       researchAreas: this.state.researchAreas,
       technology: this.state.technology,

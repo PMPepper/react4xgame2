@@ -132,7 +132,7 @@ const config = {
       capabilities: {
         construction: 1
       },
-      upgrade: [3],
+      //upgrade: [3],
       requireTechnologyIds: [],
     },
     "2": {
@@ -144,7 +144,7 @@ const config = {
       capabilities: {
         mining: 1
       },
-      upgrade: [4],
+      //upgrade: [4],
       requireTechnologyIds: [],
     },
     "3": {
@@ -245,7 +245,8 @@ const config = {
       },
       producedStructures: {
         "3": 1
-      }
+      },
+      requireTechnologyIds: ['pe'],
     },
     "2u4": {
       name: 'Upgrade conventional mine to PE mine',
@@ -259,7 +260,8 @@ const config = {
       },
       producedStructures: {
         "4": 1
-      }
+      },
+      requireTechnologyIds: ['pe'],
     },
     "5u6": {
       name: 'Upgrade conventional research facility to PE research facility',
@@ -273,7 +275,8 @@ const config = {
       },
       producedStructures: {
         "6": 1
-      }
+      },
+      requireTechnologyIds: ['pe'],
     },
   },
   researchAreas: {

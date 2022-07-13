@@ -33,18 +33,18 @@ export default class ServerState {
   factionEntitiesLastUpdated = null;
 
   
-  constructor(minerals, structures, researchAreas, research, technology, systemBodyTypeMineralAbundance, constructionProjects) {
+  constructor(minerals, structures, constructionProjects, researchAreas, research, technology, systemBodyTypeMineralAbundance) {
     this.minerals = minerals;
     this.structures = structures;
+    this.constructionProjects = constructionProjects;
     this.researchAreas = researchAreas;
     this.research = research;
     this.technology = technology;
     this.systemBodyTypeMineralAbundance = systemBodyTypeMineralAbundance;
-    this.constructionProjects = constructionProjects;
 
     //Convienience bundling of core config values for easy comms mostly
     this.gameConfig = {
-        minerals, structures, researchAreas, research, technology, systemBodyTypeMineralAbundance, constructionProjects
+        minerals, structures, constructionProjects, researchAreas, research, technology, systemBodyTypeMineralAbundance
     };
 
     this.factions = {};
