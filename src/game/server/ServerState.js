@@ -19,11 +19,12 @@ export default class ServerState {
   researchAreas;
   technology;
   systemBodyTypeMineralAbundance;
+  constructionProjects;
 
   gameConfig;
 
   entities = null;
-  entityId = null;//used to keep track of assigned entity IDs - increments after each entity is created
+  entityId = 1;//used to keep track of assigned entity IDs - increments after each entity is created
   entityIds = null;
   entitiesByType = null;
   entitiesLastUpdated = null;
@@ -32,17 +33,18 @@ export default class ServerState {
   factionEntitiesLastUpdated = null;
 
   
-  constructor(minerals, structures, researchAreas, research, technology, systemBodyTypeMineralAbundance) {
+  constructor(minerals, structures, researchAreas, research, technology, systemBodyTypeMineralAbundance, constructionProjects) {
     this.minerals = minerals;
     this.structures = structures;
     this.researchAreas = researchAreas;
     this.research = research;
     this.technology = technology;
     this.systemBodyTypeMineralAbundance = systemBodyTypeMineralAbundance;
+    this.constructionProjects = constructionProjects;
 
     //Convienience bundling of core config values for easy comms mostly
     this.gameConfig = {
-        minerals, structures, researchAreas, research, technology, systemBodyTypeMineralAbundance
+        minerals, structures, researchAreas, research, technology, systemBodyTypeMineralAbundance, constructionProjects
     };
 
     this.factions = {};
@@ -64,7 +66,9 @@ export default class ServerState {
   ////////////////////
   // public methods //
   ////////////////////
-
+  nextId() {
+    return this.entityId++;
+  }
 
   getEntityById(id, type = null) {
     const entity = this.entities[id] || null;
@@ -146,7 +150,7 @@ export default class ServerState {
           .forEach((systemBodyId) => {
             utils.setSystemBodyPosition(systemBodyId, this.entities);
 
-            this.entitiesLastUpdated[systemBodyId] = this.gameTime;//mark as updated
+            this.modifiedEntity(systemBodyId, 'systemBody');
         })
       }
     }
@@ -185,10 +189,11 @@ export default class ServerState {
       }
     });
 
-    //update faction
     faction.faction.colonyIds.push(colony.id);
-    this.entitiesLastUpdated[factionId] = this.gameTime;//mark faction as updated
 
+    //update faction
+    this.modifiedEntity(factionId, 'faction');
+    
     return colony;
   }
 
@@ -254,15 +259,13 @@ export default class ServerState {
       return;
     }
 
+    //TODO init colony/populations?
     colony.populationIds.push(population.id);
-
     population.colonyId = colony.id;
 
     //mark as updated
-    colony.colony.lastUpdateTime = this.gameTime;
-
-    this.entitiesLastUpdated[colonyId] = this.gameTime;//mark faction as updated
-    this.entitiesLastUpdated[populationId] = this.gameTime;//mark faction as updated
+    this.modifiedEntity(colonyId);
+    this.modifiedEntity(populationId);
   }
 
   addStructuresToColony(colonyId, populationId, structures) {
@@ -278,8 +281,6 @@ export default class ServerState {
       colony.colony.structures[populationId] = {}
     }
 
-    colony.colony.lastUpdateTime = this.gameTime;
-
     const currentStructures = colony.colony.structures[populationId];
 
     forEach(structures, (quantity, structureId) => {
@@ -293,7 +294,19 @@ export default class ServerState {
       currentStructures[structureId] = Math.max(0, currentStructures[structureId]);
     });
 
-    this.entitiesLastUpdated[colonyId] = this.gameTime;//mark as updated
+    this.modifiedEntity(colonyId, 'colony');
+  }
+
+  modifiedEntity(entityId, ...facets) {
+    if(facets?.length > 0) {
+      const entity = this.getEntityById(entityId);
+
+      for(let i = 0; i < facets.length; i++) {
+        entity[facets[i]].lastUpdateTime = this.gameTime;
+      }
+    }
+    
+    this.entitiesLastUpdated[entityId] = this.gameTime;//mark as updated
   }
 
 
@@ -304,13 +317,13 @@ export default class ServerState {
   _newEntity(type, props) {
     const newEntity = {
       ...props,
-      id: this.entityId++,
+      id: this.nextId(),
       type,
     };
 
     this.entities[newEntity.id] = newEntity;
     this.entityIds.push(newEntity.id);
-    this.entitiesLastUpdated[newEntity.id] = this.gameTime;
+    this.modifiedEntity(newEntity.id);
 
     !this.entitiesByType[type] && (this.entitiesByType[type] = [])
 
@@ -344,7 +357,7 @@ export default class ServerState {
             //record ref to this entity...
             linkedEntity[linkedIdsProp].push(newEntity.id);
             //...and update last updated time
-            this.entitiesLastUpdated[linkedEntity.id] = this.gameTime;
+            this.modifiedEntity(linkedEntity.id);
           }
         }
       } else if(prop.endsWith('Ids')) {

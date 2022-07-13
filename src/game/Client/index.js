@@ -103,6 +103,23 @@ export default class Client {
     return this.connector.sendMessageToServer('createColony', bodyId)
   }
 
+  // Construction
+  addBuildQueueItem = (colonyId, constructionProjectId, total, assignToPopulationId, takeFromPopulationId = null) => {
+    return this.connector.sendMessageToServer('addBuildQueueItem', {colonyId, constructionProjectId, total, assignToPopulationId, takeFromPopulationId})
+  }
+
+  removeBuildQueueItem = (colonyId, id) => {
+    return this.connector.sendMessageToServer('removeBuildQueueItem', {colonyId, id})
+  }
+
+  reorderBuildQueueItem = (colonyId, id, newIndex) => {
+    return this.connector.sendMessageToServer('reorderBuildQueueItem', {colonyId, id, newIndex})
+  }
+
+  updateBuildQueueItem = (colonyId, id, total, assignToPopulationId, takeFromPopulationId = null) => {
+    return this.connector.sendMessageToServer('updateBuildQueueItem', {colonyId, id, total, assignToPopulationId, takeFromPopulationId})
+  }
+
   ///////////////////////////////////////
   // Server -> Client message handlers //
   ///////////////////////////////////////

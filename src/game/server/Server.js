@@ -2,6 +2,8 @@
 //Helpers
 import map from 'helpers/object/map';
 import isEmpty from 'helpers/object/isEmpty';
+import inPlaceReorder from 'helpers/array/in-place-reorder';
+import forEach from 'helpers/object/forEach';
 
 //Other
 import createWorldFromDefinition from './createWorldFromDefinition';
@@ -206,30 +208,21 @@ export default class Server {
 
   //-in game
   message_getClientState(lastUpdateTime, clientId) {
-    if(this.phase !== ServerPhase.RUNNING) {
-      throw new Error('Can only get client state while server is in "running" phase');
-    }
-
+    this._checkPhase(ServerPhase.RUNNING);
     this._checkValidClient(clientId);
 
     return Promise.resolve(this._getClientState(clientId, true))
   }
 
   message_setDesiredSpeed(newDesiredSpeed, clientId) {
-    if(this.phase !== ServerPhase.RUNNING) {
-      throw new Error('Can only set desired speed while server is in "running" phase');
-    }
-
+    this._checkPhase(ServerPhase.RUNNING);
     this._checkValidClient(clientId);
 
     this.clients[clientId].gameSpeed = Math.max(1, Math.min(5, newDesiredSpeed|0))
   }
 
   message_setIsPaused(newIsPaused, clientId) {
-    if(this.phase !== ServerPhase.RUNNING) {
-      throw new Error('Can only set is paused while server is in "running" phase');
-    }
-
+    this._checkPhase(ServerPhase.RUNNING);
     this._checkValidClient(clientId);
 
     this.clients[clientId].isPaused = !!newIsPaused;
@@ -238,10 +231,7 @@ export default class Server {
 //TODO I feel like this sort of thing needs to go somewhere else, or be handled differently somehow
 
   message_createColony(systemBodyId, clientId) {
-    if(this.phase !== ServerPhase.RUNNING) {
-      throw new Error('Can only create colony while server is in "running" phase');
-    }
-
+    this._checkPhase(ServerPhase.RUNNING);
     this._checkValidClient(clientId);
 
     const colony = this.state.createColony(systemBodyId, this.clients[clientId].factionId);
@@ -249,10 +239,152 @@ export default class Server {
     return Promise.resolve(colony.id);
   }
 
-  message_createResearchGroup(colonyId, structures, projects, clientId) {
-    if(this.phase !== ServerPhase.RUNNING) {
-      throw new Error('Can only add research group while server is in "running" phase');
+  //Construction messages
+  message_addBuildQueueItem({colonyId, constructionProjectId, total, assignToPopulationId, takeFromPopulationId}, clientId) {
+    this._checkPhase(ServerPhase.RUNNING);
+    this._checkValidClient(clientId);
+    this._clientOwnsEntity(clientId, colonyId, assignToPopulationId, takeFromPopulationId);
+
+    const colony = this.state.getEntityById(colonyId, 'colony');
+
+    if(!colony?.colony) {
+      throw new Error('Not a valid colony');
     }
+
+    const constructionProject = this.state.constructionProjects[constructionProjectId];
+
+    if(!constructionProject) {
+      throw new Error('Unknown constructionProjectId: '+ constructionProjectId);
+    }
+
+    //Add the construction queue
+    const newId = this.state.nextId();
+
+    colony.colony.buildQueue.push({
+      id: newId,//re-using entity ID, even though it's not an entity - is that a problem?
+      total,
+      completed: 0,
+      constructionProjectId,
+      assignToPopulationId, takeFromPopulationId
+    })
+
+    //make sure colony props are valid
+    //-ideally shouldn't need this? would be handled in the processor?
+    if(!colony.colony.structures[assignToPopulationId]) {
+      colony.colony.structures[assignToPopulationId] = {};
+    }
+
+    forEach(constructionProject.producedStructures || {}, (quantity, structureId) => {
+      if(!colony.colony.structures[assignToPopulationId][structureId]) {
+        colony.colony.structures[assignToPopulationId][structureId] = 0;
+      }
+    })
+
+    this.state.modifiedEntity(colony, 'colony')
+
+    return Promise.resolve(newId);
+  }
+
+  message_removeBuildQueueItem({colonyId, id}, clientId) {
+    this._checkPhase(ServerPhase.RUNNING);
+    this._checkValidClient(clientId);
+    this._clientOwnsEntity(clientId, colonyId);
+
+    const colony = this.state.getEntityById(colonyId, 'colony');
+
+    if(!colony?.colony) {
+      throw new Error('Not a valid colony');
+    }
+
+    const buildQueueItemIndex = colony.colony.buildQueue.findIndex(item => item.id === id);
+
+    if(buildQueueItemIndex === -1) {
+      return Promise.resolve(false);
+    }
+
+    //everything is valid, remove build queue item
+    colony.colony.buildQueue.splice(buildQueueItemIndex, 1);
+
+    this.state.modifiedEntity(colony, 'colony');
+
+    //return new build queue
+    return Promise.resolve(colony.colony.buildQueue);
+  }
+
+  message_reorderBuildQueueItem({colonyId, id, newIndex}, clientId) {
+    this._checkPhase(ServerPhase.RUNNING);
+    this._checkValidClient(clientId);
+    this._clientOwnsEntity(clientId, colonyId);
+
+    const colony = this.state.getEntityById(colonyId, 'colony');
+
+    if(!colony?.colony) {
+      throw new Error('Not a valid colony');
+    }
+
+    const buildQueueItemIndex = colony.colony.buildQueue.findIndex(item => item.id === id);
+
+    if(buildQueueItemIndex === -1) {
+      return Promise.resolve(false);
+    }
+
+    //everything is valid, reorder build queue
+    inPlaceReorder(colony.colony.buildQueue, buildQueueItemIndex, newIndex);
+
+    this.state.modifiedEntity(colony, 'colony');
+
+    //return new build queue
+    return Promise.resolve(colony.colony.buildQueue);
+  }
+
+  message_updateBuildQueueItem({colonyId, id, total, assignToPopulationId, takeFromPopulationId}, clientId) {
+    this._checkPhase(ServerPhase.RUNNING);
+    this._checkValidClient(clientId);
+    this._clientOwnsEntity(clientId, colonyId, assignToPopulationId, takeFromPopulationId);
+
+    const colony = this.state.getEntityById(colonyId, 'colony');
+
+    if(!colony?.colony) {
+      throw new Error('Not a valid colony');
+    }
+
+    const buildQueueItemIndex = colony.colony.buildQueue.findIndex(item => item.id === id);
+
+    if(buildQueueItemIndex === -1) {
+      return Promise.resolve(false);
+    }
+
+    const buildQueueItem = colony.colony.buildQueue[buildQueueItemIndex];
+
+    //make sure colony props are valid
+    if(!colony.colony.structures[assignToPopulationId]) {
+      colony.colony.structures[assignToPopulationId] = {};
+    }
+
+    const constructionProject = this.state.constructionProjects[buildQueueItem.constructionProjectId];
+
+    forEach(constructionProject.producedStructures, (quantity, structureId) => {
+      if(!colony.colony.structures[assignToPopulationId][buildQueueItem.constructionProjectId]) {
+        colony.colony.structures[assignToPopulationId][buildQueueItem.constructionProjectId] = 0;
+      }
+    })
+
+    //everthing is valid, update build queue item
+    buildQueueItem.total = total;
+    buildQueueItem.assignToPopulationId = assignToPopulationId;
+    buildQueueItem.takeFromPopulationId = takeFromPopulationId;
+
+    this.state.modifiedEntity(colony, 'colony');
+
+    //return new build queue
+    return Promise.resolve(colony.colony.buildQueue);
+  }
+
+
+  //Research
+
+  message_createResearchGroup(colonyId, structures, projects, clientId) {
+    this._checkPhase(ServerPhase.RUNNING);
 
     this._checkValidClient(clientId);
 
@@ -269,9 +401,7 @@ export default class Server {
   }
 
   message_removeResearchGroup(researchGroupId, clientId) {
-    if(this.phase !== ServerPhase.RUNNING) {
-      throw new Error('Can only remove research group while server is in "running" phase');
-    }
+    this._checkPhase(ServerPhase.RUNNING);
 
     this._checkValidClient(clientId);
 
@@ -281,9 +411,7 @@ export default class Server {
   }
 
   message_updateResearchGroup(researchGroupId, structures, projects, clientId) {
-    if(this.phase !== ServerPhase.RUNNING) {
-      throw new Error('Can only remove research group while server is in "running" phase');
-    }
+    this._checkPhase(ServerPhase.RUNNING);
 
     this._checkValidClient(clientId);
 
@@ -336,6 +464,33 @@ export default class Server {
     }
   }
 
+  _checkPhase(phase, msg = null) {
+    if(this.phase !== phase) {
+      throw new Error(msg || `Incorrect phase, was: ${this.phase}, required: ${phase}`);
+    }
+  }
+
+  _clientOwnsEntity(clientId, ...entityIds) {
+    for(let i = 0; i < entityIds.length; i++) {
+      const entityId = entityIds[i];
+
+      if(!entityId) {
+        continue;
+      }
+
+      const entity = this.state.getEntityById(entityId);
+
+      if(!entity) {
+        throw new Error('Entity not found');
+      }
+  
+      if(this.clients[clientId].factionId !== entity.factionId) {
+        throw new Error('Client does not control this entity');
+      }
+    }
+  }
+
+  //Game tick methods
   _updateGameTime() {
     let newGameSpeed = 5;
     let isPaused = false;
