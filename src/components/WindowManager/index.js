@@ -38,28 +38,26 @@ const defaultGetBounds = (area, windowBoundsRect) => {
 const sortOnInteractionTime = sortOnPropNumeric('interactionTime');
 
 
-//The component
 export default function WindowManager({children, area, getBounds = defaultGetBounds, styles = defaultStyles}) {
-    const ref = useRef({
-        windowState: BLANK,
-        windows: null,
-        windowKeyToIndex: {},
+    const stateRef = useRef({
+        windowState: {},//{[key]: {state object}}
+        windows: [],//list of keys in source order
         getBounds,
-        area
+        area,
     });
 
-    ref.current.getBounds = getBounds;
-    ref.current.area = area;
+    stateRef.current.getBounds = getBounds;
+    stateRef.current.area = area;
 
     const forceUpdate = useForceUpdate();
 
     //Callbacks
     const onWindowInteract = useCallback(
         (key) => {
-            const {windowState} = ref.current;
+            const {windowState} = stateRef.current;
 
             windowState[key].interactionTime = Date.now();
-            sortElements(ref.current);
+            sortElements(stateRef.current, onWindowInteract, onWindowClose, onWindowDrag, onWindowResize);
 
             forceUpdate();
         },
@@ -68,12 +66,10 @@ export default function WindowManager({children, area, getBounds = defaultGetBou
 
     const onWindowClose = useCallback(
         (key) => {
-            const {windowState, windows, windowKeyToIndex} = ref.current;
+            const {windowState} = stateRef.current;
             
+            //update windows state
             windowState[key].open = false;
-
-            //update windows array
-            windows[windowKeyToIndex[key]] = null;
 
             forceUpdate();
         },
@@ -94,7 +90,7 @@ export default function WindowManager({children, area, getBounds = defaultGetBou
                 throw new Error('supply left OR right, not both at once');
             }
 
-            const {windowState, windows, windowKeyToIndex} = ref.current;
+            const {windowState} = stateRef.current;
 
             //Enforce size limits
             const state = windowState[key];
@@ -173,35 +169,28 @@ export default function WindowManager({children, area, getBounds = defaultGetBou
 
             state.element = makeElement(state, onWindowInteract, onWindowClose, onWindowDrag, onWindowResize);
 
-            //update windows array
-            windows[windowKeyToIndex[key]] = state.element;
-
             forceUpdate();
         }
     );
 
     const onWindowDrag = useRefCallback(
         (key, x, y) => {
-            const {getBounds, area, windowState, windows, windowKeyToIndex} = ref.current;
+            const {getBounds, area, windowState} = stateRef.current;
             const state = windowState[key];
 
-            positionWindow(x, y, state, area, getBounds)
+            if(positionWindow(x, y, state, area, getBounds)) {
+                state.element = makeElement(state, onWindowInteract, onWindowClose, onWindowDrag, onWindowResize);
 
-            state.element = makeElement(state, onWindowInteract, onWindowClose, onWindowDrag, onWindowResize);
-
-            //update windows array
-            windows[windowKeyToIndex[key]] = state.element;
-
-            forceUpdate();
+                forceUpdate();
+            }
         }
     );
 
-    //Memoised values
-    //-If windows change, initialise them
     const nonWindowContent = useMemo(
         () => {
-            const {windowState: currentWindowState, area} = ref.current;
+            const {windowState: currentWindowState, windows, area} = stateRef.current;
             const nonWindowContent = [];
+            windows.length = 0;
 
             const windowsState = childrenToArray(children, true).reduce((output, child) => {
                 if(!isWindow(child)) {
@@ -211,6 +200,7 @@ export default function WindowManager({children, area, getBounds = defaultGetBou
                 }
                 
                 const key = child.key;
+                windows.push(key);
 
                 output[key] = currentWindowState[key] ?
                     {
@@ -228,19 +218,20 @@ export default function WindowManager({children, area, getBounds = defaultGetBou
                         ),
                         interactionTime: Date.now(),
                         open: true,
+                        order: null,
                     };
                 
                 // enforce bounds
                 positionWindow(output[key].position.x, output[key].position.y, output[key], area, getBounds);
 
-                output[key].element = makeElement(output[key], onWindowInteract, onWindowClose, onWindowDrag, onWindowResize);
+                //do not make new element, as we need to do that after sorting below
 
                 return output;
             }, {});
 
-            //store values in ref
-            ref.current.windowState = windowsState;
-            sortElements(ref.current);
+            //store values in stateRef
+            stateRef.current.windowState = windowsState;
+            sortElements(stateRef.current, onWindowInteract, onWindowClose, onWindowDrag, onWindowResize);
 
             return nonWindowContent;
         },
@@ -249,25 +240,28 @@ export default function WindowManager({children, area, getBounds = defaultGetBou
 
     useMemo(
         () => {//continue to enforce bounds as area changes, or getBounds rules change
-            const {windowState} = ref.current;
+            const {windowState} = stateRef.current;
 
             Object.keys(windowState).forEach(key => {
                 const state = windowState[key];
 
-                positionWindow(state.position.x, state.position.y, state, area, getBounds);
+                if(positionWindow(state.position.x, state.position.y, state, area, getBounds)) {
+                    state.element = makeElement(state, onWindowInteract, onWindowClose, onWindowDrag, onWindowResize);
+                }
             })
         },
-        [area, getBounds]
+        [area, getBounds, onWindowInteract, onWindowClose, onWindowDrag, onWindowResize]
     )
 
     //Render
     return <>
         <div className={styles.root}>
-            {ref.current.windows}
+            {stateRef.current.windows.map((key) => stateRef.current.windowState[key].element)}
         </div>
         {nonWindowContent}
     </>
 }
+
 
 WindowManager.Window = Window;
 
@@ -277,7 +271,11 @@ function isWindow(elem) {
     return elem.type === WindowManager.Window;
 }
 
+//returns bool true if window position was changed
 function positionWindow(nx, ny, windowState, area, getBounds) {
+    const ox = windowState.position.x;
+    const oy = windowState.position.y;
+
     // //enforce bounds
     if(getBounds) {
         const windowPositionBoundsRect = getBounds(area, windowState.position);
@@ -289,10 +287,12 @@ function positionWindow(nx, ny, windowState, area, getBounds) {
         windowState.position.x = nx;
         windowState.position.y = ny;
     }
+
+    return ox !== windowState.position.x || oy !== windowState.position.y;
 }
 
 function makeElement(state, onWindowInteract, onWindowClose, onWindowDrag, onWindowResize) {
-    const {original, position} = state;
+    const {original, position, order} = state;
     const key = original.key;
     const {noClose, noDrag, noResize} = original.props;
 
@@ -300,6 +300,7 @@ function makeElement(state, onWindowInteract, onWindowClose, onWindowDrag, onWin
         original, 
         {
             x: position.x, y: position.y, width: position.width, height: position.height,
+            order,
             onInteract: () => onWindowInteract(key),
             onRequestClose: noClose ? null : () => onWindowClose(key),
             onDrag: noDrag ? null : (dx, dy) => onWindowDrag(key, dx, dy),
@@ -308,26 +309,17 @@ function makeElement(state, onWindowInteract, onWindowClose, onWindowDrag, onWin
     );
 }
 
-function sortElements(current) {
+function sortElements(current, onWindowInteract, onWindowClose, onWindowDrag, onWindowResize) {//TODO
     const {windowState} = current;
 
-    const windows = mapToSortedArray(
+    const windowsInOrder = mapToSortedArray(
         windowState,
-        ({element}) => element,
+        (state, key) => key,
         sortOnInteractionTime,
     );
 
-    //generate key to sorted index lookup
-    current.windowKeyToIndex = windows.reduce((output, {key}, index) => {
-        output[key] = index;
-
-        return output
-    }, {})
-
-    current.windows = windows.map(window => {
-        return windowState[window.key].open ?
-            window
-            :
-            null;
-    });
+    windowsInOrder.forEach((key, index) => {
+        windowState[key].order = index;
+        windowState[key].element = makeElement(windowState[key], onWindowInteract, onWindowClose, onWindowDrag, onWindowResize)
+    })
 }

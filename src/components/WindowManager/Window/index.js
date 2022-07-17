@@ -9,9 +9,10 @@ import Spreader from "components/layout/Spreader";
 
 //Hooks
 import useDraggable from "hooks/useDraggable";
+import useIsFocusWithin from "hooks/useIsFocusWithin";
 
 //Helpers
-import makeFocusInOut from "helpers/react/make-focus-in-out";
+import classnames from "helpers/css/class-list-to-string";
 
 //Other
 import defaultStyles from './Window.module.scss';
@@ -23,7 +24,7 @@ const defaultCloseLbl = <Trans id="window.close">Close</Trans>
 export default function Window({
     children,
     title,
-    x, y, width, height,
+    x, y, width, height, order,
     onInteract, onRequestClose, onDrag, onResize,
     styles = defaultStyles,
 
@@ -39,21 +40,22 @@ export default function Window({
 
     const [isFocusIn, setIsFocusIn] = useState(false);
 
-    const onFocusIn = useCallback(
-        makeFocusInOut((e) => {
+    const onFocusHandler = useCallback(
+        (e) => {
             onInteract(e);
-
             setIsFocusIn(true);
-        }),
+        },
         [onInteract]
     );
 
-    const onFocusOut = useCallback(
-        makeFocusInOut(() => {
+    const onBlurHandler = useCallback(
+        () => {
             setIsFocusIn(false);
-        }),
+        },
         []
     );
+
+    const onFocus = useIsFocusWithin(onFocusHandler, onBlurHandler);
 
     const style = useMemo(
         () => {
@@ -62,12 +64,13 @@ export default function Window({
                 "--window-y": `${y}px`,
                 "--window-width": `${width}px`,
                 "--window-height": `${height}px`,
+                "--window-order": order,
             };
         },
-        [x, y, width, height]
+        [x, y, width, height, order]
     );
 
-    return <Component style={style} className={styles.root} onMouseDown={onInteract} onFocus={onFocusIn} onBlur={onFocusOut} tabIndex="-1">
+    return <Component style={style} className={classnames(styles.root, isFocusIn && styles.focusWithin)} onFocus={onFocus} tabIndex="-1">
         <div className={styles.content}>
             <HeaderComponent className={cn(styles.header, onDrag && styles.drag, onResize && styles.onResize)} {...dragProps}>
                 <Spreader

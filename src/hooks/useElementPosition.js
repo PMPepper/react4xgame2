@@ -8,6 +8,7 @@ import Rectangle from 'classes/Rectangle';
 
 //Hooks
 import useStateDebounce from 'hooks/useStateDebounce';
+import useRefCallback from './useRefCallback';
 
 
 //The hook
@@ -17,24 +18,19 @@ export default function useElementPosition(currentRef = null, wait = 0, {width =
     const [, _setElem] = useState();
     const [position, setPosition] = useStateDebounce(null, wait, debounceOptions);
 
-    const measureAndRecordPosition = useCallback(
+    const measureAndRecordPosition = useRefCallback(
         () => {
             //measure element position and see if it has changed
             const elemPosition = getElement(elemRef.current)?.getBoundingClientRect();
 
-            setPosition((curPosition) => {
-                if(!elemPosition) {
-                    return elemPosition;
-                }
-
-                if(curPosition && curPosition.x === elemPosition.x && curPosition.y === elemPosition.y && curPosition.width === elemPosition.width && curPosition.height === elemPosition.height) {
-                    return curPosition;
-                }
-
-                return Rectangle.fromObj(elemPosition);
-            });
-        },
-        []
+            if(!elemPosition) {
+                setPosition(elemPosition);
+            } else if(position && (!x || position.x === elemPosition.x) && (!y || position.y === elemPosition.y) && (!width || position.width === elemPosition.width) && (!height || position.height === elemPosition.height)) {
+                //do nothing
+            } else {
+                setPosition(Rectangle.fromObj(elemPosition))
+            }
+        }
     );
 
     const monitorElementSize = useCallback(() => {

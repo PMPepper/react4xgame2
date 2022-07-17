@@ -1,7 +1,7 @@
 //TODO
 //customise position (disance/offset)
 //layout
-import { Children, cloneElement, useState, useCallback, useEffect } from "react";
+import { forwardRef, Children, cloneElement, useState, useCallback, useEffect } from "react";
 import PropTypes from 'prop-types';
 
 //Components
@@ -30,7 +30,7 @@ const elementSizeOptions = {width: true, height: true, x: true, y: true};
 //The component
 //-forceOpen, defaults to null = standard behaviour. True = always visible, false = never visible
 //disableAria [bool], defaults to false. True removes the aria properties and adds aria-hidden. Use when tooltip is purely for visual users
-export default function Tooltip({children, content, align, forceOpen, disableAria}) {
+const Tooltip = forwardRef(function Tooltip({children, content, align, forceOpen, disableAria}, ref) {
     const [setElement, position] = useElementPosition(null, 0, elementSizeOptions);
 
     //State
@@ -73,7 +73,8 @@ export default function Tooltip({children, content, align, forceOpen, disableAri
     const id = useId(child.props.id);
     const tooltipId = `${id}-tooltip`;
     const renderChild = cloneElement(child, {
-        ref: mergeRefs([setElement, child.ref]), 
+        ref: mergeRefs([setElement, child.ref, ref]), 
+        //TODO merge other props?
         "aria-describedby": disableAria ? undefined : tooltipId, 
         tabIndex: '0', 
         onMouseEnter, onMouseLeave, onFocus, onBlur
@@ -112,7 +113,9 @@ export default function Tooltip({children, content, align, forceOpen, disableAri
             }</AbsolutelyPositioned>
         </Portal>
     </>
-}
+});
+
+export default Tooltip;
 
 Tooltip.defaultProps = {
     align: ['bottom-center', 'top-center', 'right-center', 'left-center'],

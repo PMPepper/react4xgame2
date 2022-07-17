@@ -21,19 +21,19 @@ export default class Client {
       }
     });
 
-    this.onTick();
+    //this.onTick();
   }
 
-  onTick = () => {
-    if(this._gameState && this._gameState !== this._lastGameState) {
+  onGameStateUpdate = () => {
+    //if(this._gameState && this._gameState !== this._lastGameState) {
       this.updateSystemBodyPositions(this.store.getState().selectedSystemId);
 
       this._updateStateCallback?.(this._gameState);
 
-      this._lastGameState = this._gameState;
-    }
+      //this._lastGameState = this._gameState;
+    //}
 
-    window.requestAnimationFrame(this.onTick)
+    //window.requestAnimationFrame(this.onTick)
   }
 
   /////////////////////
@@ -133,6 +133,8 @@ export default class Client {
     this.gameState = fromState(gameState, this.initialGameState, selectedSystemId);
 
     //this.updateSystemBodyPositions(selectedSystemId);
+
+    this.onGameStateUpdate();
   }
 
   message_updatingGame(newGameState) {
@@ -140,6 +142,8 @@ export default class Client {
     this.gameState = mergeState(this.gameState, newGameState, this.store.getState().selectedSystemId);
 
     //this.updateSystemBodyPositions(this.systemId);
+
+    this.onGameStateUpdate();
   }
 
   //////////////////

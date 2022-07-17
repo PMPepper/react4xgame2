@@ -13,13 +13,15 @@
     width: calc(var(--window-width) + calc(2 * var(--dragWidth)));
     height: calc(var(--window-height) + calc(2 * var(--dragWidth)));
 
+    z-index: var(--window-order);
+
     max-height: 90vh;
     
     display: grid;
     grid-template-columns: [col-start] var(--dragWidth) [col-content-start] 1fr [col-content-end] var(--dragWidth) [col-end];
     grid-template-rows: [row-start] var(--dragWidth) [row-content-start] 1fr [row-content-end] var(--dragWidth) [row-end];
 
-    &:not(:focus-within) {
+    &:not(.focusWithin) {
         opacity: 0.75;
 
         // & .body {

@@ -1,13 +1,16 @@
 import removeValue from "helpers/array/remove-value";
 
+const disable = true;
+
 const Performance = {
     mark: (name) => {
-        return performance.mark(name);
+        return !disable && performance.mark(name);
     },
     measure: (name, startMark, endMark) => {
-        return performance.measure(name,startMark, endMark);
+        return !disable && performance.measure(name,startMark, endMark);
     },
     getEntriesByName: (name) => {
+        if(disable) {return}
         const entries = performance.getEntriesByName(name, "measure");
         performance.clearMeasures(name);
 
@@ -15,6 +18,7 @@ const Performance = {
     },
 
     getEntries: () => {
+        if(disable) {return []}
         const entries = performance.getEntriesByType("measure");
         performance.clearMeasures();
 
@@ -23,9 +27,10 @@ const Performance = {
 
     //Allow performance tracking of custom external data sources
     onData: (name, values) => {
-        callbacks[name]?.forEach(callback => callback(values));
+        !disable && callbacks[name]?.forEach(callback => callback(values));
     },
     registerCallback: (name, callback) => {
+        if(disable) {return}
         if(!callbacks[name]) {
             callbacks[name] = [];
         }
@@ -34,6 +39,7 @@ const Performance = {
     },
 
     unregisterCallback: (name, callback) => {
+        if(disable) {return}
         if(!callbacks[name]) {
             return false
         }
