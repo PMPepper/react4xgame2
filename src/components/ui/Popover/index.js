@@ -6,6 +6,7 @@ import { forwardRef, useState, cloneElement, Children, useCallback, useRef } fro
 //Components
 import AbsolutelyPositioned from "components/ui/AbsolutelyPositioned";
 import Portal from "components/ui/Portal";
+import AutoFocus from "components/ui/AutoFocus";
 //import ModalPortal from "components/ui/ModalPortal";
 
 //Hooks
@@ -110,7 +111,7 @@ const Popover = forwardRef(function Popover({
         {isOpen && <PortalOrModal>
             <div className={classnames(classes.overlay, overlay && classes.visible)} onClick={onClickOverlay} onKeyDown={onKeyDownOverlay}>
                 <AbsolutelyPositioned fixed ref={setElement} positionRelativeTo={position} align={align} className={isOpen ? undefined : classes.closed}>{
-                    (alignment) => <div className={classes.popover} role="dialog" id={popoverId} tabIndex="-1">{content}</div>//TODO render prop, context, etc
+                    (alignment) => <AutoFocus><div className={classes.popover} role="dialog" id={popoverId} tabIndex="-1">{content}</div></AutoFocus>//TODO render prop, context, etc
                 }</AbsolutelyPositioned>
             </div>
         </PortalOrModal>}
