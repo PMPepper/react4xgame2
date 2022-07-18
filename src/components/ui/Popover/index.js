@@ -1,13 +1,10 @@
-//TODO popover
-//TODO focus management
-
 import { forwardRef, useState, cloneElement, Children, useCallback, useRef } from "react";
 
 //Components
 import AbsolutelyPositioned from "components/ui/AbsolutelyPositioned";
 import Portal from "components/ui/Portal";
+import Modal from "components/ui/Modal";
 import AutoFocus from "components/ui/AutoFocus";
-//import ModalPortal from "components/ui/ModalPortal";
 
 //Hooks
 import useElementPosition from "hooks/useElementPosition";
@@ -101,9 +98,7 @@ const Popover = forwardRef(function Popover({
         )
     );
 
-    const PortalOrModal = Portal//modal ? Modal : Portal;
-
-    //TODO focus handling stuff
+    const PortalOrModal = modal ? Modal : Portal;
 
     //Render
     return <>

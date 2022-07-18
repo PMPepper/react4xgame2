@@ -1,3 +1,4 @@
+//DOES NOT WORK WITH REACT PORTALS
 
 //The helper
 export default function makeFocusInOut(handler) {

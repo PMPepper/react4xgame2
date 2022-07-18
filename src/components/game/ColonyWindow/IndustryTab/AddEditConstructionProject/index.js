@@ -4,6 +4,7 @@ import { isEmpty } from "lodash";
 
 //Components
 import Form from "components/display/Form";
+import Stack from "components/layout/Stack";
 
 //Hooks
 import { useGameConfig } from "components/game/Game";
@@ -15,6 +16,7 @@ import sortOnPropNatsort from "helpers/sorting/sort-on-prop-natsort";
 import isConstructionProjectAvailable from "game/utils/isConstructionProjectAvailable";
 import forEach from "helpers/object/forEach";
 import formatNumber from "helpers/string/format-number";
+import Button from "components/ui/Button";
 
 
 //The component
@@ -30,10 +32,23 @@ export default function AddEditConstructionProject({projectId, colonyId}) {
     );
 
     //Render
-    return <Form>
-        <Form.Select name="project" options={groupedConstructionProjects} />
+    return <Stack component={Form}>
+        <div>
+            <Form.Select name="project" options={groupedConstructionProjects} />
+        </div>
+        
+        <div>
+            <Form.Input name="project" type="number" min="1" step="1" placeholder={t`Quantity to construct`} />
+        </div>
 
-    </Form>
+        <div>
+            <Button>{isEdit ? 
+                <Trans>Edit project</Trans>
+                :
+                <Trans>Add project</Trans>
+            }</Button>
+        </div>
+    </Stack>
 
 }
 

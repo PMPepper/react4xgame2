@@ -1,7 +1,7 @@
 import isElementHidden from './is-element-hidden';
 
 
-export default function isFocusable(elem) {
+export default function isFocusable(elem, keyboardOnly = false) {
   if(!elem || isElementHidden(elem)) {
     return false;
   }
@@ -24,7 +24,7 @@ export default function isFocusable(elem) {
     case 'iframe':
       return true;
     default:
-      if(elem.hasAttribute('tabindex') && (+elem.getAttribute('tabindex')) > -2) {
+      if(elem.hasAttribute('tabindex') && (+elem.getAttribute('tabindex')) > (keyboardOnly ? -1 : -2)) {
         return true;
       }
   }

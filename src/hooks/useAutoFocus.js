@@ -21,8 +21,10 @@ export default function useAutoFocus(passthroughRef = null) {
                 const firstAutofocus = focusable.find(elem => elem.getAttribute('autoFocus'));
 
                 (firstAutofocus || focusable[0]).focus();
+                
                 setTimeout(() => {
                     (firstAutofocus || focusable[0]).focus();
+                    console.log(document.activeElement);
                 }, 0)
             }
         },
