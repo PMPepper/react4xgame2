@@ -1,13 +1,22 @@
 import { forwardRef, useMemo } from "react"
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { solid } from '@fortawesome/fontawesome-svg-core/import.macro';
 
 //Helpers
 import combineProps from "helpers/react/combine-props";
 
+//Other
+import classes from './Form.module.scss';
 
+//Consts
+
+
+//The components
 const Form = forwardRef(function Form({children, ...rest}, ref) {
     const props = combineProps(
         {
             action: '#',
+            className: classes.form,
         },
         rest,
         {
@@ -28,7 +37,7 @@ export const Select = Form.Select = forwardRef(function Select({
 }, ref) {
     const props = combineProps(
         {
-            ref,
+            className: classes.select,
         },
         rest
     );
@@ -48,9 +57,12 @@ export const Select = Form.Select = forwardRef(function Select({
         [options]
     );
 
-    return <select {...props}>
-        {renderedOptions}
-    </select>
+    return <label className={classes.fieldWrapper} ref={ref}>
+        <select {...props}>
+            {renderedOptions}
+        </select>
+        <FontAwesomeIcon icon={solid('angle-down')} className={classes.icon} inert />
+    </label>
 })
 
 function renderSelectOption({label, value}) {
@@ -59,14 +71,42 @@ function renderSelectOption({label, value}) {
 
 //Input
 export const Input = Form.Input = forwardRef(function Input({
-
+    ...rest
 }, ref) {
-    return 'TODO';
+    const props = combineProps(
+        rest,
+        {
+            className: classes.input
+        },
+    )
+
+    return <label className={classes.fieldWrapper} ref={ref}>
+        <input {...props} />
+    </label>
 })
+
+Input.defaultProps = {
+    type: 'text'
+}
 
 //Textarea
 export const Textarea = Form.Textarea = forwardRef(function Textarea({
 
 }, ref) {
     return 'TODO';
+})
+
+//Label
+export const Label = Form.Label = forwardRef(function Label({
+    children, ...rest
+}, ref) {
+    const props = combineProps(
+        rest,
+        {
+            className: classes.label,
+            ref,
+        },
+    )
+
+    return <label {...props}>{children}</label>
 })

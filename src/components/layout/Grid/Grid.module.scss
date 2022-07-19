@@ -1,0 +1,37 @@
+@import '../../../css/shared';
+
+
+.grid {
+    --grid-smallGap: var(--base-padding8);
+    --grid-standardGap: var(--base-padding4);
+    --grid-largeGap: var(--base-padding2);
+
+    --grid-columnGap: var(--grid-standardGap);
+    --grid-rowGap: var(--grid-standardGap);
+
+    --grid-gap: var(--grid-rowGap) var(--grid-columnGap);
+
+    display: grid;
+    gap: var(--grid-gap);
+
+    &.smallRowGap {
+        --grid-rowGap: var(--grid-smallGap);
+    }
+
+    &.largeRowGap {
+        --grid-rowGap: var(--grid-largeGap);
+    }
+
+    &.smallColumnGap {
+        --grid-columnGap: var(--grid-smallGap);
+    }
+
+    &.largeColumnGap {
+        --grid-columnGap: var(--grid-largeGap);
+    }
+}
+
+.cell {
+    display: flex;
+    align-items: center;
+}

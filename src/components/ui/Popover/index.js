@@ -104,7 +104,7 @@ const Popover = forwardRef(function Popover({
     return <>
         {renderChild}
         {isOpen && <PortalOrModal>
-            <div className={classnames(classes.overlay, overlay && classes.visible)} onClick={onClickOverlay} onKeyDown={onKeyDownOverlay}>
+            <div className={classnames(classes.overlay, overlay && classes.visible)} onPointerDown={onClickOverlay} onKeyDown={onKeyDownOverlay}>
                 <AbsolutelyPositioned fixed ref={setElement} positionRelativeTo={position} align={align} className={isOpen ? undefined : classes.closed}>{
                     (alignment) => <AutoFocus><div className={classes.popover} role="dialog" id={popoverId} tabIndex="-1">{content}</div></AutoFocus>//TODO render prop, context, etc
                 }</AbsolutelyPositioned>

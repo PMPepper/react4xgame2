@@ -4,7 +4,7 @@ import { isEmpty } from "lodash";
 
 //Components
 import Form from "components/display/Form";
-import Stack from "components/layout/Stack";
+import Grid from "components/layout/Grid";
 
 //Hooks
 import { useGameConfig } from "components/game/Game";
@@ -32,23 +32,29 @@ export default function AddEditConstructionProject({projectId, colonyId}) {
     );
 
     //Render
-    return <Stack component={Form}>
-        <div>
-            <Form.Select name="project" options={groupedConstructionProjects} />
-        </div>
+    return <Grid component={Form} columns={['auto', 'auto']} rowGap="large">
+        <Grid.Cell component={Form.Label} htmlFor="constructionForm.project">
+            <Trans>Construction project</Trans>
+        </Grid.Cell>
+        <Grid.Cell>
+            <Form.Select id="constructionForm.project" name="project" options={groupedConstructionProjects} />
+        </Grid.Cell>
         
-        <div>
-            <Form.Input name="project" type="number" min="1" step="1" placeholder={t`Quantity to construct`} />
-        </div>
+        <Grid.Cell component={Form.Label} htmlFor="constructionForm.quantity">
+            <Trans>Quantity</Trans>
+        </Grid.Cell>
+        <Grid.Cell>
+            <Form.Input id="constructionForm.quantity" name="quantity" type="number" min="1" step="1" placeholder={t`Quantity to construct`} />
+        </Grid.Cell>
 
-        <div>
+        <Grid.Cell column="1 / span 2">
             <Button>{isEdit ? 
                 <Trans>Edit project</Trans>
                 :
                 <Trans>Add project</Trans>
             }</Button>
-        </div>
-    </Stack>
+        </Grid.Cell>
+    </Grid>
 
 }
 
