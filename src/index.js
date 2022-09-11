@@ -21,6 +21,8 @@ import baseGameDefinition from 'game/data/baseGameDefinition';//TEMP CODE
 
 import store from 'redux/reducers/index';
 
+import connect from './webrtc';
+
 //i18n
 import { i18n } from "@lingui/core";
 import { messages } from './locales/en/messages.js'
@@ -44,19 +46,23 @@ const connector = useWorker ?
 polyfills.then(() => {
   console.log('[MAIN] post polyfills');
   //TEMP CODE
-  GameEngine.startGame(baseGameDefinition, new Client('local', store, connector)).then((client) => {
-      console.log('[MAIN] render');
 
-      const root = createRoot(document.getElementById('app'));
+  connect();
 
-      root.render(
-        <Provider store={store}>
-          <I18nProvider i18n={i18n}>
-            <Game client={client} />
-          </I18nProvider>
-        </Provider>
-      );
-    });
+
+  // GameEngine.startGame(baseGameDefinition, new Client('local', store, connector)).then((client) => {
+  //     console.log('[MAIN] render');
+
+  //     const root = createRoot(document.getElementById('app'));
+
+  //     root.render(
+  //       <Provider store={store}>
+  //         <I18nProvider i18n={i18n}>
+  //           <Game client={client} />
+  //         </I18nProvider>
+  //       </Provider>
+  //     );
+  //   });
   })
   /*.catch(error => {
     //TODO better error handling for failed polyfills loading

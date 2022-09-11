@@ -40,7 +40,7 @@ const gapTypes = PropTypes.oneOf(['standard', 'small', 'large']);
 Grid.propTypes = {
     columnGap: gapTypes,
     rowGap: gapTypes,
-    component: PropTypes.node,
+    component: PropTypes.elementType,
     rows: PropTypes.arrayOf(PropTypes.string),
 }
 

@@ -2,27 +2,31 @@ import { forwardRef, useMemo } from "react"
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { solid } from '@fortawesome/fontawesome-svg-core/import.macro';
 
+//Hooks
+import useCombineProps from "hooks/useCombineProps";
+import useId from "hooks/useId";
+
 //Helpers
-import combineProps from "helpers/react/combine-props";
+import classnames from "helpers/css/class-list-to-string";
 
 //Other
 import classes from './Form.module.scss';
 
-//Consts
-
 
 //The components
 const Form = forwardRef(function Form({children, ...rest}, ref) {
-    const props = combineProps(
-        {
-            action: '#',
-            className: classes.form,
-        },
-        rest,
-        {
-            ref,
-            noValidate: true,
-        },
+    const props = useCombineProps(() => ([
+            {
+                action: '#',
+                className: classes.form,
+            },
+            rest,
+            {
+                ref,
+                noValidate: true,
+            },
+        ]),
+        [rest, ref]
     )
 
     return <form {...props}>{children}</form>
@@ -30,16 +34,66 @@ const Form = forwardRef(function Form({children, ...rest}, ref) {
 
 export default Form;
 
-//Select
-export const Select = Form.Select = forwardRef(function Select({
-    options,
-    ...rest
-}, ref) {
-    const props = combineProps(
+//FieldWrapper
+const FieldWrapper = forwardRef(function FieldWrapper({children, error, focus, hover, ...rest}, ref) {
+    return <label {...useCombineProps(() => ([
         {
-            className: classes.select,
+            className: classnames(classes.fieldWrapper, error && classes.error, focus && classes.focus, hover && classes.hover),
+            ref,
         },
         rest
+    ]), [rest, ref, error, focus, hover])}>
+        {children}
+    </label>
+});
+
+//Select
+export const Select = Form.Select = forwardRef(function Select({
+    //field options
+    id,
+    name,
+    autoComplete,
+    autoFocus,
+    disabled,
+    form,
+    required,
+    options,
+    
+    value,
+    setValue,
+
+    inputProps,
+    //other props for the wrapper
+    wrapperId,
+    ...rest
+}, ref) {
+    id = useId(id, 'select');
+    wrapperId = wrapperId || `${id}-wrapper`;
+
+    const selectProps = useCombineProps(() => ([
+            {
+                className: classes.select,
+                id,
+                name,
+                autoComplete,
+                autoFocus,
+                disabled,
+                form,
+                value,
+                onChange: (e) => setValue(e.target.value),
+            },
+            inputProps
+        ]),
+        [
+            id,
+            name,
+            autoComplete,
+            autoFocus,
+            disabled,
+            form,
+            inputProps,
+            value, setValue
+        ]
     );
 
     const renderedOptions = useMemo(
@@ -57,32 +111,108 @@ export const Select = Form.Select = forwardRef(function Select({
         [options]
     );
 
-    return <label className={classes.fieldWrapper} ref={ref}>
-        <select {...props}>
+    return <FieldWrapper id={wrapperId} {...rest} ref={ref}>
+        <select {...selectProps}>
             {renderedOptions}
         </select>
-        <FontAwesomeIcon icon={solid('angle-down')} className={classes.icon} inert />
-    </label>
+        <FontAwesomeIcon icon={solid('angle-down')} className={classes.icon} inert="inert" />
+    </FieldWrapper>
 })
 
 function renderSelectOption({label, value}) {
-    return <option key={value} value={value}>{label}</option>
+    return <option key={value || 'null'} value={value}>{label}</option>
 }
 
 //Input
 export const Input = Form.Input = forwardRef(function Input({
+    //field options
+    id,
+    name,
+    autoComplete,
+    checked,
+    dirname,
+    disabled,
+    form,
+    list,
+    max,
+    maxLength,
+    min,
+    minLength,
+    pattern,
+    placeholder,
+    readOnly,
+    required,
+    size,
+    step,
+    type,
+    value,
+    setValue,
+
+    inputProps,
+
+    //wrapper options
+    wrapperId,
     ...rest
 }, ref) {
-    const props = combineProps(
-        rest,
-        {
-            className: classes.input
-        },
-    )
+    id = useId(id, 'input');
+    wrapperId = wrapperId || `${id}-wrapper`;
 
-    return <label className={classes.fieldWrapper} ref={ref}>
-        <input {...props} />
-    </label>
+    const fieldProps = useCombineProps(() => ([
+            inputProps,
+            {
+                className: classes.input,
+                id,
+                name,
+                autoComplete,
+                checked,
+                dirname,
+                disabled,
+                form,
+                list,
+                max,
+                maxLength,
+                min,
+                minLength,
+                pattern,
+                placeholder,
+                readOnly,
+                required,
+                size,
+                step,
+                type,
+                value,
+                onChange: (e) => setValue(e.target.value),
+            },
+        ]),
+        [
+            inputProps,
+            id,
+            name,
+            autoComplete,
+            checked,
+            dirname,
+            disabled,
+            form,
+            list,
+            max,
+            maxLength,
+            min,
+            minLength,
+            pattern,
+            placeholder,
+            readOnly,
+            required,
+            size,
+            step,
+            type,
+            value,
+            setValue,
+        ]
+    );
+
+    return <FieldWrapper id={wrapperId} {...rest} ref={ref}>
+        <input {...fieldProps} />
+    </FieldWrapper>
 })
 
 Input.defaultProps = {
@@ -100,12 +230,14 @@ export const Textarea = Form.Textarea = forwardRef(function Textarea({
 export const Label = Form.Label = forwardRef(function Label({
     children, ...rest
 }, ref) {
-    const props = combineProps(
-        rest,
-        {
-            className: classes.label,
-            ref,
-        },
+    const props = useCombineProps(() => ([
+            rest,
+            {
+                className: classes.label,
+                ref,
+            },
+        ]),
+        [rest, ref]
     )
 
     return <label {...props}>{children}</label>

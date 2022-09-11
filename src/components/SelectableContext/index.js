@@ -2,7 +2,7 @@
 import { createContext, useContext, useRef, useEffect } from "react"
 
 //Hooks
-import useSubscribeToDataSource from 'hooks/useSubscribeToDataSource';
+import { useSyncExternalStoreWithSelector } from "use-sync-external-store/with-selector";
 
 //Contants
 const defaultContext = createContext(null);
@@ -76,8 +76,9 @@ export function useContextSelector(selector, equalityFn = refEquality, context =
         throw new Error('No valid SelectableContext found')
     }
 
-    const selectedState = useSubscribeToDataSource(
+    const selectedState = useSyncExternalStoreWithSelector(
         state.subscribe,
+        state.getState,
         state.getState,
         selector,
         equalityFn,

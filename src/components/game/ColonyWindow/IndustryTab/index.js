@@ -35,7 +35,7 @@ export default function IndustryTab({selectedColonyId}) {
 
     return <div>
         <h4>Construction queue</h4>
-        <Popover content={<AddEditConstructionProject projectId={null} colonyId={selectedColonyId} />} overlay modal align={['bottom-center', 'top-center']}>
+        <Popover content={<AddEditConstructionProject currentProject={null} colonyId={selectedColonyId} />} overlay modal align={['bottom-center', 'top-center']}>
             <Button><Trans>Add construction project</Trans></Button>
         </Popover>
         {colonyFacet.buildQueue.map(({id, total, completed, constructionProjectId, assignToPopulationId, takeFromPopulationId}, index) => {

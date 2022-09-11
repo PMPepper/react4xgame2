@@ -1,9 +1,9 @@
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { Trans, t } from "@lingui/macro";
 import { isEmpty } from "lodash";
 
 //Components
-import Form from "components/display/Form";
+import Form from "components/ui/Form";
 import Grid from "components/layout/Grid";
 
 //Hooks
@@ -20,10 +20,16 @@ import Button from "components/ui/Button";
 
 
 //The component
-export default function AddEditConstructionProject({projectId, colonyId}) {
-    const isEdit = !!projectId;
+//currentProject = {id, total, completed, constructionProjectId, assignToPopulationId, takeFromPopulationId}
+export default function AddEditConstructionProject({currentProject, colonyId}) {
+    console.log('AddEditConstructionProject :: render');
+    
+    const isEdit = !!currentProject;
     const faction = useGetFaction();
     const {constructionProjects} = useGameConfig();//structures? technologies?
+
+    //State
+    const [formState, setFormState] = useState(() => isEdit ? {...currentProject} : {total: 0, constructionProjectId: '0', assignToPopulationId: '0', takeFromPopulationId: '0'});
 
     //Calculated properties
     const groupedConstructionProjects = useMemo(
@@ -32,19 +38,32 @@ export default function AddEditConstructionProject({projectId, colonyId}) {
     );
 
     //Render
-    return <Grid component={Form} columns={['auto', 'auto']} rowGap="large">
-        <Grid.Cell component={Form.Label} htmlFor="constructionForm.project">
+    return <Grid
+        //grid props
+        component={Form}
+        columns={['auto', 'auto']}
+        rowGap="large"
+        //form props
+        name="constructionForm"
+        state={formState}
+        setState={setFormState}
+        // onChange={(e) => {
+        //     const form = e.currentTarget;
+        //     console.log(form.checkValidity())
+        // }}
+    >
+        <Grid.Cell component={Form.Label} name="constructionProjectId">
             <Trans>Construction project</Trans>
         </Grid.Cell>
         <Grid.Cell>
-            <Form.Select id="constructionForm.project" name="project" options={groupedConstructionProjects} />
+            <Form.Select name="constructionProjectId" options={groupedConstructionProjects} required />
         </Grid.Cell>
         
-        <Grid.Cell component={Form.Label} htmlFor="constructionForm.quantity">
+        <Grid.Cell component={Form.Label} name="total">
             <Trans>Quantity</Trans>
         </Grid.Cell>
         <Grid.Cell>
-            <Form.Input id="constructionForm.quantity" name="quantity" type="number" min="1" step="1" placeholder={t`Quantity to construct`} />
+            <Form.Text name="total" type="number" min="1" step="1" placeholder={t`Quantity to construct`} required />
         </Grid.Cell>
 
         <Grid.Cell column="1 / span 2">
@@ -83,14 +102,20 @@ function getAvailableConstructionProjectsGroupedByType(projects, factionTechnolo
         })
     })
 
-    return groupsOrder.reduce((output, type) => {
-        if(groups[type]) {
-            groups[type].options.sort(sortFunc);
-            output.push(groups[type]);
-        }
+    return [
+        {
+            label: t`- -Please select - -`,
+            //value: '0'
+        },
+        ...groupsOrder.reduce((output, type) => {
+            if(groups[type]) {
+                groups[type].options.sort(sortFunc);
+                output.push(groups[type]);
+            }
 
-        return output;
-    }, []);
+            return output;
+        }, [])
+    ];
 }
 
 const projectTypeLabels = {
