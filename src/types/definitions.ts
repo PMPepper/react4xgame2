@@ -33,12 +33,13 @@ export type StartingSystemDefinition = {
     name?: string,
 };
 
-export type StructuresDefinition = Record<string, number>;
+export type Structures = Record<number, number>;
+export type Minerals = Record<number, number>;
 
 export type StartingPopulationDefinition = {
     species: 'Humans',
     population: number,
-    structures: StructuresDefinition
+    structures: Structures;
 };
 
 export type StartingColonyDefinition = {
@@ -56,6 +57,51 @@ export type FactionDefintion = {
     startingColonies: StartingColonyDefinition[],
 };
 
+export type StructureDefinition = {
+    bp: number;
+    capabilities: Capabilities;
+    mass: number;
+    minerals: Minerals;
+    name: string;
+    requireTechnologyIds: string[];
+    upgrade: number[];
+    workers: number;
+};
+
+export type Capabilities = {
+    construction?: number;
+    mining?: number;
+    research?: number;
+};
+
+export type ModifyCapabilities = {
+    construction?: number;
+    mining?: number;
+    research?: number;
+};
+
+export type TechnologyDefinition = {
+    name: string;
+    modifyCapabilities?: ModifyCapabilities;
+};
+
+export type ResearchDefinition = {
+    area: number;
+    cost: number;
+    description: string;
+    name: string;
+    requireResearchIds: string[];
+    unlockTechnologyIds: string[];
+};
+
+export type ConstructionProjectDefinition = {
+    bp: number;
+    minerals: Minerals;
+    name: string;
+    producedStructures: Record<number, number>;
+    requireTechnologyIds: string[];
+    requiredStructures: Structures
+};
 
 export type GameDefinition = {
     type: 'new',
