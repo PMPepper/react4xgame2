@@ -2,10 +2,23 @@ import {set as setSelectedSystemId} from 'redux/reducers/selectedSystemId';
 
 import find from 'helpers/object/find';
 import { fromState, mergeState, calculateSystemBodyPositions } from './ClientState';
+import { Store } from 'redux';
+import { Connector, GameState } from 'types/game';
 
 
 export default class Client {
-  constructor(name, store, connector) {
+  name: string;
+  store: Store
+  connector: Connector;
+
+  systemId: number;
+
+  initialGameState: GameState;
+
+  _gameState?: GameState;
+  _updateStateCallback?: (gameState: GameState) => void;
+
+  constructor(name: string, store: Store, connector: Connector) {
     this.name = name;
     this.store = store;
 

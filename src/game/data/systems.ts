@@ -1,3 +1,4 @@
+import { SystemDefinition } from 'types/definitions';
 import solAsteroids from './solAsteroids.json';
 import tnos from './temp/importTNOs'
 
@@ -31,7 +32,7 @@ example random asteroid belt:
 },
 */
 
-const systems = {
+const systems: Record<string, SystemDefinition> = {
   Sol: {
     "name":"Sol",
     "bodies":[

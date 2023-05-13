@@ -1,5 +1,7 @@
+import { GameDefinition } from "types/definitions";
+import Client from "./Client";
 
-export function startGame(gameDefinition, client) {
+export function startGame(gameDefinition: GameDefinition, client: Client) {
   return client.createWorld(gameDefinition)
     .then(() => {
       console.log('[Game] createWorld complete');

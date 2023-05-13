@@ -1,3 +1,8 @@
+//TODO Create WebRTC AsyncConnection data transport (based on DataChannel?)
+//TODO abstract out Signalling Channel into more generic interface
+//TODO create wrapper layer to allow easy use of AsynConnection to implement signalling channel
+//TODO create helper methods to allow easy use for standard cases
+
 function blobToString(blob) {
     return new Promise((resolve) => {
         const reader = new FileReader();
@@ -192,8 +197,6 @@ export default async function() {
 
     console.log('Init connection');
     const connection = new RTCConnection(connectionConfig, false, signaler);
-
-    //await sleep(500);//why is this required? Also, it doesn't work if you give it too little time...
 
     console.log('Init dataChannel');
     const dataChannel = await connection.createDataChannel('testChannel', {negotiated: true, id: 1000});

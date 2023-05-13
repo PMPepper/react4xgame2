@@ -1,9 +1,10 @@
 import Server from 'game/server/Server';
 
 import clone from 'helpers/app/fastSimpleClone';
+import { Connector } from 'types/game';
 
 
-export default class LocalConnector {
+export default class LocalConnector implements Connector {
   server = null;
   client = null;
 
@@ -31,7 +32,7 @@ export default class LocalConnector {
   }
 
   sendMessageToClient(connectionId, messageType, data) {
-    if(!connectionId === 1) {//This connector only supports a single player
+    if(!(connectionId === 1)) {//This connector only supports a single player
       throw new Error('Invalid connectionId');
     }
 

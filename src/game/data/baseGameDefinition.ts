@@ -1,3 +1,4 @@
+import { GameDefinition } from 'types/definitions';
 import systems from './systems';
 
 const worldDefinition = {
@@ -169,6 +170,6 @@ const worldDefinition = {
   invaders: 0.1,//probably will be more fine-tuned
   sentinels: 0.1,
 
-};
+} as GameDefinition;
 
 export default worldDefinition;

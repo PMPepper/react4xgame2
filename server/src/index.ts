@@ -1,6 +1,9 @@
 
 import Turn from 'node-turn';
+
 import Server from './classes/server';
+import serverTest from './server-test';
+
 
 //TURN server
 const turnServer = new Turn({
@@ -12,7 +15,10 @@ const turnServer = new Turn({
 //   }
 });
 
-turnServer.start();
+//turnServer.start();
 
 
-const gameServer:Server = new Server();
+//const gameServer:Server = new Server();
+
+
+serverTest();

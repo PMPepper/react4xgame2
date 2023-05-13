@@ -1,12 +1,15 @@
 {
     "compilerOptions": {
+      "jsx": "react",
       "module": "esnext",
       "esModuleInterop": true,
       "target": "esnext",
       "moduleResolution": "node",
+      "resolveJsonModule": true,
       "sourceMap": true,
-      "rootDir": "src",
-      "outDir": "dist"
+      "outDir": "dist",
+      "baseUrl": "src"
     },
-    "lib": ["es2017"]
+    "lib": ["es2017"],
+    "include": ["src"]
 }

@@ -1,9 +1,10 @@
 //The client side part of the WorkerConnector
 
 import Performance from "classes/Performance";
+import { Connector } from "types/game";
 
 
-export default class WorkerConnector {
+export default class WorkerConnector implements Connector {
     worker = null;
     client = null;
 
