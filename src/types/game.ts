@@ -1,5 +1,6 @@
 import Client from "game/Client";
 import { ConstructionProjectDefinition, ResearchDefinition, StructureDefinition, TechnologyDefinition } from "./definitions";
+import { Entity, EntityFaction } from "./entities";
 
 type MessageType = string;//TODO list valid values
 
@@ -10,12 +11,18 @@ export interface Connector {
     // sendMessageToClient: (connectionId: number, messageType: MessageType, data: any) => any;//TODO better typing here
 }
 
-export type Entity = {
+export interface ClientState {
+    id: number;
+    name: string;
 
-}
-
-export interface EntityFaction extends Entity {
-
+    factionId: number | null;
+    factions: {};//TODO?
+    gameSpeed: number;
+    isPaused: number;
+    ready: boolean;
+    type: {//TODO define more client types e.g. AI, remote, etc
+        name: 'local'
+    }
 }
 
 export type FactionEntity = {
@@ -49,3 +56,8 @@ export type GameState = {
     isPaused: boolean;
     knownSystems: FactionEntity[];
 };
+
+
+export type CapabilityTypes = 'mining' | 'construction' | 'research';
+
+export type AvailableMinerals = {quantity: number, initialQuantity: number, access: number, initialAccess: number};

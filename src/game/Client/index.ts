@@ -4,6 +4,7 @@ import find from 'helpers/object/find';
 import { fromState, mergeState, calculateSystemBodyPositions } from './ClientState';
 import { Store } from 'redux';
 import { Connector, GameConfiguration, GameState } from 'types/game';
+import { GameDefinition } from 'types/definitions';
 
 
 export default class Client {
@@ -38,15 +39,9 @@ export default class Client {
   }
 
   onGameStateUpdate = () => {
-    //if(this._gameState && this._gameState !== this._lastGameState) {
-      this.updateSystemBodyPositions(this.store.getState().selectedSystemId);
+    this.updateSystemBodyPositions(this.store.getState().selectedSystemId);
 
-      this._updateStateCallback?.(this._gameState);
-
-      //this._lastGameState = this._gameState;
-    //}
-
-    //window.requestAnimationFrame(this.onTick)
+    this._updateStateCallback?.(this._gameState);
   }
 
   /////////////////////
@@ -63,6 +58,8 @@ export default class Client {
 
   set gameState(gameState) {
     if(gameState !== this._gameState) {
+      // console.log(gameState);
+      // debugger;
       this._gameState = gameState;
     }
   }
@@ -73,7 +70,7 @@ export default class Client {
 
   //contact the server and create a new game with this definition
   //server must be in initialising state
-  createWorld(definition) {
+  createWorld(definition:GameDefinition) {
     console.log('[CLIENT] createWorld: ', definition);
 
     return this.connector.sendMessageToServer('createWorld', definition);

@@ -6,13 +6,20 @@ import getSystemBodyPosition from 'helpers/app/getSystemBodyPosition';
 import * as utils from './utils';
 
 import calculatePopulationWorkers from 'game/utils/calculatePopulationWorkers';
+import { ClientState, FactionEntity } from 'types/game';
+import { AllEntityTypes, Entity, EntityFaction, EntityTypes, isEntityOfType } from 'types/entities';
+import { Minerals, SystemBodyDefinition } from 'types/definitions';
+import { FacetMovement } from 'types/facets';
+
 
 //The class
 export default class ServerState {
   
-  gameTime = null;
+  gameTime: number;
+
+  clients: Record<number, ClientState>;
   
-  factions;//e.g. The in-game factions Humans, martians (factions are also entities)
+  factions: Record<number, EntityFaction>;//e.g. The in-game factions Humans, martians (factions are also entities)
   minerals;
   structures;
   research;
@@ -23,14 +30,14 @@ export default class ServerState {
 
   gameConfig;
 
-  entities = null;
+  entities: Record<number, Entity>;
   entityId = 1;//used to keep track of assigned entity IDs - increments after each entity is created
-  entityIds = null;
-  entitiesByType = null;
-  entitiesLastUpdated = null;
+  entityIds: number[];
+  entitiesByType: Partial<Record<EntityTypes, number[]>>;
+  entitiesLastUpdated: Record<number, number>;
 
-  factionEntities = null;
-  factionEntitiesLastUpdated = null;
+  factionEntities: Record<number, Record<number, FactionEntity>>;
+  factionEntitiesLastUpdated: Record<number, Record<number, number>>;
 
   
   constructor(minerals, structures, constructionProjects, researchAreas, research, technology, systemBodyTypeMineralAbundance) {
@@ -70,14 +77,16 @@ export default class ServerState {
     return this.entityId++;
   }
 
-  getEntityById(id, type = null) {
-    const entity = this.entities[id] || null;
+  getEntityById(id: number): Entity | null;
+  getEntityById<T extends EntityTypes>(id: number, type: T): AllEntityTypes[T] | null;
+  getEntityById<T extends EntityTypes | undefined>(id: number, type?: T) {
+    const entity = this.entities[id];
 
-    if(entity && type && entity.type !== type) {
-      return null;
+    if(type) {
+      return isEntityOfType(entity, type) ? entity : null;
     }
 
-    return entity
+    return entity ?? null;
   }
 
   getEntitiesByIds(ids) {
@@ -103,9 +112,9 @@ export default class ServerState {
     return faction;
   }
 
-  createSystemBody(systemId, bodyDefinition, movement, availableMinerals) {
+  createSystemBody(systemId: number, bodyDefinition: SystemBodyDefinition, movement?: FacetMovement, availableMinerals?: Minerals) {
     const orbitingId = movement?.orbitingId ?? null;
-    const orbitingEntity = orbitingId === null ? null : this.entities[orbitingId];
+    const orbitingEntity = this.getEntityById(orbitingId, 'systemBody');
 
     const body = this._newEntity('systemBody', {
       systemId,
@@ -131,7 +140,7 @@ export default class ServerState {
     //Add into children array
     if(orbitingEntity) {
       const insertBefore = orbitingEntity.systemBody.children.findIndex((childId) => {
-        const child = this.entities[childId];
+        const child = this.getEntityById(childId, 'systemBody');
 
         //only works with orbits, but system bodies should always use orbits, right?
         return child.movement.radius > movement.radius;
@@ -168,8 +177,8 @@ export default class ServerState {
   }
 
   createColony(systemBodyId, factionId, minerals = {}, structures = {}, populationIds = []) {
-    const systemBody = this.entities[systemBodyId];
-    const faction = this.entities[factionId];
+    const systemBody = this.getEntityById(systemBodyId, 'systemBody');
+    const faction = this.getEntityById(factionId, 'faction');
 
     const colony = this._newEntity('colony', {
       factionId,
@@ -243,7 +252,7 @@ export default class ServerState {
     });
 
     //Init worker counts
-    calculatePopulationWorkers(entity, this.entities[speciesId], colony ? this.entities[colony.systemBodyId] : null, colony);
+    calculatePopulationWorkers(entity, this.getEntityById(speciesId, 'species'), colony ? this.getEntityById(colony.systemBodyId, 'systemBody') : null, colony);
 
     return entity;
   }
@@ -314,7 +323,8 @@ export default class ServerState {
   // Internal helper methods //
   /////////////////////////////
 
-  _newEntity(type, props) {
+  //TODO type props
+  _newEntity<T extends EntityTypes>(type: T, props): AllEntityTypes[T] {
     const newEntity = {
       ...props,
       id: this.nextId(),

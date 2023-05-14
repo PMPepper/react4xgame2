@@ -1,3 +1,4 @@
+import { CapabilityTypes } from "./game";
 
 export type SystemBodyTypes = 'star' | 'planet' | 'moon' | 'asteroid';
 
@@ -9,7 +10,8 @@ export type SystemBodyDefinition = {
     day: number,
     axialTilt: number,
     tidalLock: boolean,
-    luminosity: number
+    luminosity: number;
+    albedo: number;
 };
 
 export type SystemDefinition = {
@@ -68,17 +70,9 @@ export type StructureDefinition = {
     workers: number;
 };
 
-export type Capabilities = {
-    construction?: number;
-    mining?: number;
-    research?: number;
-};
+export type Capabilities = Partial<Record<CapabilityTypes, number>>
 
-export type ModifyCapabilities = {
-    construction?: number;
-    mining?: number;
-    research?: number;
-};
+export type ModifyCapabilities = Partial<Record<CapabilityTypes, number>>
 
 export type TechnologyDefinition = {
     name: string;
@@ -103,6 +97,9 @@ export type ConstructionProjectDefinition = {
     requiredStructures: Structures
 };
 
+//TODO I think a bunch is missing from this..
+//Actually, this gets combined with a default set of values
+//So really I need to define the 'final' set, and the required + optional
 export type GameDefinition = {
     type: 'new',
     gameName: 'flobble',
