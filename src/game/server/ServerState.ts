@@ -6,10 +6,10 @@ import getSystemBodyPosition from 'helpers/app/getSystemBodyPosition';
 import * as utils from './utils';
 
 import calculatePopulationWorkers from 'game/utils/calculatePopulationWorkers';
-import { ClientState, FactionEntity } from 'types/game';
+import { AvailableMinerals, ClientState, FactionEntity } from 'types/game';
 import { AllEntityTypes, Entity, EntityFaction, EntityTypes, isEntityOfType } from 'types/entities';
-import { Minerals, SystemBodyDefinition } from 'types/definitions';
-import { FacetMovement } from 'types/facets';
+import { ConstructionProjectDefinition, Minerals, ResearchDefinition, StructureDefinition, SystemBodyDefinition, SystemBodyTypes, TechnologyDefinition } from 'types/definitions';
+import { FacetColony, FacetMovement, FacetResearchGroup, Facets } from 'types/facets';
 
 
 //The class
@@ -20,18 +20,26 @@ export default class ServerState {
   clients: Record<number, ClientState>;
   
   factions: Record<number, EntityFaction>;//e.g. The in-game factions Humans, martians (factions are also entities)
-  minerals;
-  structures;
-  research;
-  researchAreas;
-  technology;
-  systemBodyTypeMineralAbundance;
-  constructionProjects;
-
-  gameConfig;
+  minerals: string[];
+  structures: Record<string, StructureDefinition>;
+  constructionProjects: Record<string, ConstructionProjectDefinition>;
+  researchAreas: string[];
+  research: Record<string, ResearchDefinition>;
+  technology: Record<string, TechnologyDefinition>;
+  systemBodyTypeMineralAbundance: Record<SystemBodyTypes, Record<number, number>>;
+    
+  gameConfig: {
+    minerals: string[], 
+    structures: Record<string, StructureDefinition>, 
+    constructionProjects: Record<string, ConstructionProjectDefinition>, 
+    researchAreas: string[], 
+    research: Record<string, ResearchDefinition>, 
+    technology: Record<string, TechnologyDefinition>, 
+    systemBodyTypeMineralAbundance: Record<SystemBodyTypes, Record<number, number>>
+  };
 
   entities: Record<number, Entity>;
-  entityId = 1;//used to keep track of assigned entity IDs - increments after each entity is created
+  entityId: number = 1;//used to keep track of assigned entity IDs - increments after each entity is created
   entityIds: number[];
   entitiesByType: Partial<Record<EntityTypes, number[]>>;
   entitiesLastUpdated: Record<number, number>;
@@ -40,7 +48,7 @@ export default class ServerState {
   factionEntitiesLastUpdated: Record<number, Record<number, number>>;
 
   
-  constructor(minerals, structures, constructionProjects, researchAreas, research, technology, systemBodyTypeMineralAbundance) {
+  constructor(minerals: string[], structures: Record<string, StructureDefinition>, constructionProjects: Record<string, ConstructionProjectDefinition>, researchAreas: string[], research: Record<string, ResearchDefinition>, technology: Record<string, TechnologyDefinition>, systemBodyTypeMineralAbundance: Record<SystemBodyTypes, Record<number, number>>) {
     this.minerals = minerals;
     this.structures = structures;
     this.constructionProjects = constructionProjects;
@@ -89,13 +97,13 @@ export default class ServerState {
     return entity ?? null;
   }
 
-  getEntitiesByIds(ids) {
+  getEntitiesByIds(ids: number[]):(Entity|undefined)[] {
     const entities = this.entities;
 
     return ids.map(id => (entities[id]));
   }
 
-  createFaction(name) {
+  createFaction(name: string) {
     const faction = this._newEntity('faction', {faction: {
       name,
       colonyIds: [],
@@ -112,7 +120,7 @@ export default class ServerState {
     return faction;
   }
 
-  createSystemBody(systemId: number, bodyDefinition: SystemBodyDefinition, movement?: FacetMovement, availableMinerals?: Minerals) {
+  createSystemBody(systemId: number, bodyDefinition: SystemBodyDefinition, movement?: FacetMovement, availableMinerals?: AvailableMinerals) {
     const orbitingId = movement?.orbitingId ?? null;
     const orbitingEntity = this.getEntityById(orbitingId, 'systemBody');
 
@@ -176,7 +184,7 @@ export default class ServerState {
     return body;
   }
 
-  createColony(systemBodyId, factionId, minerals = {}, structures = {}, populationIds = []) {
+  createColony(systemBodyId: number, factionId: number, minerals: FacetColony["minerals"] = {}, structures: FacetColony["structures"] = {}, populationIds: number[] = []) {
     const systemBody = this.getEntityById(systemBodyId, 'systemBody');
     const faction = this.getEntityById(factionId, 'faction');
 
@@ -193,8 +201,8 @@ export default class ServerState {
 
         buildQueue: [],
         buildInProgress: {},
-        capabilityProductionTotals: {},
-        structuresWithCapability: {},
+        capabilityProductionTotals: {research: 0, mining: 0, construction: 0},
+        structuresWithCapability: {research: {}, mining: {}, construction: {}},
       }
     });
 
@@ -206,7 +214,7 @@ export default class ServerState {
     return colony;
   }
 
-  createResearchGroup(colonyId, structures, projects) {
+  createResearchGroup(colonyId: number, structures: FacetResearchGroup['structures'], projects: FacetResearchGroup['projects']) {
     const colony = this.getEntityById(colonyId, 'colony');
 
     if(!colony) {
@@ -227,7 +235,7 @@ export default class ServerState {
     return researchGroup;
   }
 
-  createPopulation(factionId, colonyId, speciesId, quantity) {
+  createPopulation(factionId: number, colonyId: number, speciesId: number, quantity: number) {
     const colony = this.getEntityById(colonyId, 'colony');
 
 
@@ -240,9 +248,9 @@ export default class ServerState {
         quantity,
         supportWorkers: 0,
         effectiveWorkers: 0,
-        structuresWithCapability: {},
-        capabilityProductionTotals: {},
-        unitCapabilityProduction: {},
+        structuresWithCapability: {mining: {}, construction: {}, research: {}},
+        capabilityProductionTotals: {mining: 0, construction: 0, research: 0},
+        unitCapabilityProduction: {mining: {}, construction: {}, research: {}},
 
         //population specific modifiers, between 0 and 1
         environmentalMod: 1,
@@ -257,7 +265,7 @@ export default class ServerState {
     return entity;
   }
 
-  addPopulationToColony(colonyId, populationId) {//is this used? No, but might get used later
+  addPopulationToColony(colonyId: number, populationId: number) {//is this used? No, but might get used later
     debugger;
     const colony = this.getEntityById(colonyId, 'colony');
     const population = this.getEntityById(populationId, 'population');
@@ -277,7 +285,7 @@ export default class ServerState {
     this.modifiedEntity(populationId);
   }
 
-  addStructuresToColony(colonyId, populationId, structures) {
+  addStructuresToColony(colonyId: number, populationId: number, structures) {//TODO type structures
     const colony = this.getEntityById(colonyId, 'colony');
 
     if(!colony) {
@@ -306,7 +314,7 @@ export default class ServerState {
     this.modifiedEntity(colonyId, 'colony');
   }
 
-  modifiedEntity(entityId, ...facets) {
+  modifiedEntity(entityId: number, ...facets: Facets[]) {
     if(facets?.length > 0) {
       const entity = this.getEntityById(entityId);
 
@@ -323,12 +331,17 @@ export default class ServerState {
   // Internal helper methods //
   /////////////////////////////
 
-  //TODO type props
-  _newEntity<T extends EntityTypes>(type: T, props): AllEntityTypes[T] {
+  _newEntity<T extends EntityTypes>(
+    type: T, 
+    props: Omit<AllEntityTypes[T], 'type' | 'id' | 'facets' | `${EntityTypes}Ids`> & Partial<Pick<AllEntityTypes[T], Extract<keyof AllEntityTypes[T], `${EntityTypes}Ids`>>>
+  ): AllEntityTypes[T] {
+    const facets = [];
+
     const newEntity = {
       ...props,
       id: this.nextId(),
       type,
+      facets,
     };
 
     this.entities[newEntity.id] = newEntity;
@@ -341,10 +354,8 @@ export default class ServerState {
 
     //automatically add ref to this entity in linked entities
     //-props to check for links
-    const idProps = ['factionId', 'speciesId', 'systemBodyId', 'systemId', 'speciesId', 'colonyId'];
+    const idProps = ['factionId', 'speciesId', 'systemBodyId', 'systemId', 'speciesId', 'colonyId'];//TODO make a type out of this? Also a Set
     const skipProps = ['id', 'type'];
-
-    const facets = [];
 
     const keys = Object.keys(props);
 
@@ -373,7 +384,8 @@ export default class ServerState {
       } else if(prop.endsWith('Ids')) {
         //hmm.. I don't think I need to do anythin
       } else if(newEntity[prop] && !skipProps.includes(prop) && isObject(newEntity[prop])) {
-        //is a facet - record last update time in 'hidden' prop
+        //is a facet - record last update time in 'hidden' prop of the facet
+        //TODO type this for the server only?
         Object.defineProperty(newEntity[prop], "lastUpdateTime", {
           enumerable: false,
           writable: true,
@@ -384,12 +396,10 @@ export default class ServerState {
       }
     }
 
-    newEntity.facets = facets;
-
-    return newEntity;
+    return newEntity as unknown as AllEntityTypes[T];
   }
 
-  _addFactionEntity(factionId, entityId, props) {
+  _addFactionEntity(factionId: number, entityId: number, props) {//TODO props
     //record that this factionEntity needs to be supplied to the client for this faction
     this.factionEntitiesLastUpdated[factionId][entityId] = this.gameTime;
 
@@ -422,8 +432,8 @@ export default class ServerState {
     }
   }
 
-  _getClientsForFaction(factionId, roles = null) {
-    return Object.values(this.clients).reduce((output, client) => {
+  _getClientsForFaction(factionId: number, roles = null) {//TODO type roles
+    return Object.values(this.clients).reduce<number[]>((output, client) => {
       if(client.factions[factionId]) {
         if(!roles || roles.includes(client.factions[factionId])) {
           output.push(client.id);

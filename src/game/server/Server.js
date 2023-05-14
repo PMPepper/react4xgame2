@@ -390,7 +390,7 @@ export default class Server {
     this._checkValidClient(clientId);
 
     const factionId = this.clients[clientId].factionId;
-    const colony = this.state.getEntityById(colonyId);
+    const colony = this.state.getEntityById(colonyId, 'colony');
 
     if(!colony || colony.factionId !== factionId) {
       throw new Error('Cannot add researchGroup, invalid colony');

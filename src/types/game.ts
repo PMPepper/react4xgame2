@@ -60,4 +60,5 @@ export type GameState = {
 
 export type CapabilityTypes = 'mining' | 'construction' | 'research';
 
-export type AvailableMinerals = {quantity: number, initialQuantity: number, access: number, initialAccess: number};
+export type MineralAvailablility = {quantity: number, initialQuantity: number, access: number, initialAccess: number};
+export type AvailableMinerals = Record<number, MineralAvailablility>;

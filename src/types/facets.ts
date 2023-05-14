@@ -1,13 +1,14 @@
+import { ALL_FACETS } from "game/Consts";
 import { Minerals, SystemBodyTypes } from "./definitions";
 import { CapabilityTypes, AvailableMinerals } from "./game";
+
+export type Facets = typeof ALL_FACETS[number];
 
 export interface Facet {
 
 };
 
-export interface FacetAvailableMinerals extends Facet {
-    [key: number]: AvailableMinerals
-}
+export interface FacetAvailableMinerals extends Facet, AvailableMinerals {}
 
 export interface FacetColony extends Facet {
     buildInProgress: {};//TODO
@@ -84,4 +85,18 @@ export interface FacetPopulation extends Facet {
 export interface FacetResearchGroup extends Facet {
     structures: any;//TODO
     projects: any;//TODO
+}
+
+//TODO enforce completion..? E.g. make TS complain if I add a Facet and don't update this
+export type AllFacets = {
+    colony: FacetColony
+    mass: FacetMass;
+    availableMinerals: FacetAvailableMinerals;
+    movement: FacetMovement;
+    render: FacetRender;
+    faction: FacetFaction;
+    systemBody: FacetSystemBody;
+    species: FacetSpecies;
+    population: FacetPopulation;
+    researchGroup: FacetResearchGroup;
 }

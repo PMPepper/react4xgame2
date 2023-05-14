@@ -2,22 +2,23 @@ import Server from 'game/server/Server';
 
 import clone from 'helpers/app/fastSimpleClone';
 import { Connector } from 'types/game';
+import Client from './Client';
 
 
 export default class LocalConnector implements Connector {
-  server = null;
-  client = null;
+  server: Server;
+  client: Client;
 
   constructor() {
     this.server = new Server(this);
   }
 
   //client comms methods
-  setClient(client) {
+  setClient(client: Client) {
     this.client = client;
   }
 
-  sendMessageToServer(messageType, data) {
+  sendMessageToServer(messageType, data) {//server message type
     const response = this.server.onMessage(messageType, data, 1);
     
     return response ? response.then(clone) : undefined;
