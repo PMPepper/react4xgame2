@@ -1,4 +1,4 @@
-export default function removeValue(array, value) {
+export default function removeValue<T = any>(array: T[], value: T) {
     const index = array.indexOf(value);
 
     if(index !== -1) {

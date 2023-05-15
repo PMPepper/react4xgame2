@@ -3,6 +3,8 @@ import { isEmpty } from "lodash";
 
 //Helpers
 import getSystemBodyPosition from 'helpers/app/getSystemBodyPosition';
+import { GameConfiguration, ClientGameState, FactionEntity } from "types/game";
+import { Entity, EntityColony, IEntityRenderable, isEntityOfType, isEntityRenderable } from "types/clientEntities";
 
 //Helpers
 //import toEntity from 'helpers/app/toEntity';
@@ -97,18 +99,14 @@ import getSystemBodyPosition from 'helpers/app/getSystemBodyPosition';
 
 //TODO find a way to memoise these methods, and clear when clientstate changes
 
-export function getRenderableEntities(clientState, systemId) {
-  const entityIds = clientState.entityIds;
-  const entities = clientState.entities;
-  const renderableEntities = [];
-  let id = null;
-  let entity = null;
+export function getRenderableEntitiesInSystem({entityIds, entities}: ClientGameState, systemId: number) {
+  const renderableEntities: IEntityRenderable[] = [];
 
   for(let i = 0; i < entityIds.length; i++) {
-    id = entityIds[i];
-    entity = entities[id];
+    const id = entityIds[i];
+    const entity = entities[+id];
 
-    if(entity.render && entity.systemId === systemId) {
+    if(isEntityRenderable(entity) && entity.systemId === systemId) {
       renderableEntities.push(entity);
     }
   }
@@ -116,18 +114,14 @@ export function getRenderableEntities(clientState, systemId) {
   return renderableEntities;
 }
 
-export function getColoniesBySystemBody(clientState, systemId) {
-  const entityIds = clientState.entityIds;
-  const entities = clientState.entities;
-  const factionId = clientState.factionId;
-  const colonies = {};
-  let id, entity;
+export function getColoniesBySystemBody({entityIds, entities, factionId}: ClientGameState, systemId: number) {
+  const colonies: Record<number, EntityColony> = {};
 
   for(let i = 0; i < entityIds.length; i++) {
-    id = entityIds[i];
-    entity = entities[id];
+    const id = entityIds[i];
+    const entity = entities[+id];
 
-    if(entity.type === 'colony' && entity.systemId === systemId && entity.factionId === factionId) {
+    if(isEntityOfType(entity, 'colony') && entity.systemId === systemId && entity.factionId === factionId) {
       colonies[entity.systemBodyId] = entity;
     }
   }
@@ -137,11 +131,11 @@ export function getColoniesBySystemBody(clientState, systemId) {
 
 //cache data
 
-function getKnownSystems(clientState) {
-  const {entities, factionEntities} = clientState;
+function getKnownSystems(clientGameState: Pick<ClientGameState, 'entities'| 'factionEntities'>) {
+  const {entities, factionEntities} = clientGameState;
   const factionEntityIds = Object.keys(factionEntities);
 
-  const knownSystems = [];
+  const knownSystems: FactionEntity[] = [];
   let id = null;
   
   for(let i = 0; i < factionEntityIds.length; i++) {
@@ -178,32 +172,31 @@ function getKnownSystems(clientState) {
 // }
 
 
-
-export function fromState(state, initialGameState, selectedSystemId) {
+//This method modifies the supplied values
+export function fromState(state, initialGameState: GameConfiguration, selectedSystemId: number): ClientGameState {
   //TODO removed entities
 
-  const clientState = {};
+  //This is in-place
+  calculateSystemBodyPositions(state.entities, state.gameTime, selectedSystemId);
 
-  clientState.initialGameState = initialGameState;
-  clientState.factionId = state.factionId;
-  clientState.entities = state.entities;
-  clientState.factionEntities = state.factionEntities;
-  clientState.gameTime = state.gameTime;
-  clientState.desiredGameSpeed = state.desiredGameSpeed;
-  clientState.gameSpeed = state.gameSpeed;
-  clientState.isPaused = state.isPaused;
+  return {
+    initialGameState: initialGameState,
+    factionId: state.factionId,
+    entities: state.entities,
+    factionEntities: state.factionEntities,
+    gameTime: state.gameTime,
+    desiredGameSpeed: state.desiredGameSpeed,
+    gameSpeed: state.gameSpeed,
+    isPaused: state.isPaused,
 
-  clientState.entityIds = Object.keys(clientState.entities);
+    entityIds: Object.keys(state.entities),
 
-  clientState.knownSystems = getKnownSystems(clientState);
-
-  //calculateSystemBodyPositions(clientState.entities, clientState.gameTime, selectedSystemId);
-
-  return clientState;
+    knownSystems: getKnownSystems(state)
+  };
 }
 
 
-export function mergeState(oldState, newData, selectedSystemId) {
+export function mergeState(oldState: ClientGameState, newData): ClientGameState {
   Performance.mark('updatingGame :: start merge state');
 
   //These are the things that have changed
@@ -281,13 +274,22 @@ export function mergeState(oldState, newData, selectedSystemId) {
 }
 
 
-export function calculateSystemBodyPositions(entities, time, systemId) {
+export function calculateSystemBodyPositions(entities: Record<number, Entity>, time: number, systemId: number) {
   const system = entities[systemId];
-  const cache = {};
+  
+  if(isEntityOfType(system, 'system')) {
+    const cache = {};
 
-  for(let i = 0; i < system.systemBodyIds.length; i++) {
-    const systemBody = entities[system.systemBodyIds[i]];
+    for(let i = 0; i < system.systemBodyIds.length; i++) {
+      const systemBody = entities[system.systemBodyIds[i]];
 
-    systemBody.position = getSystemBodyPosition(systemBody, entities, time, cache);
+      if(isEntityOfType(systemBody, 'systemBody')) {
+        systemBody.position = getSystemBodyPosition(systemBody, entities, time, cache);//TODO on the client, some entities have systemBody property
+      } else {
+        throw new Error('Invalid systemBodyId')
+      }
+    }
+  } else {
+    throw new Error('Invalid systemId')
   }
 }

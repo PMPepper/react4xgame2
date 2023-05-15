@@ -1,3 +1,5 @@
+//TODO replace this with TS types
+
 const enumCheck = Symbol('enumCheck')
 
 

@@ -2,7 +2,7 @@
 
 
 
-export default function inPlaceReorder(array, fromIndex, toIndex) {
+export default function inPlaceReorder<T = any>(array: T[], fromIndex: number, toIndex: number): T[] {
     if(!array || !(array instanceof Array)) {
       throw new Error('Invalid array');
     }

@@ -1,7 +1,7 @@
 
 
 
-export default function make(start, end, step = 1) {
+export default function make(start: number, end: number, step: number = 1): number[] {
     start = +start;
     end = +end;
     step = +step;
@@ -21,7 +21,7 @@ export default function make(start, end, step = 1) {
         throw new Error('If "start" is greater than "end", "step" must be less than zero');
     }
 
-    const arr = [];
+    const arr: number[] = [];
 
     for(let i = start; i <= end; i += step) {
         arr.push(i);

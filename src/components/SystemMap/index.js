@@ -16,7 +16,7 @@ import {useGetContextState} from 'components/SelectableContext';
 
 //Helpers
 import flatten from 'helpers/array/flatten';
-import {getColoniesBySystemBody, getRenderableEntities} from 'game/Client/ClientState';
+import {getColoniesBySystemBody, getRenderableEntitiesInSystem} from 'game/Client/ClientState';
 
 //constants
 import {startFadeRadius, startFadeOrbitRadius} from 'components/game/GameConsts';
@@ -410,7 +410,7 @@ export default (function SystemMap({
   entityScreenPositions.length = 0;
 
   //Get new primitives + screen positions
-  getRenderableEntities(clientState, systemId)
+  getRenderableEntitiesInSystem(clientState, systemId)
     .forEach(entity => EntityRenderers[entity.render.type]?.(renderPrimitives, entityScreenPositions, windowSize, x, y, zoom, entity, clientState.entities, clientState.factionEntities, colonies, options.display));
 
   //Output rendered content

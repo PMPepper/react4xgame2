@@ -112,34 +112,21 @@ export type AllEntityTypes = {
     researchGroup: EntityResearchGroup,
 };
 
+//Type guards
+
 //If you start getting errors here, it might be because there has been a new entity type added without being added to AllEntityTypes
-export function isEntityOfType<T extends EntityTypes>(entity: Entity, type: T): entity is AllEntityTypes[T] {
+export function isEntityOfType<T extends EntityTypes, TAllEntityTypes extends Record<EntityTypes, Entity> = AllEntityTypes>(entity: Entity, type: T): entity is TAllEntityTypes[T] {
     return entity?.type === type;
 }
 
-//Type guards
-// export function isColony(entity: Entity):entity is EntityColony {
-//     return entity.type === 'colony';
-// }
-
-// export function isFaction(entity: Entity):entity is EntityFaction {
-//     return entity.type === 'faction';
-// }
-
-// export function isSystem(entity: Entity):entity is EntitySystem {
-//     return entity.type === 'system';
-// }
-
-// export function isSystemBody(entity: Entity):entity is EntitySystemBody {
-//     return entity.type === 'systemBody';
-// }
-
-// export function isSpecies(entity: Entity):entity is EntitySpecies {
-//     return entity.type === 'species';
-// }
-
-// export function isPopulation(entity: Entity):entity is EntityPopulation {
-//     return entity.type === 'population';
-// }
 
 
+
+export interface IEntityRenderable extends Entity {
+    render: FacetRender;
+    systemId: number;
+}
+
+export function isEntityRenderable(entity: Entity): entity is IEntityRenderable {
+    return (entity as any).render && (entity as any).systemId
+}

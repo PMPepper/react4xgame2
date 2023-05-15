@@ -3,7 +3,7 @@ import {set as setSelectedSystemId} from 'redux/reducers/selectedSystemId';
 import find from 'helpers/object/find';
 import { fromState, mergeState, calculateSystemBodyPositions } from './ClientState';
 import { Store } from 'redux';
-import { Connector, GameConfiguration, GameState } from 'types/game';
+import { Connector, GameConfiguration, ClientGameState } from 'types/game';
 import { GameDefinition } from 'types/definitions';
 
 
@@ -16,8 +16,8 @@ export default class Client {
 
   initialGameState: GameConfiguration;
 
-  _gameState?: GameState;
-  _updateStateCallback?: (gameState: GameState) => void;
+  _gameState?: ClientGameState;
+  _updateStateCallback?: (gameState: ClientGameState) => void;
 
   constructor(name: string, store: Store, connector: Connector) {
     this.name = name;
@@ -149,7 +149,7 @@ export default class Client {
 
   message_updatingGame(newGameState) {
     //console.log('[CLIENT] updatingGame', newGameState, this.systemId);
-    this.gameState = mergeState(this.gameState, newGameState, this.store.getState().selectedSystemId);
+    this.gameState = mergeState(this.gameState, newGameState);
 
     //this.updateSystemBodyPositions(this.systemId);
 

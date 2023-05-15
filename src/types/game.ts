@@ -44,7 +44,7 @@ export type GameConfiguration = {
     technology: Record<string, TechnologyDefinition>;
 };
 
-export type GameState = {
+export type ClientGameState = {
     desiredGameSpeed: number;
     entities: Record<number, Entity>;
     entityIds: string[];
@@ -54,7 +54,7 @@ export type GameState = {
     gameTime: number;
     initialGameState: GameConfiguration;
     isPaused: boolean;
-    knownSystems: FactionEntity[];
+    knownSystems: FactionEntity[];//Is this correct?
 };
 
 
@@ -62,3 +62,8 @@ export type CapabilityTypes = 'mining' | 'construction' | 'research';
 
 export type MineralAvailablility = {quantity: number, initialQuantity: number, access: number, initialAccess: number};
 export type AvailableMinerals = Record<number, MineralAvailablility>;
+
+export interface Position {
+    x: number;
+    y: number;
+}
