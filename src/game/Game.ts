@@ -1,4 +1,4 @@
-import { GameDefinition } from "types/definitions";
+import { GameDefinition } from "types/game/shared/definitions";
 import Client from "./Client";
 
 export function startGame(gameDefinition: GameDefinition, client: Client) {

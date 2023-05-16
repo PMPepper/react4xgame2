@@ -3,8 +3,8 @@ import { isEmpty } from "lodash";
 
 //Helpers
 import getSystemBodyPosition from 'helpers/app/getSystemBodyPosition';
-import { GameConfiguration, ClientGameState, FactionEntity } from "types/game";
-import { Entity, EntityColony, IEntityRenderable, isEntityOfType, isEntityRenderable } from "types/clientEntities";
+import { GameConfiguration, ClientGameState, FactionEntity } from "types/game/shared/game";
+import { Entity, EntityColony, IEntityRenderable, isEntityOfType, isEntityRenderable } from "types/game/client/entities";
 
 //Helpers
 //import toEntity from 'helpers/app/toEntity';
@@ -100,7 +100,7 @@ import { Entity, EntityColony, IEntityRenderable, isEntityOfType, isEntityRender
 //TODO find a way to memoise these methods, and clear when clientstate changes
 
 export function getRenderableEntitiesInSystem({entityIds, entities}: ClientGameState, systemId: number) {
-  const renderableEntities: IEntityRenderable[] = [];
+  const renderableEntities: IEntityRenderable<false>[] = [];
 
   for(let i = 0; i < entityIds.length; i++) {
     const id = entityIds[i];
@@ -115,7 +115,7 @@ export function getRenderableEntitiesInSystem({entityIds, entities}: ClientGameS
 }
 
 export function getColoniesBySystemBody({entityIds, entities, factionId}: ClientGameState, systemId: number) {
-  const colonies: Record<number, EntityColony> = {};
+  const colonies: Record<number, EntityColony<false>> = {};
 
   for(let i = 0; i < entityIds.length; i++) {
     const id = entityIds[i];
@@ -173,7 +173,7 @@ function getKnownSystems(clientGameState: Pick<ClientGameState, 'entities'| 'fac
 
 
 //This method modifies the supplied values
-export function fromState(state, initialGameState: GameConfiguration, selectedSystemId: number): ClientGameState {
+export function fromState(state, initialGameState: GameConfiguration<false>, selectedSystemId: number): ClientGameState {
   //TODO removed entities
 
   //This is in-place

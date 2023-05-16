@@ -1,4 +1,4 @@
-import { SystemDefinition } from 'types/definitions';
+import { SystemDefinition } from 'types/game/shared/definitions';
 import solAsteroids from './solAsteroids.json';
 import tnos from './temp/importTNOs'
 

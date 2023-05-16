@@ -1,4 +1,3 @@
-import { isObject } from 'lodash';
 
 //Helpers
 import forEach from 'helpers/object/forEach';
@@ -6,10 +5,16 @@ import getSystemBodyPosition from 'helpers/app/getSystemBodyPosition';
 import * as utils from './utils';
 
 import calculatePopulationWorkers from 'game/utils/calculatePopulationWorkers';
-import { AvailableMinerals, ClientState, FactionEntity } from 'types/game';
-import { AllEntityTypes, Entity, EntityFaction, EntityTypes, isEntityOfType } from 'types/entities';
-import { ConstructionProjectDefinition, Minerals, ResearchDefinition, StructureDefinition, SystemBodyDefinition, SystemBodyTypes, TechnologyDefinition } from 'types/definitions';
-import { FacetColony, FacetMovement, FacetResearchGroup, Facets } from 'types/facets';
+import { AvailableMinerals, ClientState, FactionEntity } from 'types/game/shared/game';
+import { AllEntityTypes, Entity, EntityFaction, EntityTypes } from 'types/game/shared/entities';
+import { isEntityOfType } from 'types/game/server/entities';
+import { ConstructionProjectDefinition, ResearchDefinition, StructureDefinition, SystemBodyDefinition, SystemBodyTypes, TechnologyDefinition } from 'types/game/shared/definitions';
+import { FacetColony, FacetMovement, FacetResearchGroup, Facets, isFacetType } from 'types/game/shared/facets';
+import { ENTITY_TYPES } from 'game/Consts';
+import { MapOmit } from 'types/utils';
+
+//Consts
+const entityIdProps = new Set(ENTITY_TYPES.map(entityType => `${entityType}Id`));
 
 
 //The class
@@ -19,7 +24,7 @@ export default class ServerState {
 
   clients: Record<number, ClientState>;
   
-  factions: Record<number, EntityFaction>;//e.g. The in-game factions Humans, martians (factions are also entities)
+  factions: Record<number, EntityFaction<true>>;//e.g. The in-game factions Humans, martians (factions are also entities)
   minerals: string[];
   structures: Record<string, StructureDefinition>;
   constructionProjects: Record<string, ConstructionProjectDefinition>;
@@ -86,7 +91,7 @@ export default class ServerState {
   }
 
   getEntityById(id: number): Entity | null;
-  getEntityById<T extends EntityTypes>(id: number, type: T): AllEntityTypes[T] | null;
+  getEntityById<T extends EntityTypes>(id: number, type: T): AllEntityTypes<true>[T] | null;
   getEntityById<T extends EntityTypes | undefined>(id: number, type?: T) {
     const entity = this.entities[id];
 
@@ -120,7 +125,7 @@ export default class ServerState {
     return faction;
   }
 
-  createSystemBody(systemId: number, bodyDefinition: SystemBodyDefinition, movement?: FacetMovement, availableMinerals?: AvailableMinerals) {
+  createSystemBody(systemId: number, bodyDefinition: SystemBodyDefinition, movement?: FacetMovement<true>, availableMinerals?: AvailableMinerals) {
     const orbitingId = movement?.orbitingId ?? null;
     const orbitingEntity = this.getEntityById(orbitingId, 'systemBody');
 
@@ -130,6 +135,7 @@ export default class ServerState {
         value: bodyDefinition.mass || 1
       },
       movement,
+      position: null,
       systemBody: {
         type: bodyDefinition.type,
         radius: bodyDefinition.radius,
@@ -184,7 +190,7 @@ export default class ServerState {
     return body;
   }
 
-  createColony(systemBodyId: number, factionId: number, minerals: FacetColony["minerals"] = {}, structures: FacetColony["structures"] = {}, populationIds: number[] = []) {
+  createColony(systemBodyId: number, factionId: number, minerals: FacetColony<true>["minerals"] = {}, structures: FacetColony<true>["structures"] = {}, populationIds: number[] = []) {
     const systemBody = this.getEntityById(systemBodyId, 'systemBody');
     const faction = this.getEntityById(factionId, 'faction');
 
@@ -214,7 +220,7 @@ export default class ServerState {
     return colony;
   }
 
-  createResearchGroup(colonyId: number, structures: FacetResearchGroup['structures'], projects: FacetResearchGroup['projects']) {
+  createResearchGroup(colonyId: number, structures: FacetResearchGroup<true>['structures'], projects: FacetResearchGroup<true>['projects']) {
     const colony = this.getEntityById(colonyId, 'colony');
 
     if(!colony) {
@@ -333,8 +339,8 @@ export default class ServerState {
 
   _newEntity<T extends EntityTypes>(
     type: T, 
-    props: Omit<AllEntityTypes[T], 'type' | 'id' | 'facets' | `${EntityTypes}Ids`> & Partial<Pick<AllEntityTypes[T], Extract<keyof AllEntityTypes[T], `${EntityTypes}Ids`>>>
-  ): AllEntityTypes[T] {
+    props: EntityProps<T>
+  ): AllEntityTypes<true>[T] {
     const facets = [];
 
     const newEntity = {
@@ -353,39 +359,33 @@ export default class ServerState {
     this.entitiesByType[type].push(newEntity.id);
 
     //automatically add ref to this entity in linked entities
-    //-props to check for links
-    const idProps = ['factionId', 'speciesId', 'systemBodyId', 'systemId', 'speciesId', 'colonyId'];//TODO make a type out of this? Also a Set
-    const skipProps = ['id', 'type'];
-
     const keys = Object.keys(props);
 
     for(let i = 0; i < keys.length; i++) {
       const prop = keys[i];
 
-      if(prop.endsWith('Id')) {
-        if(idProps.includes(prop)) {
-          const linkedEntityId = props[prop];
-          const linkedEntity = this.entities[linkedEntityId];
+      if(entityIdProps.has(prop)) {
+        const linkedEntityId = props[prop];
+        const linkedEntity = this.entities[linkedEntityId];
 
-          if(linkedEntity) {
-            const linkedIdsProp = type+'Ids';
+        if(linkedEntity) {
+          const linkedIdsProp = type+'Ids';
 
-            //if cross reference doesn't exist, add it
-            if(!linkedEntity[linkedIdsProp]) {
-              linkedEntity[linkedIdsProp] = [];
-            }
-
-            //record ref to this entity...
-            linkedEntity[linkedIdsProp].push(newEntity.id);
-            //...and update last updated time
-            this.modifiedEntity(linkedEntity.id);
+          //if cross reference doesn't exist, add it
+          if(!linkedEntity[linkedIdsProp]) {
+            linkedEntity[linkedIdsProp] = [];
           }
+
+          //record ref to this entity...
+          linkedEntity[linkedIdsProp].push(newEntity.id);
+          //...and update last updated time
+          this.modifiedEntity(linkedEntity.id);
         }
       } else if(prop.endsWith('Ids')) {
         //hmm.. I don't think I need to do anythin
-      } else if(newEntity[prop] && !skipProps.includes(prop) && isObject(newEntity[prop])) {
+      //} else if(newEntity[prop] && !skipProps.includes(prop) && isObject(newEntity[prop])) {
+      } else if(newEntity[prop] && isFacetType(prop)) {
         //is a facet - record last update time in 'hidden' prop of the facet
-        //TODO type this for the server only?
         Object.defineProperty(newEntity[prop], "lastUpdateTime", {
           enumerable: false,
           writable: true,
@@ -396,7 +396,7 @@ export default class ServerState {
       }
     }
 
-    return newEntity as unknown as AllEntityTypes[T];
+    return newEntity as unknown as AllEntityTypes<true>[T];
   }
 
   _addFactionEntity(factionId: number, entityId: number, props) {//TODO props
@@ -455,3 +455,34 @@ export default class ServerState {
 // });
 
 // console.log(JSON.stringify(obj));
+
+// type EntityPropsX<T extends EntityTypes> = Omit<AllEntityTypes<true>[T], 'type' | 'id' | 'facets' | `${EntityTypes}Ids`> & Partial<Pick<AllEntityTypes<true>[T], Extract<keyof AllEntityTypes<true>[T], `${EntityTypes}Ids`>>>
+
+type EntityProps<T extends EntityTypes> = 
+  Omit<
+    AllEntityTypes<true>[T], 
+    'type' | 'id' | 'facets' | `${EntityTypes}Ids` | Facets
+  >
+  &
+  //extract the facets & remove the lastUpdateTime prop
+  MapOmit<
+    Pick<
+      AllEntityTypes<true>[T], 
+      Extract<
+        keyof AllEntityTypes<true>[T], Facets
+      >
+    >,
+    'lastUpdateTime'
+  >
+  
+  &
+  //Add entity links (xxxIds) as optional props
+  Partial<
+    Pick<
+      AllEntityTypes<true>[T], 
+      Extract<
+        keyof AllEntityTypes<true>[T], 
+        `${EntityTypes}Ids`
+      >
+    >
+  >;

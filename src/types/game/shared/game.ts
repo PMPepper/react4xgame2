@@ -33,10 +33,10 @@ export type FactionEntity = {
 };
 
 
-export type GameConfiguration = {
+export type GameConfiguration<TServer extends boolean> = {
     clients: Record<number, Client>;
     constructionProjects: Record<string, ConstructionProjectDefinition>;
-    factions: Record<number, EntityFaction>;
+    factions: Record<number, EntityFaction<TServer>>;
     minerals: Record<number, string>;
     research: Record<string, ResearchDefinition>;
     researchAreas: Record<number, string>;
@@ -52,7 +52,7 @@ export type ClientGameState = {
     factionId: number;
     gameSpeed: number | undefined;
     gameTime: number;
-    initialGameState: GameConfiguration;
+    initialGameState: GameConfiguration<false>;
     isPaused: boolean;
     knownSystems: FactionEntity[];//Is this correct?
 };

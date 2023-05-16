@@ -1,4 +1,4 @@
-import { GameDefinition } from 'types/definitions';
+import { GameDefinition } from 'types/game/shared/definitions';
 import systems from './systems';
 
 const worldDefinition = {

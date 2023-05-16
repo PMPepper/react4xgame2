@@ -1,16 +1,17 @@
 import { ALL_FACETS } from "game/Consts";
 import { Minerals, SystemBodyTypes } from "./definitions";
 import { CapabilityTypes, AvailableMinerals } from "./game";
+import { Combine } from "../../utils";
 
 export type Facets = typeof ALL_FACETS[number];
 
-export interface Facet {
+export type Facet<TServer extends boolean> = TServer extends true ? {
+    lastUpdateTime: number
+} : {};
 
-};
+export type FacetAvailableMinerals<TServer extends boolean> = Combine<Facet<TServer>, AvailableMinerals>;
 
-export interface FacetAvailableMinerals extends Facet, AvailableMinerals {}
-
-export interface FacetColony extends Facet {
+export type FacetColony<TServer extends boolean> = Combine<Facet<TServer>, {
     buildInProgress: {};//TODO
     buildQueue: [];//TODO
     capabilityProductionTotals: Record<CapabilityTypes, number>;
@@ -18,33 +19,32 @@ export interface FacetColony extends Facet {
     researchInProgress: {};//TODO
     structures: Record<number, Record<number, number>>;
     structuresWithCapability: Record<CapabilityTypes, Record<number, number>>;
-}
+}>;
 
-export interface FacetMass extends Facet {
+export type FacetMass<TServer extends boolean> = Combine<Facet<TServer>, {
     value: number;
-}
+}>;
 
-//TODO this will change as more movement types get added
-export interface FacetMovement extends Facet {
+export type FacetMovement<TServer extends boolean> = Combine<Facet<TServer>, {
     type: 'orbitRegular',
     radius: number;
     offset: number;
     orbitingId: number;
     period: number;
-}
+}>;
 
-export interface FacetRender extends Facet {
+export type FacetRender<TServer extends boolean> = Combine<Facet<TServer>, {
     type: 'systemBody';//TODO are there more? This probably needs more adding to it
-}
+}>;
 
-export interface FacetFaction extends Facet {
+export type FacetFaction<TServer extends boolean> = Combine<Facet<TServer>, {
     colonyIds: number[];
     name: string;
     research: {};//TODO
     technology: {};//TODO
-}
+}>;
 
-export interface FacetSystemBody extends Facet {
+export type FacetSystemBody<TServer extends boolean> = Combine<Facet<TServer>, {
     type: SystemBodyTypes;
     albedo: number;
     axialTilt: number;
@@ -54,9 +54,9 @@ export interface FacetSystemBody extends Facet {
     position: number[];
     radius: number;
     tidalLock: boolean;
-}
+}>;
 
-export interface FacetSpecies extends Facet {
+export type FacetSpecies<TServer extends boolean> = Combine<Facet<TServer>, {
     constructionRate: number;
     crewMod: number;
     growthRate: number;
@@ -67,10 +67,9 @@ export interface FacetSpecies extends Facet {
     researchRate: number;
     support: number;
     workerMod: number;
-}
+}>;
 
-export interface FacetPopulation extends Facet {
-
+export type FacetPopulation<TServer extends boolean> = Combine<Facet<TServer>, {
     quantity: number,
     supportWorkers: number,
     effectiveWorkers: number,
@@ -80,23 +79,34 @@ export interface FacetPopulation extends Facet {
     environmentalMod: number,
     stabilityMod: number,
     labourEfficiencyMod: number
-}
+}>;
 
-export interface FacetResearchGroup extends Facet {
+export type FacetResearchGroup<TServer extends boolean> = Combine<Facet<TServer>, {
     structures: any;//TODO
     projects: any;//TODO
-}
+}>;
+
 
 //TODO enforce completion..? E.g. make TS complain if I add a Facet and don't update this
-export type AllFacets = {
-    colony: FacetColony
-    mass: FacetMass;
-    availableMinerals: FacetAvailableMinerals;
-    movement: FacetMovement;
-    render: FacetRender;
-    faction: FacetFaction;
-    systemBody: FacetSystemBody;
-    species: FacetSpecies;
-    population: FacetPopulation;
-    researchGroup: FacetResearchGroup;
+export type AllFacets<TServer extends boolean> = {
+    colony: FacetColony<TServer>
+    mass: FacetMass<TServer>;
+    availableMinerals: FacetAvailableMinerals<TServer>;
+    movement: FacetMovement<TServer>;
+    render: FacetRender<TServer>;
+    faction: FacetFaction<TServer>;
+    systemBody: FacetSystemBody<TServer>;
+    species: FacetSpecies<TServer>;
+    population: FacetPopulation<TServer>;
+    researchGroup: FacetResearchGroup<TServer>;
+}
+
+/////////////////
+// Type guards //
+/////////////////
+
+const allFacets = new Set(ALL_FACETS);
+
+export function isFacetType(str: string): str is Facets {
+    return allFacets.has(str as any);
 }

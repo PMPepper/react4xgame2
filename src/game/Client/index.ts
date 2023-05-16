@@ -3,8 +3,8 @@ import {set as setSelectedSystemId} from 'redux/reducers/selectedSystemId';
 import find from 'helpers/object/find';
 import { fromState, mergeState, calculateSystemBodyPositions } from './ClientState';
 import { Store } from 'redux';
-import { Connector, GameConfiguration, ClientGameState } from 'types/game';
-import { GameDefinition } from 'types/definitions';
+import { Connector, GameConfiguration, ClientGameState } from 'types/game/shared/game';
+import { GameDefinition } from 'types/game/shared/definitions';
 
 
 export default class Client {
@@ -14,7 +14,7 @@ export default class Client {
 
   systemId: number;
 
-  initialGameState: GameConfiguration;
+  initialGameState: GameConfiguration<false>;
 
   _gameState?: ClientGameState;
   _updateStateCallback?: (gameState: ClientGameState) => void;

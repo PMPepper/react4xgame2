@@ -1,7 +1,7 @@
 import Server from 'game/server/Server';
 
 import clone from 'helpers/app/fastSimpleClone';
-import { Connector } from 'types/game';
+import { Connector } from 'types/game/shared/game';
 import Client from './Client';
 
 

@@ -1,6 +1,7 @@
+import { ALL_SYSTEM_BODY_TYPES } from "game/Consts";
 import { CapabilityTypes } from "./game";
 
-export type SystemBodyTypes = 'star' | 'planet' | 'moon' | 'asteroid';
+export type SystemBodyTypes = keyof typeof ALL_SYSTEM_BODY_TYPES;
 
 export type SystemBodyDefinition = {
     name: string,
