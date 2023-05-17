@@ -1,5 +1,5 @@
 import { ALL_FACETS } from "game/Consts";
-import { Minerals, SystemBodyTypes } from "./definitions";
+import { Minerals, ResearchDefinition, SystemBodyTypes, TechnologyDefinition } from "./definitions";
 import { CapabilityTypes, AvailableMinerals } from "./game";
 import { Combine } from "../../utils";
 
@@ -40,8 +40,8 @@ export type FacetRender<TServer extends boolean> = Combine<Facet<TServer>, {
 export type FacetFaction<TServer extends boolean> = Combine<Facet<TServer>, {
     colonyIds: number[];
     name: string;
-    research: {};//TODO
-    technology: {};//TODO
+    research: Record<string, ResearchDefinition>;
+    technology: Record<string, TechnologyDefinition>;
 }>;
 
 export type FacetSystemBody<TServer extends boolean> = Combine<Facet<TServer>, {

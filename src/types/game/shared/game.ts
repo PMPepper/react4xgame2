@@ -11,12 +11,15 @@ export interface Connector {
     // sendMessageToClient: (connectionId: number, messageType: MessageType, data: any) => any;//TODO better typing here
 }
 
+export type ClientType = 'local' | 'remote' | 'ai';
+export type ClientRole = 'owner';//TODO not really implemented any of this stuff yet
+
 export interface ClientState {
     id: number;
     name: string;
 
     factionId: number | null;
-    factions: {};//TODO?
+    factions: Record<number, ClientRole>;//{[factionId]: ClientRole}
     gameSpeed: number;
     isPaused: number;
     ready: boolean;

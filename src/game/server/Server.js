@@ -14,7 +14,7 @@ import Enum from 'classes/Enum';
 import populationFactory from './entityProcessorFactories/population';
 import colonyFactory from './entityProcessorFactories/colony';
 import mineralDepletionFactory from './entityProcessorFactories/mineralDepletion';
-import ServerClient, { ENUM_CLIENT_TYPE } from './ServerClient';
+import ServerClient from './ServerClient';
 
 //Constants
 //-Server phases
@@ -94,7 +94,7 @@ export default class Server {
 
     //create a client
     //factions are the available factions (id: role hash), factionId is the actual faction they are connected as right now
-    this.clients[clientId] = new ServerClient(clientId, name, ENUM_CLIENT_TYPE.local, false, {}, null, this.state.gameTime);
+    this.clients[clientId] = new ServerClient(clientId, name, 'local', false, {}, null, this.state.gameTime);
 
     //Broadcast updated clients info
     this.connector.broadcastToClients('clientConnected', this.clients);

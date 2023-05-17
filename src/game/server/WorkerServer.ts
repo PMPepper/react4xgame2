@@ -1,9 +1,13 @@
+//TODO better types
+
 //This is the worker-side part of the worker
 import Performance from 'classes/Performance';
 import Server from './Server'
 
 
 export default class WorkerServer {
+
+    server: Server;
 
     constructor() {
         this.server = new Server(this);
@@ -16,8 +20,8 @@ export default class WorkerServer {
         global.postMessage({type, data});
     }
 
-    sendMessageToClient(connectionId, type, data, messageId = null) {
-        if(!connectionId === 1) {//This connector only supports a single player
+    sendMessageToClient(connectionId: number, type, data, messageId = null) {
+        if(!(connectionId === 1)) {//This connector only supports a single player
             throw new Error('Invalid connectionId');
         }
 
@@ -42,7 +46,7 @@ export default class WorkerServer {
             }, {});
         }
 
-        const dataToSend = {type, data: binaryData, messageId};
+        const dataToSend = {type, data: binaryData, messageId, performance: undefined};
 
         if(type === "updatingGame") {
             dataToSend.performance = entries;

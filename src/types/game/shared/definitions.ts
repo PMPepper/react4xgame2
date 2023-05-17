@@ -94,7 +94,7 @@ export type ConstructionProjectDefinition = {
     minerals: Minerals;
     name: string;
     producedStructures: Record<number, number>;
-    requireTechnologyIds: string[];
+    requireTechnologyIds?: string[];
     requiredStructures: Structures
 };
 

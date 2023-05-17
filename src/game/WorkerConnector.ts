@@ -11,7 +11,7 @@ export default class WorkerConnector implements Connector {
     _messageId = 0;
   
     constructor() {
-      this.worker = new Worker(new URL('./server/worker.js', import.meta.url));
+      this.worker = new Worker(new URL('./server/worker.ts', import.meta.url));
 
       this.worker.addEventListener('message', this.onmessage)
     }
