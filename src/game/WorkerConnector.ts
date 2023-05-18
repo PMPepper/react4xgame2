@@ -2,6 +2,7 @@
 
 import Performance from "classes/Performance";
 import { Connector } from "types/game/shared/game";
+import { ServerMessageHandlers, ServerMessageTypes } from "./server/ServerComms";
 
 
 export default class WorkerConnector implements Connector {
@@ -15,6 +16,8 @@ export default class WorkerConnector implements Connector {
 
       this.worker.addEventListener('message', this.onmessage)
     }
+    broadcastToClients: (messageType: string, data: any) => any;
+    sendMessageToClient: (connectionId: number, messageType: string, data: any) => any;
 
     onmessage = ({data: {type, data, clientId, messageId, performance}}) => {
         if(type === 'reply') {
@@ -40,7 +43,8 @@ export default class WorkerConnector implements Connector {
         this.client = client;
     }
 
-    sendMessageToServer(type, data) {
+    //TODO I think I need to make this always return a promise, right? even if the actual return type is void
+    sendMessageToServer<T extends ServerMessageTypes>(type: T, data: ServerMessageHandlers[T]['data']): ServerMessageHandlers[T]['returns'] {
         const messageId = this.getNextMessageId();
 
         //Set up the response handler
@@ -59,7 +63,7 @@ export default class WorkerConnector implements Connector {
         this.worker.postMessage({type, data, clientId: 1, messageId});
 
         //Return the promise
-        return promise;
+        return promise as ServerMessageHandlers[T]['returns'];//TODO is this right?
     }
 
     getNextMessageId() {

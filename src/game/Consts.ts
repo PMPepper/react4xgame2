@@ -4,3 +4,5 @@ export const ALL_SYSTEM_BODY_TYPES = ['star', 'planet', 'moon', 'asteroid'] as c
 
 export const ALL_FACETS = ['colony', 'mass', 'availableMinerals', 'movement', 'render', 'faction', 'systemBody', 'species', 'population', 'researchGroup'] as const;
 export const ENTITY_TYPES = ['colony', 'faction', 'system', 'systemBody', 'species', 'population', 'researchGroup'] as const;
+
+export const FACTION_CLIENT_TYPES =  ['OWNER', 'SPECTATOR'] as const;

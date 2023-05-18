@@ -1,6 +1,6 @@
 import { ALL_FACETS } from "game/Consts";
 import { Minerals, ResearchDefinition, SystemBodyTypes, TechnologyDefinition } from "./definitions";
-import { CapabilityTypes, AvailableMinerals } from "./game";
+import { CapabilityTypes, AvailableMinerals, BuildQueueItem } from "./game";
 import { Combine } from "../../utils";
 
 export type Facets = typeof ALL_FACETS[number];
@@ -11,9 +11,11 @@ export type Facet<TServer extends boolean> = TServer extends true ? {
 
 export type FacetAvailableMinerals<TServer extends boolean> = Combine<Facet<TServer>, AvailableMinerals>;
 
+
+
 export type FacetColony<TServer extends boolean> = Combine<Facet<TServer>, {
     buildInProgress: {};//TODO
-    buildQueue: [];//TODO
+    buildQueue: BuildQueueItem[];
     capabilityProductionTotals: Record<CapabilityTypes, number>;
     minerals: Minerals;
     researchInProgress: {};//TODO

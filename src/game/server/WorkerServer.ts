@@ -2,16 +2,23 @@
 
 //This is the worker-side part of the worker
 import Performance from 'classes/Performance';
+import Client from 'game/Client';
+import { Connector } from 'types/game/shared/game';
 import Server from './Server'
+import { ServerMessageTypes, ServerMessageHandlers } from './ServerComms';
 
 
-export default class WorkerServer {
+export default class WorkerServer implements Connector {
 
     server: Server;
 
     constructor() {
         this.server = new Server(this);
     }
+
+    
+    setClient: (client: Client) => void;
+    sendMessageToServer: <T extends ServerMessageTypes>(messageType: T, data: ServerMessageHandlers[T]['data']) => ServerMessageHandlers[T]['returns'];
 
 
     //Server comms methods

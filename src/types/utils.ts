@@ -15,3 +15,7 @@ export type Combine<T1, T2> = T1 & T2;//TODO replace with better implementation 
 export type MapOmit<Type, OmitProp extends string | number | symbol> = {
     [Property in keyof Type]: Omit<Type[Property], OmitProp>
 }
+
+export type KeyOfType<T, V> = keyof {
+    [P in keyof T as T[P] extends V ? P : never]: any;
+}

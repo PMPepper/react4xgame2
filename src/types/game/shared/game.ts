@@ -1,18 +1,20 @@
 import Client from "game/Client";
+import { FACTION_CLIENT_TYPES } from "game/Consts";
+import { ServerMessageHandlers, ServerMessageTypes } from "game/server/ServerComms";
 import { ConstructionProjectDefinition, ResearchDefinition, StructureDefinition, TechnologyDefinition } from "./definitions";
 import { Entity, EntityFaction } from "./entities";
 
-type MessageType = string;//TODO list valid values
+type ClientMessageType = string;//TODO list valid values
 
 export interface Connector {
     setClient: (client: Client) => void;
-    sendMessageToServer: (messageType: MessageType, data: any) => any;//TODO better typing here
-    // broadcastToClients: (messageType: MessageType, data: any) => any;//TODO better typing here
-    // sendMessageToClient: (connectionId: number, messageType: MessageType, data: any) => any;//TODO better typing here
+    sendMessageToServer: <T extends ServerMessageTypes>(messageType: T, data: ServerMessageHandlers[T]['data']) => ServerMessageHandlers[T]['returns'];
+    broadcastToClients: (messageType: ClientMessageType, data: any) => any;//TODO better typing here
+    sendMessageToClient: (connectionId: number, messageType: ClientMessageType, data: any) => any;//TODO better typing here
 }
 
 export type ClientType = 'local' | 'remote' | 'ai';
-export type ClientRole = 'owner';//TODO not really implemented any of this stuff yet
+export type ClientRole = typeof FACTION_CLIENT_TYPES[number];
 
 export interface ClientState {
     id: number;
@@ -21,10 +23,10 @@ export interface ClientState {
     factionId: number | null;
     factions: Record<number, ClientRole>;//{[factionId]: ClientRole}
     gameSpeed: number;
-    isPaused: number;
+    isPaused: boolean;
     ready: boolean;
     type: {//TODO define more client types e.g. AI, remote, etc
-        name: 'local'
+        name: ClientType
     }
 }
 
@@ -37,7 +39,7 @@ export type FactionEntity = {
 
 
 export type GameConfiguration<TServer extends boolean> = {
-    clients: Record<number, Client>;
+    clients: Record<number, ClientState>;
     constructionProjects: Record<string, ConstructionProjectDefinition>;
     factions: Record<number, EntityFaction<TServer>>;
     minerals: Record<number, string>;
@@ -70,3 +72,12 @@ export interface Position {
     x: number;
     y: number;
 }
+
+export type BuildQueueItem = {
+    id: number,
+    total: number,
+    completed: number,
+    constructionProjectId: number,
+    assignToPopulationId: number,
+    takeFromPopulationId: number
+};
