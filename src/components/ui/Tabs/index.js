@@ -15,7 +15,6 @@ import combineProps from "helpers/react/combine-props";
 import isPositiveInteger from "prop-types/is-positive-integer";
 
 //Other
-import { setKeyboardFocus } from "dom/track-focus";
 import { useTab } from "redux/factories/tab";
 
 //The component
@@ -46,8 +45,6 @@ const Tabs = forwardRef(function Tabs({children, selectedIndex, setSelectedIndex
 
         e.preventDefault();
         e.stopPropagation();
-
-        setKeyboardFocus();
     };
 
     //Side effects

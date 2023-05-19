@@ -42,20 +42,14 @@
 }
 
 @mixin onKeyboardFocus() {
-  :global(.focus_keyboard) &:focus {
-    @content;
-  }
-}
-
-@mixin onKeyboardFocusWithin() {
-  :global(.focus_keyboard) &:focus-within {
+  &:focus-visible {
     @content;
   }
 }
 
 @mixin onHoverOrFocus() {
   &:hover,
-  :global(.focus_keyboard) &:focus {
+  &:focus-visible {
     @content;
   }
 }

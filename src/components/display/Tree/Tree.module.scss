@@ -43,7 +43,7 @@
         background: var(--c-bg);
         border-radius: var(--border-radius);
 
-        :global(.focus_keyboard) .tree:focus-within & {
+        :has(:focus-visible) .tree:focus-within & {
             background-color: var(--c-keyboard);
         }
     }

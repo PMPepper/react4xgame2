@@ -18,8 +18,8 @@ import useId from 'hooks/useId';
 
 //Other
 import classes from 'components/display/Tree/Tree.module.scss';
-import {setKeyboardFocus} from 'dom/track-focus';
 
+//selectedItem = list of indexes, e.g. [] would be the top level item,  [0, 1] would be the first item -> the second item
 
 //The component
 const Tree = forwardRef(function Tree({items, selectedItem, setSelectedItem, id, icons = true, ...rest}, ref) {
@@ -73,8 +73,6 @@ const Tree = forwardRef(function Tree({items, selectedItem, setSelectedItem, id,
 
             e.preventDefault();
             e.stopPropagation();
-
-            setKeyboardFocus();
         },
         [selectedItem, state]
     );

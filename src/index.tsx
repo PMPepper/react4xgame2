@@ -3,7 +3,6 @@ import { createRoot } from 'react-dom/client';
 import {I18nProvider} from '@lingui/react';
 import {Provider} from 'react-redux';
 
-import './dom/track-focus';
 import polyfills from './polyfills';
 import 'css/core.scss';
 
