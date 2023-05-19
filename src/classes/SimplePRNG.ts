@@ -2,7 +2,9 @@
 
 
 export default class SimplePRNG {
-    constructor(seed) {
+    _seed: number;
+
+    constructor(seed: number) {
         if(!Number.isInteger(seed)) {
             throw new Error('seed must be an integer value');
         }

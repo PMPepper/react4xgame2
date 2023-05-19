@@ -2,7 +2,12 @@
 
 
 export default class Rectangle{
-    constructor(x, y, width, height) {
+    x: number;
+    y: number;
+    width: number;
+    height: number;
+
+    constructor(x: number, y: number, width: number, height: number) {
         this.x = x;
         this.y = y;
         this.height = height;
@@ -58,21 +63,21 @@ export default class Rectangle{
     }
 
     //Public methods
-    translateBy(dx, dy) {
+    translateBy(dx: number, dy: number) {
         this.x += dx;
         this.y += dy;
     }
 
-    contains(rect) {
+    contains(rect: Rectangle) {
         return this.x <= rect.x && this.y <= rect.y && this.right >= rect.right && this.bottom >= rect.bottom;
     }
 
     //Static methods
-    static fromEdges(top, left, bottom, right) {
+    static fromEdges(top: number, left: number, bottom: number, right: number) {
         return new Rectangle(left, top, right - left, bottom - top);
     }
 
-    static fromObj({x = 0, y = 0, width = 0, height = 0}) {
+    static fromObj({x = 0, y = 0, width = 0, height = 0}: {x?: number, y?: number, width?: number, height?: number}) {
         return new Rectangle(x, y, width, height);
     }
 }

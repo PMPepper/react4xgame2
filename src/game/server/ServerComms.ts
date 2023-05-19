@@ -5,10 +5,8 @@ import inPlaceReorder from 'helpers/array/in-place-reorder';
 import forEach from 'helpers/object/forEach';
 
 //Other
-//import ServerClient from './ServerClient';
 import Server, { ServerPhase } from "./Server";
 import createWorldFromDefinition from './createWorldFromDefinition';
-//import * as entityCacheTypes from './entityCacheTypes';
 
 import { ClientRole, ClientState, Connector, GameConfiguration } from "types/game/shared/game";
 import { KeyOfType } from 'types/utils';
@@ -39,7 +37,7 @@ export default class ServerComms {
         this.connector = connector;
     }
 
-    _checkValidClientName(name, clientId) {
+    _checkValidClientName(name: string, clientId: number) {
         if(!name) {
             throw new Error('Client required a name');
         }
@@ -51,7 +49,7 @@ export default class ServerComms {
         });
     }
     
-    _checkValidClient(clientId) {
+    _checkValidClient(clientId: number) {
         if(!this.clients[clientId]) {
             throw new Error('Unknown client');
         }

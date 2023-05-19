@@ -7,7 +7,6 @@ import mineralDepletionFactory from './entityProcessorFactories/mineralDepletion
 
 import ServerComms, { ServerMessageHandlers, ServerMessageTypes } from './ServerComms';
 import { Connector } from 'types/game/shared/game';
-import ServerClient from './ServerClient';
 import ServerState from './ServerState';
 
 //Constants
