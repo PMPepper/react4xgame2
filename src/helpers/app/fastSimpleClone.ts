@@ -1,25 +1,25 @@
 
 //Is this faster than just JSON based cloning?
 
-export default function clone(data) {
+export default function clone<T>(data: T): T {
     switch(typeof(data)) {
       case 'object':
         if(data === null) {
-          return null;
+          return null as T;
         } else if(data instanceof Array) {
-          const clonedArr = new Array(data.length);
+          const clonedArr = new Array(data.length) as unknown as T;
   
           for(let i = 0, l = data.length; i < l; ++i) {
             clonedArr[i] = clone(data[i]);
           }
   
-          return clonedArr;
+          return clonedArr as T;
         }
   
-        const clonedObj = {};
+        const clonedObj = {} as T;
   
         for(let i = 0, keys = Object.keys(data), l = keys.length; i < l; ++i) {
-          let key = keys[i];
+          let key = keys[i] as keyof T;
   
           clonedObj[key] = clone(data[key]);
         }

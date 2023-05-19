@@ -21,18 +21,18 @@ type EntityProcessor = any;//TODO going to refactor how this part works
 //The class
 export default class Server {
   comms: ServerComms;
-  state: ServerState;
+  state?: ServerState;
 
   phase: ServerPhase = 'INITIALISING';
 
-  _lastTime: number;
-  _tickId: number;
+  //_lastTime: number = -1;//not currently actually used
+  _tickId?: number;
 
   targetTickRate: number = 60;
   timeMultiplier: number = 60;//3 * 24 * 3600;//time multiplier
-  gameSpeed: number;
+  gameSpeed: number = 1;
   isPaused: boolean = false;
-  realElapsedTime: number;//used to track sub-second time intervals, as gameTick only fires once per second
+  realElapsedTime: number = 0;//used to track sub-second time intervals, as gameTick only fires once per second
 
   
 
@@ -66,7 +66,7 @@ export default class Server {
   }
 
   startGameUpdate() {
-    this._lastTime = Date.now();
+    //this._lastTime = Date.now();
 
     const targetIntervalMs = 1000/this.targetTickRate;//ms
     const targetInterval = targetIntervalMs/1000;
@@ -74,14 +74,14 @@ export default class Server {
     this._tickId = setInterval(() => {
         if(this.phase !== 'RUNNING') {
             clearInterval(this._tickId);
-            this._tickId = null;
+            this._tickId = undefined;
         } else {
             const start = Date.now();
             
             this._onTick(targetInterval);
             const end = Date.now();
 
-            this._lastTime = start;
+            //this._lastTime = start;
         }
         },
         targetIntervalMs
@@ -122,13 +122,13 @@ export default class Server {
     this.isPaused = isPaused;
   }
 
-  _onTick = (elapsedTime) => {
+  _onTick = (elapsedTime: number) => {
     this._updateGameTime();
 
     if(!this.isPaused) {
       const effectiveElapsedTime = elapsedTime * this.timeMultiplier;
       this.realElapsedTime += effectiveElapsedTime;
-      const ticksToAdvanceBy = Math.floor(this.realElapsedTime - this.state.gameTime);
+      const ticksToAdvanceBy = Math.floor(this.realElapsedTime - this.state!.gameTime);
 
       if(ticksToAdvanceBy > 0) {
         this._advanceTime(false, ticksToAdvanceBy);
@@ -138,25 +138,25 @@ export default class Server {
     this.comms._sendGameStateUpdateToClients();
   }
 
-  _advanceTime(isInit, ticksToAdvanceBy = null) {
-    const {entities, gameConfig, entityIds, entitiesByType, entitiesLastUpdated, factionEntities} = this.state;
+  _advanceTime(isInit: boolean, ticksToAdvanceBy: number = 0) {
+    const {entities, gameConfig, entityIds, entitiesByType, entitiesLastUpdated, factionEntities} = this.state!;
     const {entityProcessors} = this;
 
     const advanceToTime = isInit ?
-      null
+      0
       :
-      Math.floor(this.state.gameTime + ticksToAdvanceBy);
+      Math.floor(this.state!.gameTime + ticksToAdvanceBy);
 
     //DEV performance testing
     //const startTime = performance.now()
 
-    while(isInit ||  this.state.gameTime < advanceToTime) {
-      const lastTime = this.state.gameTime;
+    while(isInit || this.state!.gameTime < advanceToTime) {
+      const lastTime = this.state!.gameTime;
 
       //update game time (if applicable)
-      this.state.gameTime = isInit ? lastTime : Math.min(lastTime + 1, advanceToTime);
+      this.state!.gameTime = isInit ? lastTime : Math.min(lastTime + 1, advanceToTime);
 
-      const time = this.state.gameTime;
+      const time = this.state!.gameTime;
       const isDayStep = Math.floor(lastTime / 86400) !== Math.floor(time / 86400)
 
       //Iterate though entity processor sets

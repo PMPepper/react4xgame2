@@ -8,7 +8,7 @@ import { ServerMessageHandlers, ServerMessageTypes } from './server/ServerComms'
 
 export default class LocalConnector implements Connector {
   server: Server;
-  client: Client;
+  client?: Client;
 
   constructor() {
     this.server = new Server(this);
@@ -22,25 +22,25 @@ export default class LocalConnector implements Connector {
   async sendMessageToServer<T extends ServerMessageTypes>(type: T, data: ServerMessageHandlers[T]['data']): Promise<ServerMessageHandlers[T]['returns']> {
     const response = await this.server.onMessage(type, data, 1);
     
-    return Promise.resolve(response ? clone(response) : undefined);
+    return Promise.resolve(response ? clone(response) : response);
   }
 
 
   //Server comms methods
-  broadcastToClients(messageType, data) {
+  broadcastToClients(messageType: any, data: any): any {//TODO type
     //c/onsole.log('[LC] broadcastToClients: ', messageType, data);
 
-    return this.client.onMessageFromServer(messageType, clone(data));
+    return this.client?.onMessageFromServer(messageType, clone(data));
   }
 
-  sendMessageToClient(connectionId, messageType, data) {
+  sendMessageToClient(connectionId: number, messageType: any, data: any) {//TODO type this
     if(!(connectionId === 1)) {//This connector only supports a single player
       throw new Error('Invalid connectionId');
     }
 
     //c/onsole.log('[LC] sendMessageToClient: ', messageType, data);
 
-    return this.client.onMessageFromServer(messageType, clone(data));
+    return this.client?.onMessageFromServer(messageType, clone(data));
 
   }
 }

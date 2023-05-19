@@ -13,10 +13,10 @@ const exposeMethods = {
     }
 }
 
-const connector = AsyncConnection<{shout: (string) => string}, typeof exposeMethods>(transport, exposeMethods);
+const connector = AsyncConnection<{shout: (string: string) => string}, typeof exposeMethods>(transport, exposeMethods);
 
 
 
-function sleep(ms) {
+function sleep(ms: number) {
     return new Promise(resolve => setTimeout(resolve, ms));
 }

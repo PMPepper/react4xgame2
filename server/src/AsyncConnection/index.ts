@@ -11,7 +11,7 @@ interface ReplyHandler {
     resolve: (result: any) => void
 }
 
-type AnyFunc = (...any) => any;
+type AnyFunc = (...args: any[]) => any;
 type Promised<T extends AnyFunc> = (...params: Parameters<T>) => Promise<Awaited<ReturnType<T>>>
 
 type PromisedObj<T extends Methods> = {

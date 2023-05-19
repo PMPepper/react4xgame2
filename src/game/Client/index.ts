@@ -5,6 +5,7 @@ import { fromState, mergeState, calculateSystemBodyPositions } from './ClientSta
 import { Store } from 'redux';
 import { Connector, GameConfiguration, ClientGameState, ClientRole } from 'types/game/shared/game';
 import { GameDefinition } from 'types/game/shared/definitions';
+import { Entity } from 'types/game/client/entities';
 
 
 export default class Client {
@@ -12,9 +13,9 @@ export default class Client {
   store: Store
   connector: Connector;
 
-  systemId: number;
+  systemId?: number;
 
-  initialGameState: GameConfiguration<false>;
+  initialGameState?: GameConfiguration<false>;
 
   _gameState?: ClientGameState;
   _updateStateCallback?: (gameState: ClientGameState) => void;
@@ -39,9 +40,11 @@ export default class Client {
   }
 
   onGameStateUpdate = () => {
-    this.updateSystemBodyPositions(this.store.getState().selectedSystemId);
+    if(this._gameState) {
+      this.updateSystemBodyPositions(this.store.getState().selectedSystemId);
 
-    this._updateStateCallback?.(this._gameState);
+      this._updateStateCallback?.(this._gameState);
+    }
   }
 
   /////////////////////
@@ -49,7 +52,7 @@ export default class Client {
   /////////////////////
 
   get allFactionIds() {
-    return Object.keys(this.initialGameState.factions).map(id => (+id));
+    return Object.keys(this.initialGameState?.factions ?? {}).map(id => (+id));
   }
 
   get gameState() {
@@ -132,10 +135,13 @@ export default class Client {
   // Server -> Client message handlers //
   ///////////////////////////////////////
 
-  message_startingGame(gameState) {
+  message_startingGame(gameState: any) {//TODO
+    if(!this.initialGameState) {
+      throw new Error('CAnnot start game without initialGameState');
+    }
     console.log('[CLIENT] startingGame', gameState);
 
-    const selectedSystemId = +find(gameState.entities, entity => (entity.type === 'system')).id;
+    const selectedSystemId = +find(gameState.entities, (entity: Entity) => (entity.type === 'system')).id;
     this.store.dispatch(setSelectedSystemId(selectedSystemId));//TODO base on starting systems
 
     this.gameState = fromState(gameState, this.initialGameState, selectedSystemId);
@@ -145,7 +151,10 @@ export default class Client {
     this.onGameStateUpdate();
   }
 
-  message_updatingGame(newGameState) {
+  message_updatingGame(newGameState: any) {//TODO
+    if(!this.gameState) {
+      throw new Error('Cannot update gameState without existing gameState');
+    }
     //console.log('[CLIENT] updatingGame', newGameState, this.systemId);
     this.gameState = mergeState(this.gameState, newGameState);
 
@@ -159,7 +168,9 @@ export default class Client {
   //////////////////
 
   updateSystemBodyPositions(systemId: number) {
-    calculateSystemBodyPositions(this.gameState.entities, this.gameState.gameTime, systemId)
+    if(this.gameState) {
+      calculateSystemBodyPositions(this.gameState.entities, this.gameState.gameTime, systemId);
+    }
   }
 
   //////////////////
@@ -173,13 +184,13 @@ export default class Client {
   ////////////////////////////
   // Internal comms methods //
   ////////////////////////////
-  onMessageFromServer(messageType, data) {//TODO correctly type this
+  onMessageFromServer(messageType: any, data: any): any {//TODO correctly type this
     //c/onsole.log('[CLIENT] on message from server: ', messageType, data);
 
     const name = `message_${messageType}`;
 
-    if(this[name]) {
-      return this[name](data);
+    if(this[(name as keyof Client)] as any) {
+      return (this[name as keyof Client] as any)(data);
     }
 
     console.log('Unknown message from server: ', messageType, data);
