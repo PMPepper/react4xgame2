@@ -3,7 +3,7 @@ import {set as setSelectedSystemId} from 'redux/reducers/selectedSystemId';
 import find from 'helpers/object/find';
 import { fromState, mergeState, calculateSystemBodyPositions } from './ClientState';
 import { Store } from 'redux';
-import { Connector, GameConfiguration, ClientGameState } from 'types/game/shared/game';
+import { Connector, GameConfiguration, ClientGameState, ClientRole } from 'types/game/shared/game';
 import { GameDefinition } from 'types/game/shared/definitions';
 
 
@@ -76,17 +76,15 @@ export default class Client {
     return this.connector.sendMessageToServer('createWorld', definition);
   }
 
-  connect() {
+  async connect() {
     console.log('[CLIENT] connect');
 
-    return this.connector.sendMessageToServer('connectClient', {name: this.name}).then(initialGameState => {
-      this.initialGameState = initialGameState;
+    this.initialGameState = await this.connector.sendMessageToServer('connectClient', {name: this.name});
 
-      return true;
-    })
+    return true;//TODO error handling?
   }
 
-  setClientSettings(factions, factionId, ready) {
+  setClientSettings(factions: Record<number, ClientRole> | undefined, factionId: number, ready: boolean) {
     console.log('[CLIENT] set client settings: ', factions, factionId, ready);
 
     return this.connector.sendMessageToServer('setClientSettings', {name: this.name, factions, factionId, ready})
@@ -99,34 +97,34 @@ export default class Client {
   }
 
   //in game messages
-  setDesiredSpeed = (speed) => {
+  setDesiredSpeed = (speed: number) => {
     console.log('[CLIENT] setDesiredSpeed: ', speed);
 
     return this.connector.sendMessageToServer('setDesiredSpeed', speed)
   }
 
-  setIsPaused = (isPaused) => {
+  setIsPaused = (isPaused: boolean) => {
     return this.connector.sendMessageToServer('setIsPaused', isPaused)
   }
 
-  createColony(bodyId) {
+  createColony(bodyId: number) {
     return this.connector.sendMessageToServer('createColony', bodyId)
   }
 
   // Construction
-  addBuildQueueItem = (colonyId, constructionProjectId, total, assignToPopulationId, takeFromPopulationId = null) => {
+  addBuildQueueItem = (colonyId: number, constructionProjectId: number, total: number, assignToPopulationId: number, takeFromPopulationId?: number) => {
     return this.connector.sendMessageToServer('addBuildQueueItem', {colonyId, constructionProjectId, total, assignToPopulationId, takeFromPopulationId})
   }
 
-  removeBuildQueueItem = (colonyId, id) => {
+  removeBuildQueueItem = (colonyId: number, id: number) => {
     return this.connector.sendMessageToServer('removeBuildQueueItem', {colonyId, id})
   }
 
-  reorderBuildQueueItem = (colonyId, id, newIndex) => {
+  reorderBuildQueueItem = (colonyId: number, id: number, newIndex: number) => {
     return this.connector.sendMessageToServer('reorderBuildQueueItem', {colonyId, id, newIndex})
   }
 
-  updateBuildQueueItem = (colonyId, id, total, assignToPopulationId, takeFromPopulationId = null) => {
+  updateBuildQueueItem = (colonyId: number, id: number, total: number, assignToPopulationId: number, takeFromPopulationId?: number) => {
     return this.connector.sendMessageToServer('updateBuildQueueItem', {colonyId, id, total, assignToPopulationId, takeFromPopulationId})
   }
 
@@ -160,14 +158,14 @@ export default class Client {
   // UI -> Client //
   //////////////////
 
-  updateSystemBodyPositions(systemId) {
+  updateSystemBodyPositions(systemId: number) {
     calculateSystemBodyPositions(this.gameState.entities, this.gameState.gameTime, systemId)
   }
 
   //////////////////
   // Client -> UI //
   //////////////////
-  setUpdateStateCallback(callback) {
+  setUpdateStateCallback(callback: (gameState: ClientGameState) => void) {
     this._updateStateCallback = callback;
   }
 
@@ -175,7 +173,7 @@ export default class Client {
   ////////////////////////////
   // Internal comms methods //
   ////////////////////////////
-  onMessageFromServer(messageType, data) {
+  onMessageFromServer(messageType, data) {//TODO correctly type this
     //c/onsole.log('[CLIENT] on message from server: ', messageType, data);
 
     const name = `message_${messageType}`;

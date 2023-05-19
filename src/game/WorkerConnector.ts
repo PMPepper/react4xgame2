@@ -44,11 +44,11 @@ export default class WorkerConnector implements Connector {
     }
 
     //TODO I think I need to make this always return a promise, right? even if the actual return type is void
-    sendMessageToServer<T extends ServerMessageTypes>(type: T, data: ServerMessageHandlers[T]['data']): ServerMessageHandlers[T]['returns'] {
+    async sendMessageToServer<T extends ServerMessageTypes>(type: T, data: ServerMessageHandlers[T]['data']): Promise<ServerMessageHandlers[T]['returns']> {
         const messageId = this.getNextMessageId();
 
         //Set up the response handler
-        const promise = new Promise((resolve, reject) => {
+        const promise = new Promise<ServerMessageHandlers[T]['returns']>((resolve, reject) => {
             const handler = ({data: {type, data, clientId, messageId: replyMessageId}}) => {
                 if(type === 'reply' && messageId === replyMessageId) {
                     this.worker.removeEventListener('message', handler)
@@ -63,7 +63,7 @@ export default class WorkerConnector implements Connector {
         this.worker.postMessage({type, data, clientId: 1, messageId});
 
         //Return the promise
-        return promise as ServerMessageHandlers[T]['returns'];//TODO is this right?
+        return promise;
     }
 
     getNextMessageId() {

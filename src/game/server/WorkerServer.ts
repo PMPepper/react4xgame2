@@ -18,7 +18,7 @@ export default class WorkerServer implements Connector {
 
     
     setClient: (client: Client) => void;
-    sendMessageToServer: <T extends ServerMessageTypes>(messageType: T, data: ServerMessageHandlers[T]['data']) => ServerMessageHandlers[T]['returns'];
+    sendMessageToServer: <T extends ServerMessageTypes>(messageType: T, data: ServerMessageHandlers[T]['data']) => Promise<ServerMessageHandlers[T]['returns']>;
 
 
     //Server comms methods
@@ -27,7 +27,7 @@ export default class WorkerServer implements Connector {
         global.postMessage({type, data});
     }
 
-    sendMessageToClient(connectionId: number, type, data, messageId = null) {
+    sendMessageToClient(connectionId: number, type, data, messageId?: number) {
         if(!(connectionId === 1)) {//This connector only supports a single player
             throw new Error('Invalid connectionId');
         }
@@ -66,12 +66,10 @@ export default class WorkerServer implements Connector {
     }
 
     //Recieving messages
-    onmessage = ({data: {type, data, clientId, messageId}}) => {
-        const response = this.server.onMessage(type, data, clientId) || Promise.resolve();
+    onmessage = async <T extends ServerMessageTypes>({data: {type, data, clientId, messageId}}: {data: {type: T, data: ServerMessageHandlers[T]['data'], clientId: number, messageId: number}}) => {
+        const result = await this.server.onMessage(type, data, clientId);
 
-        response.then((result) => {
-            this.sendMessageToClient(1, 'reply', result, messageId);
-        })
+        this.sendMessageToClient(1, 'reply', result, messageId);
     }
 }
 

@@ -14,7 +14,7 @@ import { ClientRole, ClientState, Connector, GameConfiguration } from "types/gam
 import { KeyOfType } from 'types/utils';
 import { EntityFaction } from 'types/game/shared/entities';
 
-type ServerMethods = KeyOfType<ServerComms, (data: any, clientId: number) => (void | Promise<any>)>;
+type ServerMethods = KeyOfType<ServerComms, (data: any, clientId: number) => any>;
 type ServerPrvateMethods = Extract<keyof ServerComms, `_${string}`>;
 export type ServerMessageTypes = Exclude<ServerMethods, ServerPrvateMethods>;
 
@@ -205,12 +205,9 @@ export default class ServerComms {
 
         //broadcast to players that state has updated
         this.connector.broadcastToClients('phaseChanged', this.server.phase);
-
-        //Report back to clients that game is ready
-        return Promise.resolve();
     }
 
-    connectClient({name}: {name: string}, clientId: number): Promise<GameConfiguration<false>> {
+    connectClient({name}: {name: string}, clientId: number): GameConfiguration<false> {
         if(this.server.phase !== 'CONNECTING') {
         throw new Error('Can only connect player while Server is in "connecting" phase');
         }
@@ -226,13 +223,13 @@ export default class ServerComms {
 
         //create a client
         //factions are the available factions (id: role hash), factionId is the actual faction they are connected as right now
-        this.clients[clientId] = {id: clientId, name, type: {name: 'local'}, ready: false, factions: {}, factionId: null, gameSpeed: 1, isPaused: false, /*gameTime: this.server.state.gameTime*/}//new ServerClient(clientId, name, 'local', false, {}, null, this.server.state.gameTime);
+        this.clients[clientId] = {id: clientId, name, type: {name: 'local'}, ready: false, factions: {}, factionId: null, gameSpeed: 1, isPaused: false}
 
         //Broadcast updated clients info
         this.connector.broadcastToClients('clientConnected', this.clients);
 
         //return game details to newly connected client
-        return Promise.resolve({
+        return {
             clients: this.clients,
             factions: this.server.state.factions as unknown as Record<number, EntityFaction<false>>,//serialisation will strip server only props
             minerals: this.server.state.minerals,
@@ -241,11 +238,11 @@ export default class ServerComms {
             research: this.server.state.research,
             researchAreas: this.server.state.researchAreas,
             technology: this.server.state.technology,
-        })
+        }
     }
 
     setClientSettings(
-        {name, factions, factionId, ready}: {name: string, factions: any, factionId: number, ready: boolean}, 
+        {name, factions, factionId, ready}: {name: string, factions?: Record<number, ClientRole>, factionId: number, ready: boolean}, 
         clientId: number
     ) {
         if(this.server.phase !== 'CONNECTING') {
@@ -261,7 +258,7 @@ export default class ServerComms {
 
         //TODO check that client settings are valid e.g. is connecting to valid faction(s) not already controlled by someone else
 
-        if(factions === null || isEmpty(factions)) {
+        if(!factions || isEmpty(factions)) {
             //joining as spectator for every faction
             factions = map(this.server.state.factions, () => 'SPECTATOR');
         } else {
@@ -290,9 +287,6 @@ export default class ServerComms {
 
         //broadcast updated state to all players
         this.connector.broadcastToClients('clientUpdated', this.clients);
-
-        //new settings applied successfully
-        return Promise.resolve(true);
     }
 
     startGame(data, clientId: number) {
@@ -315,11 +309,11 @@ export default class ServerComms {
             //Start the server update tick running
             this.server.startGameUpdate();
 
-            return Promise.resolve(true);
+            return true;
         }
 
         //Not all players are ready
-        return Promise.resolve(false);
+        return false;
     }
 
     //-in game
@@ -345,12 +339,12 @@ export default class ServerComms {
 
         const colony = this.server.state.createColony(systemBodyId, this.clients[clientId].factionId);
 
-        return Promise.resolve(colony.id);
+        return colony.id;
     }
 
     //Construction messages
     addBuildQueueItem(
-        {colonyId, constructionProjectId, total, assignToPopulationId, takeFromPopulationId}: {colonyId: number, constructionProjectId: number, total: number, assignToPopulationId: number, takeFromPopulationId: number},
+        {colonyId, constructionProjectId, total, assignToPopulationId, takeFromPopulationId}: {colonyId: number, constructionProjectId: number, total: number, assignToPopulationId: number, takeFromPopulationId?: number},
         clientId: number
     ) {
         this._checkPhase('RUNNING');
@@ -395,7 +389,7 @@ export default class ServerComms {
 
         this.server.state.modifiedEntity(colony.id, 'colony')
 
-        return Promise.resolve(newId);
+        return newId;
     }
 
     removeBuildQueueItem({colonyId, id}: {colonyId: number, id: number}, clientId: number) {
@@ -412,7 +406,7 @@ export default class ServerComms {
         const buildQueueItemIndex = colony.colony.buildQueue.findIndex(item => item.id === id);
 
         if(buildQueueItemIndex === -1) {
-        return Promise.resolve(false);
+            return false;
         }
 
         //everything is valid, remove build queue item
@@ -421,7 +415,7 @@ export default class ServerComms {
         this.server.state.modifiedEntity(colony.id, 'colony');
 
         //return new build queue
-        return Promise.resolve(colony.colony.buildQueue);
+        return colony.colony.buildQueue;
     }
 
   reorderBuildQueueItem({colonyId, id, newIndex}, clientId: number) {
@@ -447,11 +441,11 @@ export default class ServerComms {
     this.server.state.modifiedEntity(colony.id, 'colony');
 
     //return new build queue
-    return Promise.resolve(colony.colony.buildQueue);
+    return colony.colony.buildQueue;
   }
 
     updateBuildQueueItem(
-        {colonyId, id, total, assignToPopulationId, takeFromPopulationId}: {colonyId: number, id: number, total: number, assignToPopulationId: number, takeFromPopulationId: number}, 
+        {colonyId, id, total, assignToPopulationId, takeFromPopulationId}: {colonyId: number, id: number, total: number, assignToPopulationId: number, takeFromPopulationId?: number}, 
         clientId: number
     ) {
         this._checkPhase('RUNNING');
@@ -493,7 +487,7 @@ export default class ServerComms {
         this.server.state.modifiedEntity(colony.id, 'colony');
 
         //return new build queue
-        return Promise.resolve(colony.colony.buildQueue);
+        return colony.colony.buildQueue;
     }
 
 

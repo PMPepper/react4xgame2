@@ -6,9 +6,10 @@ import { Entity, EntityFaction } from "./entities";
 
 type ClientMessageType = string;//TODO list valid values
 
+//TODO separate out client and server side versions of Connector
 export interface Connector {
     setClient: (client: Client) => void;
-    sendMessageToServer: <T extends ServerMessageTypes>(messageType: T, data: ServerMessageHandlers[T]['data']) => ServerMessageHandlers[T]['returns'];
+    sendMessageToServer: <T extends ServerMessageTypes>(messageType: T, data: ServerMessageHandlers[T]['data']) => Promise<ServerMessageHandlers[T]['returns']>;
     broadcastToClients: (messageType: ClientMessageType, data: any) => any;//TODO better typing here
     sendMessageToClient: (connectionId: number, messageType: ClientMessageType, data: any) => any;//TODO better typing here
 }

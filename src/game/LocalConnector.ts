@@ -3,6 +3,7 @@ import Server from 'game/server/Server';
 import clone from 'helpers/app/fastSimpleClone';
 import { Connector } from 'types/game/shared/game';
 import Client from './Client';
+import { ServerMessageHandlers, ServerMessageTypes } from './server/ServerComms';
 
 
 export default class LocalConnector implements Connector {
@@ -18,10 +19,10 @@ export default class LocalConnector implements Connector {
     this.client = client;
   }
 
-  sendMessageToServer(messageType, data) {//server message type
-    const response = this.server.onMessage(messageType, data, 1);
+  async sendMessageToServer<T extends ServerMessageTypes>(type: T, data: ServerMessageHandlers[T]['data']): Promise<ServerMessageHandlers[T]['returns']> {
+    const response = await this.server.onMessage(type, data, 1);
     
-    return response ? response.then(clone) : undefined;
+    return Promise.resolve(response ? clone(response) : undefined);
   }
 
 

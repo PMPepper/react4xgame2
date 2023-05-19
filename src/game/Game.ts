@@ -13,7 +13,7 @@ export function startGame(gameDefinition: GameDefinition, client: Client) {
           //TODO need a UI to select if multiple faction Ids
           const factionId = client.allFactionIds[0];
 
-          return client.setClientSettings({[factionId]: 1}, factionId, true)
+          return client.setClientSettings({[factionId]: 'OWNER'}, factionId, true)
             .then(() => {
               console.log('[Game] client set settings');
 
