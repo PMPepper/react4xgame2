@@ -1,7 +1,7 @@
 import isElementHidden from './is-element-hidden';
 
 
-export default function isFocusable(elem, keyboardOnly = false) {
+export default function isFocusable(elem: HTMLElement, keyboardOnly: boolean = false): boolean {
   if(!elem || isElementHidden(elem)) {
     return false;
   }

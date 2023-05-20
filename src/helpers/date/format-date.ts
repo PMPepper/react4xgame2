@@ -1,10 +1,12 @@
 import defaultLocale from 'helpers/browser/user-locale';
 
-export default function formatDate(date, langCode, format = null) {
-  date = date instanceof Date ? date : new Date(date);
-  let options = null;
+type DateLike = Date | number | string;
+export type DateFormatType = Intl.DateTimeFormatOptions | 'long' | 'date' | 'shortDate' | 'datetime' | 'day' | 'dayOfMonth' | 'weekday' | 'month' | 'dateHourMin' | 'time'
 
-  if(typeof(format) === 'object') {
+export default function formatDate(date: DateLike, langCode?: Intl.LocalesArgument, format?: DateFormatType) {
+  let options: Intl.DateTimeFormatOptions | undefined;
+
+  if(typeof(format) !== 'string') {
     options = format;
   } else {
     switch(format) {
@@ -77,13 +79,10 @@ export default function formatDate(date, langCode, format = null) {
           minute: '2-digit'
         };
         break;
-      case null:
-        options = null;
-        break;
       default:
         throw new Error('formatDate:: invalid format: ' + format);
     }
   }
 
-  return date.toLocaleString(langCode || defaultLocale, options || undefined)
+  return (date instanceof Date ? date : new Date(date)).toLocaleString(langCode || defaultLocale, options)
 }
