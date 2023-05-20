@@ -1,5 +1,5 @@
 import Client from "game/Client";
-import { FACTION_CLIENT_TYPES } from "game/Consts";
+import { ALL_ORBIT_TYPES, FACTION_CLIENT_TYPES } from "game/Consts";
 import { ServerMessageHandlers, ServerMessageTypes } from "game/server/ServerComms";
 import { ConstructionProjectDefinition, ResearchDefinition, StructureDefinition, TechnologyDefinition } from "./definitions";
 import { Entity, EntityFaction } from "./entities";
@@ -65,6 +65,8 @@ export type ClientGameState = {
 
 
 export type CapabilityTypes = 'mining' | 'construction' | 'research';
+export type OrbitTypes = typeof ALL_ORBIT_TYPES[number];
+export type MovementTypes = OrbitTypes;//TODO add more
 
 export type MineralAvailablility = {quantity: number, initialQuantity: number, access: number, initialAccess: number};
 export type AvailableMinerals = Record<number, MineralAvailablility>;

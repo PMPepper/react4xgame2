@@ -6,12 +6,13 @@ import * as utils from './utils';
 
 import calculatePopulationWorkers from 'game/utils/calculatePopulationWorkers';
 import { AvailableMinerals, ClientState, FactionEntity } from 'types/game/shared/game';
-import { AllEntityTypes, Entity, EntityFaction, EntityTypes } from 'types/game/shared/entities';
+import { AllEntityTypes, Entity, EntityFaction, EntitySystemBody, EntityTypes } from 'types/game/shared/entities';
 import { isEntityOfType } from 'types/game/server/entities';
 import { ConstructionProjectDefinition, ResearchDefinition, StructureDefinition, SystemBodyDefinition, SystemBodyTypes, TechnologyDefinition } from 'types/game/shared/definitions';
 import { FacetColony, FacetMovement, FacetResearchGroup, Facets, isFacetType } from 'types/game/shared/facets';
 import { ENTITY_TYPES } from 'game/Consts';
 import { MapOmit } from 'types/utils';
+import { IMovementOrbit, isFacetMovementOrbit, isOrbitType } from 'types/game/shared/movement';
 
 //Consts
 const entityIdProps = new Set(ENTITY_TYPES.map(entityType => `${entityType}Id`));
@@ -126,8 +127,7 @@ export default class ServerState {
   }
 
   createSystemBody(systemId: number, bodyDefinition: SystemBodyDefinition, movement?: FacetMovement<true>, availableMinerals?: AvailableMinerals) {
-    const orbitingId = movement?.orbitingId ?? null;
-    const orbitingEntity = this.getEntityById(orbitingId, 'systemBody');
+    
 
     const body = this._newEntity('systemBody', {
       systemId,
@@ -151,33 +151,43 @@ export default class ServerState {
       availableMinerals
     });
 
-    //Add into children array
-    if(orbitingEntity) {
-      const insertBefore = orbitingEntity.systemBody.children.findIndex((childId) => {
-        const child = this.getEntityById(childId, 'systemBody');
+    let orbitingEntity: EntitySystemBody<true> | undefined;
 
-        //only works with orbits, but system bodies should always use orbits, right?
-        return child.movement.radius > movement.radius;
-      })
+    if(movement) {
+      if(!isFacetMovementOrbit(movement)) {
+        throw new Error('System bodies only support orbit movement types');
+      }
 
-      if(insertBefore === -1) {
-        orbitingEntity.systemBody.children.push(body.id);
+      orbitingEntity = this.getEntityById(movement.orbitingId, 'systemBody');
 
-        utils.setSystemBodyPosition(body.id, this.entities)
-      } else {
-        orbitingEntity.systemBody.children.splice(insertBefore, null, body.id);
+      //Add into children array
+      if(orbitingEntity) {
+        const insertBefore = orbitingEntity.systemBody.children.findIndex((childId) => {
+          const child = this.getEntityById(childId, 'systemBody');
 
-        //update position of siblings after this one, and their children
-        orbitingEntity.systemBody.children
-          .slice(insertBefore)
-          .forEach((systemBodyId) => {
-            utils.setSystemBodyPosition(systemBodyId, this.entities);
-
-            this.modifiedEntity(systemBodyId, 'systemBody');
+          //Where in the order of sibling system bodies does this entity live?
+          return utils.isOrbitLargerThan(child.movement as IMovementOrbit<true>, movement);
         })
+
+        if(insertBefore === -1) {
+          orbitingEntity.systemBody.children.push(body.id);
+
+          utils.setSystemBodyPosition(body.id, this.entities)
+        } else {
+          orbitingEntity.systemBody.children.splice(insertBefore, null, body.id);
+
+          //update position of siblings after this one, and their children
+          orbitingEntity.systemBody.children
+            .slice(insertBefore)
+            .forEach((systemBodyId) => {
+              utils.setSystemBodyPosition(systemBodyId, this.entities);
+
+              this.modifiedEntity(systemBodyId, 'systemBody');
+          })
+        }
       }
     }
-    
+
     //register position as 'hidden' getter
     Object.defineProperty(body, "position", {
       enumerable: false,

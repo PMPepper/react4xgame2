@@ -1,12 +1,13 @@
 import { isEntityOfType } from "types/game/server/entities";
 import { Entity } from "types/game/shared/entities";
+import { FacetMovementOrbitRegular, IMovementOrbit } from "types/game/shared/movement";
 
 //will cascade to all descendants
 export function setSystemBodyPosition(systemBodyId:number, entities: Record<number, Entity>) {
     const systemBody = entities[systemBodyId];
 
     if(isEntityOfType(systemBody, 'systemBody')) {
-        const parent = entities[systemBody?.movement?.orbitingId]
+        const parent = entities[(systemBody?.movement as IMovementOrbit<true>)?.orbitingId]
 
         if(!parent) {
             systemBody.systemBody.position = [];//doesn't orbit anything
@@ -30,3 +31,16 @@ export function setSystemBodyPosition(systemBodyId:number, entities: Record<numb
     
 }
 
+//returns true if orbitA is 'larger' than orbitB. Larger = highest maximum value
+export function isOrbitLargerThan(orbitA: IMovementOrbit<true>, orbitB: IMovementOrbit<true>): boolean {
+    return getOrbitMaxRadius(orbitA) > getOrbitMaxRadius(orbitB);
+}
+
+export function getOrbitMaxRadius(orbit: IMovementOrbit<true>) {
+    switch(orbit.type) {
+        case 'orbitRegular':
+            return (orbit as FacetMovementOrbitRegular<true>).radius;
+        default:
+            throw new Error(`Unknown orbit type: ${orbit.type}`);
+    }
+}

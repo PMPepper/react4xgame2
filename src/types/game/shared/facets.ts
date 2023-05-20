@@ -1,7 +1,7 @@
 import { ALL_FACETS } from "game/Consts";
 import { Minerals, ResearchDefinition, SystemBodyTypes, TechnologyDefinition } from "./definitions";
-import { CapabilityTypes, AvailableMinerals, BuildQueueItem } from "./game";
-import { Combine } from "../../utils";
+import { CapabilityTypes, AvailableMinerals, BuildQueueItem, OrbitTypes, MovementTypes } from "./game";
+import { Combine } from "types/utils";
 
 export type Facets = typeof ALL_FACETS[number];
 
@@ -28,11 +28,7 @@ export type FacetMass<TServer extends boolean> = Combine<Facet<TServer>, {
 }>;
 
 export type FacetMovement<TServer extends boolean> = Combine<Facet<TServer>, {
-    type: 'orbitRegular',
-    radius: number;
-    offset: number;
-    orbitingId: number;
-    period: number;
+    type: MovementTypes,
 }>;
 
 export type FacetRender<TServer extends boolean> = Combine<Facet<TServer>, {
