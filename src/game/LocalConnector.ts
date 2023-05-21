@@ -1,12 +1,12 @@
 import Server from 'game/server/Server';
 
 import clone from 'helpers/app/fastSimpleClone';
-import { Connector } from 'types/game/shared/game';
+import { ClientToServerConnector, ServerToClientsConnector } from 'types/game/shared/game';
 import Client from './Client';
 import { ServerMessageHandlers, ServerMessageTypes } from './server/ServerComms';
 
 
-export default class LocalConnector implements Connector {
+export default class LocalConnector implements ClientToServerConnector, ServerToClientsConnector {
   server: Server;
   client?: Client;
 
@@ -27,20 +27,21 @@ export default class LocalConnector implements Connector {
 
 
   //Server comms methods
-  broadcastToClients(messageType: any, data: any): any {//TODO type
+  broadcastToClients(messageType, data) {
     //c/onsole.log('[LC] broadcastToClients: ', messageType, data);
 
-    return this.client?.onMessageFromServer(messageType, clone(data));
+    //Will only ever be one client
+    this.client?.onMessageFromServer(messageType, clone(data));
   }
 
-  sendMessageToClient(connectionId: number, messageType: any, data: any) {//TODO type this
+  sendMessageToClient(connectionId, messageType, data) {
     if(!(connectionId === 1)) {//This connector only supports a single player
       throw new Error('Invalid connectionId');
     }
 
     //c/onsole.log('[LC] sendMessageToClient: ', messageType, data);
 
-    return this.client?.onMessageFromServer(messageType, clone(data));
+    return Promise.resolve(this.client?.onMessageFromServer(messageType, clone(data)));
 
   }
 }

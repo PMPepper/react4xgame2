@@ -6,7 +6,7 @@ import colonyFactory from './entityProcessorFactories/colony';
 import mineralDepletionFactory from './entityProcessorFactories/mineralDepletion';
 
 import ServerComms, { ServerMessageHandlers, ServerMessageTypes } from './ServerComms';
-import { Connector } from 'types/game/shared/game';
+import { ServerToClientsConnector } from 'types/game/shared/game';
 import ServerState from './ServerState';
 
 //Constants
@@ -38,7 +38,7 @@ export default class Server {
   //Array of arrays, second level arrays contain processor that can run in parallel
   entityProcessors:EntityProcessor[][] = [[populationFactory], [colonyFactory], [mineralDepletionFactory]];
 
-  constructor(connector: Connector) {
+  constructor(connector: ServerToClientsConnector) {
     this.comms = new ServerComms(this, connector);
   }
 

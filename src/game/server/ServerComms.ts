@@ -8,11 +8,11 @@ import forEach from 'helpers/object/forEach';
 import Server, { ServerPhase } from "./Server";
 import createWorldFromDefinition from './createWorldFromDefinition';
 
-import { ClientRole, ClientState, Connector, GameConfiguration } from "types/game/shared/game";
-import { KeyOfType } from 'types/utils';
+import { ClientRole, ClientState, ServerToClientsConnector, GameConfiguration } from "types/game/shared/game";
+import { KeysWithValsOfType } from 'types/utils';
 import { EntityFaction } from 'types/game/shared/entities';
 
-type ServerMethods = KeyOfType<ServerComms, (data: any, clientId: number) => any>;
+type ServerMethods = KeysWithValsOfType<ServerComms, (data: any, clientId: number) => any>;
 type ServerPrvateMethods = Extract<keyof ServerComms, `_${string}`>;
 export type ServerMessageTypes = Exclude<ServerMethods, ServerPrvateMethods>;
 
@@ -27,12 +27,12 @@ export type ServerMessageHandlers = {
 
 export default class ServerComms {
     server: Server;
-    connector: Connector;
+    connector: ServerToClientsConnector;
 
     clients: Record<number, ClientState>;//a client is a player/ai connected to a faction by a connector method with a permissions e.g. Bob spectating Martians on clientId 1
     clientLastUpdatedTime: Record<number, number>;
 
-    constructor(server: Server, connector: Connector) {
+    constructor(server: Server, connector: ServerToClientsConnector) {
         this.server = server;
         this.connector = connector;
     }
@@ -207,11 +207,11 @@ export default class ServerComms {
 
     connectClient({name}: {name: string}, clientId: number): GameConfiguration<false> {
         if(this.server.phase !== 'CONNECTING') {
-        throw new Error('Can only connect player while Server is in "connecting" phase');
+            throw new Error('Can only connect player while Server is in "connecting" phase');
         }
 
         if(this.clients[clientId]) {
-        throw new Error('Each client can only connect once');
+            throw new Error('Each client can only connect once');
         }
 
         //check client name is valid

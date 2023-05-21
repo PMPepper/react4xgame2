@@ -3,15 +3,29 @@ import {set as setSelectedSystemId} from 'redux/reducers/selectedSystemId';
 import find from 'helpers/object/find';
 import { fromState, mergeState, calculateSystemBodyPositions } from './ClientState';
 import { Store } from 'redux';
-import { Connector, GameConfiguration, ClientGameState, ClientRole } from 'types/game/shared/game';
+import { GameConfiguration, ClientGameState, ClientRole, ClientToServerConnector, ClientState } from 'types/game/shared/game';
 import { GameDefinition } from 'types/game/shared/definitions';
 import { Entity } from 'types/game/client/entities';
+import { PickKeysMatching } from 'types/utils';
+import { ServerPhase } from 'game/server/Server';
 
 
+//Types
+type RawClientMessageHandlers = PickKeysMatching<Client, `message_${string}`>;
+type ExtractMessageName<Message extends string | number | symbol> = Message extends `message_${infer Name}` ? Name : never;
+
+export type ClientMessageHandlers = {
+  [Property in keyof RawClientMessageHandlers as ExtractMessageName<Property>]: RawClientMessageHandlers[Property]
+}
+
+export type ClientMessageType = keyof ClientMessageHandlers;
+
+
+//The class
 export default class Client {
   name: string;
   store: Store
-  connector: Connector;
+  connector: ClientToServerConnector;
 
   systemId?: number;
 
@@ -20,7 +34,7 @@ export default class Client {
   _gameState?: ClientGameState;
   _updateStateCallback?: (gameState: ClientGameState) => void;
 
-  constructor(name: string, store: Store, connector: Connector) {
+  constructor(name: string, store: Store, connector: ClientToServerConnector) {
     this.name = name;
     this.store = store;
 
@@ -163,6 +177,18 @@ export default class Client {
     this.onGameStateUpdate();
   }
 
+  message_phaseChanged(newPhase: ServerPhase) {
+    //TODO do something with this?
+  }
+
+  message_clientConnected(newClients: Record<number, ClientState>) {
+    //TODO do something with this?
+  }
+
+  message_clientUpdated(newClients: Record<number, ClientState>) {
+    //TODO do something with this?
+  }
+
   //////////////////
   // UI -> Client //
   //////////////////
@@ -184,15 +210,17 @@ export default class Client {
   ////////////////////////////
   // Internal comms methods //
   ////////////////////////////
-  onMessageFromServer(messageType: any, data: any): any {//TODO correctly type this
+  onMessageFromServer<TMessageType extends ClientMessageType>(messageType: TMessageType, data: Parameters<ClientMessageHandlers[TMessageType]>[0]): ReturnType<ClientMessageHandlers[TMessageType]> {//TODO correctly type this
     //c/onsole.log('[CLIENT] on message from server: ', messageType, data);
 
     const name = `message_${messageType}`;
 
-    if(this[(name as keyof Client)] as any) {
-      return (this[name as keyof Client] as any)(data);
+    if(this[name]) {
+      return (this[name])(data);
     }
 
     console.log('Unknown message from server: ', messageType, data);
   }
 }
+
+

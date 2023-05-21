@@ -1,73 +1,44 @@
 //The client side part of the WorkerConnector
 
 import Performance from "classes/Performance";
-import { Connector } from "types/game/shared/game";
+import { ClientToServerConnector, ServerToClientsConnector } from "types/game/shared/game";
 import { ServerMessageHandlers, ServerMessageTypes } from "./server/ServerComms";
+//import AsyncConnection from "AsyncConnection";
+import getAsyncConnection, {AsyncConnectionType} from "AsyncConnection/cls"
+import WorkerTransport from "AsyncConnection/WorkerTransport";
+import Client from "./Client";
 
+type WorkerServerRemoteMethods = {
+    //TODO generic types here?
+    send: <T extends ServerMessageTypes>(type: T, data: ServerMessageHandlers[T]['data']) => ServerMessageHandlers[T]['returns'];
+}
 
-export default class WorkerConnector implements Connector {
-    worker = null;
-    client = null;
+type LocalMethods = {
+    send: WorkerConnector['onmessage']
+};
 
-    _messageId = 0;
-  
+export default class WorkerConnector implements ClientToServerConnector {
+    client: Client | undefined;
+    asyncConnection: AsyncConnectionType<WorkerServerRemoteMethods>//Awaited<ReturnType<typeof AsyncConnection<WorkerServer, {send: WorkerConnector['onmessage']}>>> | undefined;
+
     constructor() {
-      this.worker = new Worker(new URL('./server/worker.ts', import.meta.url));
+        const transport = new WorkerTransport(new Worker(new URL('./server/worker.ts', import.meta.url)));
 
-      this.worker.addEventListener('message', this.onmessage)
+        this.asyncConnection = getAsyncConnection<WorkerServerRemoteMethods, LocalMethods>(transport, {send: this.onmessage});
     }
-    broadcastToClients: (messageType: string, data: any) => any;
-    sendMessageToClient: (connectionId: number, messageType: string, data: any) => any;
 
-    onmessage = ({data: {type, data, clientId, messageId, performance}}) => {
-        if(type === 'reply') {
-            return;//ignore replies
-        }
-        if(type === 'updatingGame') {
-            Performance.mark('updatingGame :: start decoding')
-        }
-
-        const decodedData = fromBinary(data);
-
-        if(type === 'updatingGame') {
-            Performance.measure('updatingGame :: decode data', 'updatingGame :: start decoding')
-
-            Object.entries(performance).forEach(([name, durations]) => Performance.onData(name, durations));
-        }
-
-        this.client.onMessageFromServer(type, decodedData);
+    onmessage = (type, data) => {
+        this.client?.onMessageFromServer(type, data);
     }
 
     //client comms methods
-    setClient(client) {
+    setClient(client: Client) {
         this.client = client;
     }
 
     //TODO I think I need to make this always return a promise, right? even if the actual return type is void
     async sendMessageToServer<T extends ServerMessageTypes>(type: T, data: ServerMessageHandlers[T]['data']): Promise<ServerMessageHandlers[T]['returns']> {
-        const messageId = this.getNextMessageId();
-
-        //Set up the response handler
-        const promise = new Promise<ServerMessageHandlers[T]['returns']>((resolve, reject) => {
-            const handler = ({data: {type, data, clientId, messageId: replyMessageId}}) => {
-                if(type === 'reply' && messageId === replyMessageId) {
-                    this.worker.removeEventListener('message', handler)
-                    resolve(fromBinary(data));
-                }
-            };
-
-            this.worker.addEventListener('message', handler)
-        });
-
-        //actually send the message
-        this.worker.postMessage({type, data, clientId: 1, messageId});
-
-        //Return the promise
-        return promise;
-    }
-
-    getNextMessageId() {
-        return `client-${this._messageId++}`;
+        return this.asyncConnection?.call.send(type, data) as Promise<ServerMessageHandlers[T]['returns']>;
     }
 }
 

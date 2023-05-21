@@ -1,76 +1,101 @@
 //TODO better types
 
 //This is the worker-side part of the worker
-import Performance from 'classes/Performance';
-import Client from 'game/Client';
-import { Connector } from 'types/game/shared/game';
+//import Performance from 'classes/Performance';
+import { ClientMessageHandlers, ClientMessageType } from 'game/Client';
+import { ServerToClientsConnector } from 'types/game/shared/game';
 import Server from './Server'
-import { ServerMessageTypes, ServerMessageHandlers } from './ServerComms';
+import getAsyncConnection, {AsyncConnectionType} from "AsyncConnection/cls"
+import WorkerTransport from 'AsyncConnection/WorkerTransport';
+import WorkerConnector from 'game/WorkerConnector';
+import { ServerMessageHandlers, ServerMessageTypes } from './ServerComms';
 
 
-export default class WorkerServer implements Connector {
+type LocalMethods = {
+    //TODO generic types here?
+    send: <T extends ServerMessageTypes>(type: T, data: ServerMessageHandlers[T]['data']) => ServerMessageHandlers[T]['returns'];
+}
+
+type RemoteMethods = {
+    send: WorkerConnector['onmessage']
+};
+
+export default class WorkerServer implements ServerToClientsConnector {
 
     server: Server;
+    asyncConnection: AsyncConnectionType<RemoteMethods>;
 
-    constructor() {
+    constructor(worker: Worker) {
+        const transport = new WorkerTransport(worker);
+
+        this.asyncConnection = getAsyncConnection<RemoteMethods, LocalMethods>(transport, {send: this.onmessage})
+
         this.server = new Server(this);
     }
 
-    
-    setClient: (client: Client) => void;
-    sendMessageToServer: <T extends ServerMessageTypes>(messageType: T, data: ServerMessageHandlers[T]['data']) => Promise<ServerMessageHandlers[T]['returns']>;
+    onmessage = <T extends ServerMessageTypes>(type: T, data: ServerMessageHandlers[T]['data']) => {
+        return this.server.onMessage(type, data, 1);//Hardcode clientId to 1 here, as will only ever be one client with this connector
 
-
-    //Server comms methods
-    broadcastToClients(type, data) {
-        //c/onsole.log('[LC] broadcastToClients: ', messageType, data);
-        global.postMessage({type, data});
     }
 
-    sendMessageToClient(connectionId: number, type, data, messageId?: number) {
-        if(!(connectionId === 1)) {//This connector only supports a single player
-            throw new Error('Invalid connectionId');
-        }
-
-        let entries = null;
-
-        if(type === "updatingGame") {
-            Performance.mark("server :: updatingGame :: start toBinary");
-        }
-        const binaryData = toBinary(data);
-
-        if(type === "updatingGame") {
-            Performance.measure("server :: updatingGame :: toBinary", "server :: updatingGame :: start toBinary");
-
-            entries = Performance.getEntries().reduce((output, {name, duration}) => {
-                if(!output[name]) {
-                    output[name] = [];
-                }
-
-                output[name].push(duration);
-
-                return output;
-            }, {});
-        }
-
-        const dataToSend = {type, data: binaryData, messageId, performance: undefined};
-
-        if(type === "updatingGame") {
-            dataToSend.performance = entries;
-        }
-
-        binaryData instanceof ArrayBuffer ? 
-            global.postMessage(dataToSend, [binaryData])
-            :
-            global.postMessage(dataToSend);
+    broadcastToClients<T extends ClientMessageType>(messageType: T, data: Parameters<ClientMessageHandlers[T]>[0]) {
+        this.asyncConnection.call.send(messageType, data);
     }
 
-    //Recieving messages
-    onmessage = async <T extends ServerMessageTypes>({data: {type, data, clientId, messageId}}: {data: {type: T, data: ServerMessageHandlers[T]['data'], clientId: number, messageId: number}}) => {
-        const result = await this.server.onMessage(type, data, clientId);
+    sendMessageToClient<T extends ClientMessageType>(connectionId: number, messageType: T, data: Parameters<ClientMessageHandlers[T]>[0]): Promise<ReturnType<ClientMessageHandlers[T]>> {
+        return this.asyncConnection.call.send(messageType, data) as Promise<ReturnType<ClientMessageHandlers[T]>>;
+    };
 
-        this.sendMessageToClient(1, 'reply', result, messageId);
-    }
+    // //Server comms methods
+    // broadcastToClients(type, data) {
+    //     //c/onsole.log('[LC] broadcastToClients: ', messageType, data);
+    //     //global.postMessage({type, data});
+    // }
+
+    // sendMessageToClient(connectionId, type, data) {
+    //     // if(!(connectionId === 1)) {//This connector only supports a single player
+    //     //     throw new Error('Invalid connectionId');
+    //     // }
+
+    //     // // let entries = null;
+
+    //     // // if(type === "updatingGame") {
+    //     // //     Performance.mark("server :: updatingGame :: start toBinary");
+    //     // // }
+    //     // const binaryData = toBinary(data);
+
+    //     // // if(type === "updatingGame") {
+    //     // //     Performance.measure("server :: updatingGame :: toBinary", "server :: updatingGame :: start toBinary");
+
+    //     // //     entries = Performance.getEntries().reduce((output, {name, duration}) => {
+    //     // //         if(!output[name]) {
+    //     // //             output[name] = [];
+    //     // //         }
+
+    //     // //         output[name].push(duration);
+
+    //     // //         return output;
+    //     // //     }, {});
+    //     // // }
+
+    //     // const dataToSend = {type, data: binaryData, performance: undefined};
+
+    //     // // if(type === "updatingGame") {
+    //     // //     dataToSend.performance = entries;
+    //     // // }
+
+    //     // binaryData instanceof ArrayBuffer ? 
+    //     //     global.postMessage(dataToSend, [binaryData])
+    //     //     :
+    //     //     global.postMessage(dataToSend);
+    // }
+
+    // // //Recieving messages
+    // // onmessage = async <T extends ServerMessageTypes>({data: {type, data, clientId, messageId}}: {data: {type: T, data: ServerMessageHandlers[T]['data'], clientId: number, messageId: number}}) => {
+    // //     const result = await this.server.onMessage(type, data, clientId);
+
+    // //     this.sendMessageToClient(1, 'reply', result, messageId);
+    // // }
 }
 
 const enc = new TextEncoder();

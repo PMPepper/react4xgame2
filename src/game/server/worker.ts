@@ -1,5 +1,5 @@
 import WorkerServer from './WorkerServer';
 
-const workerServer = new WorkerServer();
+const workerServer = new WorkerServer(globalThis as unknown as Worker);
 
-global.onmessage = workerServer.onmessage;
+//global.onmessage

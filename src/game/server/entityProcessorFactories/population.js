@@ -27,7 +27,7 @@ export default {
     //now caclulate worker efficiency, etc
     calculatePopulationProductionCapabilites(population, species, systemBody, colony, technologyModifiers, gameConfig.structures)
 
-    console.log('population: ', init, colony, population);
+    //console.log('population: ', init, colony, population);
 
     return ['population'];
   }
