@@ -11,24 +11,23 @@ export interface PromiseResponse<T> {
     resolve: PromiseResolve<T>;
 }
 
-//Is there any real point in AsyncTransport having the RemoteMethods generic parameter?
-export interface AsyncTransport<RemoteMethods extends Methods> {
+export interface AsyncTransport {
     getConnectionStatus(): AsyncConnectionStatus;
     readonly onConnected: Promise<void>;
-    readonly onInited: Promise<(keyof RemoteMethods)[]>;
+    readonly onInited: Promise<string[]>;
 
     onRemoteError?: (payload: ErrorObject, messageId: number) => void;
     onCall?: (methodName: string, payload: any, messageId: number) => void;
-    onReturn?: <T extends keyof RemoteMethods>(methodName: T, payload: ReturnType<RemoteMethods[T]>, messageId: number) => void;
+    onReturn?: (methodName: string, payload: any, messageId: number) => void;
 
     //init has no methodName or id, all others do
     sendInitMessage(payload: string[]): void;
 
     sendErrorMessage(payload: ErrorObject, messageId: number): void;
 
-    sendCallMessage<T extends keyof RemoteMethods>(
-        methodName: T, 
-        payload: Parameters<RemoteMethods[T]>, 
+    sendCallMessage(
+        methodName: string, 
+        payload: any, 
         messageId: number
     ): void;
 

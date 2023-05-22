@@ -12,16 +12,16 @@ type Message = {
 
 
 
-export default class WorkerTransport<RemoteMethods extends Methods> implements AsyncTransport<RemoteMethods> {
+export default class WorkerTransport<RemoteMethods extends Methods> implements AsyncTransport {
     readonly worker: Worker;
     readonly onConnected: Promise<void>;
-    readonly onInited: Promise<(keyof RemoteMethods)[]>;
+    readonly onInited: Promise<string[]>;
 
     onRemoteError?: (payload: ErrorObject, messageId: number) => void;
     onCall?: (methodName: string, payload: any, messageId: number) => void;
     onReturn?: <T extends keyof RemoteMethods>(methodName: T, payload: ReturnType<RemoteMethods[T]>, messageId: number) => void;
 
-    _inited?: PromiseResponse<(keyof RemoteMethods)[]>
+    _inited?: PromiseResponse<string[]>
     
 
     constructor(worker:Worker) {//inside a worker, this is 'globalThis'
@@ -31,7 +31,7 @@ export default class WorkerTransport<RemoteMethods extends Methods> implements A
 
         this.onConnected = Promise.resolve();//workers are always connected
 
-        this.onInited = new Promise<(keyof RemoteMethods)[]>((resolve, reject) => {
+        this.onInited = new Promise<string[]>((resolve, reject) => {
             this._inited = {resolve, reject};
         });
     }

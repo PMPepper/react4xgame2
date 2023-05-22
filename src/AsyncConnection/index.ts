@@ -1,6 +1,5 @@
-//TODO better use of promises
+//TODO better error handling
 //TODO worker transferable support
-//TODO is there any point in the LocalMethods generic type?
 
 import {serializeError, deserializeError} from 'serialize-error';
 import { AnyFunc, AsyncTransport, Methods, PromiseResponse } from "./types";
@@ -11,7 +10,6 @@ type Promised<T extends AnyFunc> = (...params: Parameters<T>) => Promise<Awaited
 type AllPromised<T extends {}> = {
     [K in keyof T]: T[K] extends AnyFunc ? Promised<T[K]> : never;
 }
-
 
 
 export type AsyncConnectionType<RemoteMethods extends Methods> = {
@@ -28,7 +26,7 @@ export default class AsyncConnection<RemoteMethods extends Methods> implements A
     //Internal
     inited: boolean = false;
     idCount: number = 0;
-    transport: AsyncTransport<RemoteMethods>;
+    transport: AsyncTransport;
 
     //the methods the other end of the connection expose for us - we get this from the initialisation message
     remoteMethodNames: Set<keyof RemoteMethods>;
@@ -37,7 +35,7 @@ export default class AsyncConnection<RemoteMethods extends Methods> implements A
     replyHandlers: Record<number, PromiseResponse<any>>;
     
 
-    constructor(transport: AsyncTransport<RemoteMethods>, localMethods?: Methods) {
+    constructor(transport: AsyncTransport, localMethods?: Methods) {
         this.transport = transport;
         this.remoteMethodNames = new Set<keyof RemoteMethods>();
         this.replyHandlers = {};
@@ -46,10 +44,6 @@ export default class AsyncConnection<RemoteMethods extends Methods> implements A
 
         this.call = new Proxy<any>({}, {
             get(oTarget, sKey) {
-                //Not sure why I need this (what is trying to access 'then')?
-                //Maybe something to do with how 'async/await' is implemented?
-                //if(sKey === 'then' && !isRemoteMethod(sKey)) {return undefined}
-    
                 return (...args) =>
                     new Promise(async (resolve, reject) => {
                         await self.isReady;
@@ -213,7 +207,7 @@ export default class AsyncConnection<RemoteMethods extends Methods> implements A
         return new Promise((resolve, reject) => {
             this.replyHandlers[id] = {resolve, reject};
 
-            this.transport.sendCallMessage(methodName, payload, id);
+            this.transport.sendCallMessage(methodName as string, payload, id);
         });
     }
 

@@ -12,7 +12,7 @@ export default async function doTest() {
 
     //WebSocket test/example
     const socket = new WebSocket('ws://localhost:8081');
-    const transport = new WebSocketTransport<RemoteMethods>(socket);
+    const transport = new WebSocketTransport(socket);
 
     const exposeMethods = {
         shout: (message: string) => console.log(message.toUpperCase()+'!')

@@ -1,7 +1,4 @@
-//TODO better types
-
 //This is the worker-side part of the worker
-//import Performance from 'classes/Performance';
 import { ClientMessageHandlers, ClientMessageType } from 'game/Client';
 import { ServerToClientsConnector } from 'types/game/shared/game';
 import Server from './Server'

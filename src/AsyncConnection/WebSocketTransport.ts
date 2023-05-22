@@ -1,5 +1,3 @@
-//Change onInit() to onInited promise, and 
-
 import { ErrorObject } from "serialize-error";
 import { JSONCodec } from "./JSONCodec";
 import { AsyncConnectionStatus, AsyncTransport, Codec, Methods, PromiseResponse } from "./types";
@@ -17,26 +15,24 @@ function log(...message: any) {
     console.log('[WebSocketTransport] ', ...message)
 }
 
-export default class WebSocketTransport<
-    RemoteMethods extends Methods
-> implements AsyncTransport<RemoteMethods> {
+export default class WebSocketTransport implements AsyncTransport {
     readonly socket: WebSocket;
     readonly codec: Codec<Message, string>;
-    _inited: PromiseResponse<(keyof RemoteMethods)[]>;
+    _inited: PromiseResponse<string[]>;
     _socketOpen: PromiseResponse<void>;
 
     readonly onConnected: Promise<void>;
-    readonly onInited: Promise<(keyof RemoteMethods)[]>;
+    readonly onInited: Promise<string[]>;
 
     onRemoteError?: (payload: ErrorObject, messageId: number) => void;
     onCall?: (methodName: string, payload: any, messageId: number) => void;
-    onReturn?: <T extends keyof RemoteMethods>(methodName: T, payload: ReturnType<RemoteMethods[T]>, messageId: number) => void;
+    onReturn?: (methodName: string, payload: any, messageId: number) => void;
 
     constructor(socket: WebSocket, codec: Codec<any, string> = defaultCodec) {
         this.socket = socket;
         this.codec = codec;
 
-        this.onInited = new Promise<(keyof RemoteMethods)[]>((resolve, reject) => {
+        this.onInited = new Promise<string[]>((resolve, reject) => {
             this._inited = {resolve, reject};
         });
 
@@ -138,7 +134,7 @@ export default class WebSocketTransport<
         })
     }
 
-    async sendCallMessage<T extends keyof RemoteMethods>(methodName: T, payload: Parameters<RemoteMethods[T]>, messageId: number): Promise<void> {
+    async sendCallMessage(methodName: string, payload: any, messageId: number): Promise<void> {
        return  this.sendMessage({
             type: 'call',
             methodName: methodName as string,
