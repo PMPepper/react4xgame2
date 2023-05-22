@@ -20,7 +20,7 @@ export default async function doTest() {
 
     
     try {
-        const connector = new AsyncConnection<RemoteMethods, typeof exposeMethods>(transport, exposeMethods);
+        const connector = new AsyncConnection<RemoteMethods>(transport, exposeMethods);
         console.log('awaiting connection...');
         await connector.isReady
         console.log('...connection established');

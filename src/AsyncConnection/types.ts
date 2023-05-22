@@ -11,7 +11,7 @@ export interface PromiseResponse<T> {
     resolve: PromiseResolve<T>;
 }
 
-
+//Is there any real point in AsyncTransport having the RemoteMethods generic parameter?
 export interface AsyncTransport<RemoteMethods extends Methods> {
     getConnectionStatus(): AsyncConnectionStatus;
     readonly onConnected: Promise<void>;

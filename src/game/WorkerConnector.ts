@@ -1,9 +1,8 @@
 //The client side part of the WorkerConnector
 
 import Performance from "classes/Performance";
-import { ClientToServerConnector, ServerToClientsConnector } from "types/game/shared/game";
+import { ClientToServerConnector } from "types/game/shared/game";
 import { ServerMessageHandlers, ServerMessageTypes } from "./server/ServerComms";
-//import AsyncConnection from "AsyncConnection";
 import AsyncConnection, {AsyncConnectionType} from "AsyncConnection"
 import WorkerTransport from "AsyncConnection/WorkerTransport";
 import Client from "./Client";
@@ -13,18 +12,15 @@ type WorkerServerRemoteMethods = {
     send: <T extends ServerMessageTypes>(type: T, data: ServerMessageHandlers[T]['data']) => ServerMessageHandlers[T]['returns'];
 }
 
-type LocalMethods = {
-    send: WorkerConnector['onmessage']
-};
-
 export default class WorkerConnector implements ClientToServerConnector {
     client: Client | undefined;
-    asyncConnection: AsyncConnectionType<WorkerServerRemoteMethods>//Awaited<ReturnType<typeof AsyncConnection<WorkerServer, {send: WorkerConnector['onmessage']}>>> | undefined;
+    asyncConnection: AsyncConnectionType<WorkerServerRemoteMethods>
 
     constructor() {
+        //TODO re-instate binary encoding and use transferable?
         const transport = new WorkerTransport<WorkerServerRemoteMethods>(new Worker(new URL('./server/worker.ts', import.meta.url)));
 
-        this.asyncConnection = new AsyncConnection<WorkerServerRemoteMethods, LocalMethods>(transport, {send: this.onmessage});
+        this.asyncConnection = new AsyncConnection<WorkerServerRemoteMethods>(transport, {send: this.onmessage});
     }
 
     onmessage = (type, data) => {
@@ -36,7 +32,6 @@ export default class WorkerConnector implements ClientToServerConnector {
         this.client = client;
     }
 
-    //TODO I think I need to make this always return a promise, right? even if the actual return type is void
     async sendMessageToServer<T extends ServerMessageTypes>(type: T, data: ServerMessageHandlers[T]['data']): Promise<ServerMessageHandlers[T]['returns']> {
         return this.asyncConnection?.call.send(type, data) as Promise<ServerMessageHandlers[T]['returns']>;
     }

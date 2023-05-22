@@ -49,7 +49,7 @@ polyfills.then(() => {
 
   //connect();
 
-  false && doTest();
+  true && doTest();
 
 
   GameEngine.startGame(baseGameDefinition, new Client('local', store, connector)).then((client) => {

@@ -11,11 +11,6 @@ import WorkerConnector from 'game/WorkerConnector';
 import { ServerMessageHandlers, ServerMessageTypes } from './ServerComms';
 
 
-type LocalMethods = {
-    //TODO generic types here?
-    send: <T extends ServerMessageTypes>(type: T, data: ServerMessageHandlers[T]['data']) => ServerMessageHandlers[T]['returns'];
-}
-
 type RemoteMethods = {
     send: WorkerConnector['onmessage']
 };
@@ -26,9 +21,10 @@ export default class WorkerServer implements ServerToClientsConnector {
     asyncConnection: AsyncConnectionType<RemoteMethods>;
 
     constructor(worker: Worker) {
+        //TODO re-instate binary encoding and use transferable?
         const transport = new WorkerTransport<RemoteMethods>(worker);
 
-        this.asyncConnection = new AsyncConnection<RemoteMethods, LocalMethods>(transport, {send: this.onmessage})
+        this.asyncConnection = new AsyncConnection<RemoteMethods>(transport, {send: this.onmessage})
 
         this.server = new Server(this);
     }
@@ -45,12 +41,6 @@ export default class WorkerServer implements ServerToClientsConnector {
     sendMessageToClient<T extends ClientMessageType>(connectionId: number, messageType: T, data: Parameters<ClientMessageHandlers[T]>[0]): Promise<ReturnType<ClientMessageHandlers[T]>> {
         return this.asyncConnection.call.send(messageType, data) as Promise<ReturnType<ClientMessageHandlers[T]>>;
     };
-
-    // //Server comms methods
-    // broadcastToClients(type, data) {
-    //     //c/onsole.log('[LC] broadcastToClients: ', messageType, data);
-    //     //global.postMessage({type, data});
-    // }
 
     // sendMessageToClient(connectionId, type, data) {
     //     // if(!(connectionId === 1)) {//This connector only supports a single player

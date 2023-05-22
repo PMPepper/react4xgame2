@@ -1,6 +1,6 @@
 //TODO better use of promises
 //TODO worker transferable support
-//TODO make this the main method of AsyncConnection
+//TODO is there any point in the LocalMethods generic type?
 
 import {serializeError, deserializeError} from 'serialize-error';
 import { AnyFunc, AsyncTransport, Methods, PromiseResponse } from "./types";
@@ -21,7 +21,7 @@ export type AsyncConnectionType<RemoteMethods extends Methods> = {
 
 
 //The class
-export default class AsyncConnection<RemoteMethods extends Methods, LocalMethods extends Methods | undefined = undefined> implements AsyncConnectionType<RemoteMethods> {
+export default class AsyncConnection<RemoteMethods extends Methods> implements AsyncConnectionType<RemoteMethods> {
     call: AllPromised<Readonly<RemoteMethods>>;
     isReady: Promise<void>;
 
@@ -37,7 +37,7 @@ export default class AsyncConnection<RemoteMethods extends Methods, LocalMethods
     replyHandlers: Record<number, PromiseResponse<any>>;
     
 
-    constructor(transport: AsyncTransport<RemoteMethods>, localMethods?: LocalMethods) {
+    constructor(transport: AsyncTransport<RemoteMethods>, localMethods?: Methods) {
         this.transport = transport;
         this.remoteMethodNames = new Set<keyof RemoteMethods>();
         this.replyHandlers = {};
@@ -88,7 +88,7 @@ export default class AsyncConnection<RemoteMethods extends Methods, LocalMethods
         this.init(localMethods);
     }
 
-    async init(localMethods?: LocalMethods) {
+    async init(localMethods?: Methods) {
 
         const {transport, remoteMethodNames, replyHandlers} = this;
 
@@ -96,8 +96,8 @@ export default class AsyncConnection<RemoteMethods extends Methods, LocalMethods
         //different calls by each end of the connection
         
         //Set of the method names we are exposing to the other end of the connection to call
-        const allLocalMethodNames = Object.keys(localMethods || {}) as unknown as (keyof LocalMethods)[];
-        const localMethodNames = new Set<keyof LocalMethods>(allLocalMethodNames.filter((name) => localMethods[name] instanceof Function))
+        const allLocalMethodNames = Object.keys(localMethods || {});
+        const localMethodNames = new Set<string>(allLocalMethodNames.filter((name) => localMethods[name] instanceof Function))
     
         function returnError(error: Error, id: number): void {
             const payload = serializeError(error);
@@ -199,7 +199,7 @@ export default class AsyncConnection<RemoteMethods extends Methods, LocalMethods
     }
 
     //Internal methods
-    isRemoteMethod(name: any): name is (keyof LocalMethods) {
+    isRemoteMethod(name: any): name is (keyof RemoteMethods) {
         if(!this.inited) {
             throw new Error('[AsyncConnection] isRemoteMethod cannot be called before connection has been initialised');
         }
@@ -222,12 +222,6 @@ export default class AsyncConnection<RemoteMethods extends Methods, LocalMethods
     }
 
 }
-
-
-
-// export default function getConnection<RemoteMethods extends {}, LocalMethods extends {} | undefined = undefined>(transport: AsyncTransport<LocalMethods, RemoteMethods>, localMethods?: LocalMethods): AsyncConnectionType<RemoteMethods> {
-//     return new AsyncConnection<RemoteMethods, LocalMethods>(transport, localMethods);
-// }
 
 
 
