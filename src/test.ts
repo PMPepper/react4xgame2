@@ -10,19 +10,26 @@ export default async function doTest() {
 
     //WebSocket test/example
     const socket = new WebSocket('ws://localhost:8081');
-    const transport = new WebSocketTransport(socket);
-console.log(socket);
-console.log(transport.getConnectionStatus());
+    const transport = new WebSocketTransport<typeof exposeMethods, {hello: (name: string) => string}>(socket);
+
     const exposeMethods = {
         shout: (message: string) => console.log(message.toUpperCase()+'!')
     }
 
-    const connector = await AsyncConnection<{hello: (name: string) => string}, typeof exposeMethods>(transport, exposeMethods);
+    
+    try {
+        const connector = new AsyncConnection<{hello: (name: string) => string}, typeof exposeMethods>(transport, exposeMethods);
+        console.log('awaiting connection...');
+        await connector.isReady
+        console.log('...connection established');
 
-    console.log('Connector ready!?');
-    console.log(transport.getConnectionStatus());
+        console.log(await connector.call.hello('Paul'));
+    }
 
-    console.log(await connector.hello('Paul'));
+    catch(e) {
+        console.log('Failed to connect: ', e);
+    }
+    
     
 
 }

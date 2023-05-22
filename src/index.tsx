@@ -21,7 +21,7 @@ import baseGameDefinition from 'game/data/baseGameDefinition';//TEMP CODE
 import store from 'redux/reducers/index';
 
 //import connect from './webrtc';
-//import doTest from './test';
+import doTest from './test';
 
 //i18n
 import { i18n } from "@lingui/core";
@@ -49,7 +49,7 @@ polyfills.then(() => {
 
   //connect();
 
-  //doTest();
+  doTest();
 
 
   GameEngine.startGame(baseGameDefinition, new Client('local', store, connector)).then((client) => {

@@ -1,13 +1,22 @@
 import { ErrorObject } from "serialize-error";
 
 export type AsyncConnectionStatus = 'connecting' | 'connected' | 'closed' | 'error';
-export type Methods = Record<string, (...any) => any>;
+export type AnyFunc = (...any) => any
+export type Methods = Record<string, AnyFunc>;
+
+export type PromiseResolve<T> = (value: T | PromiseLike<T>) => void;
+
+export interface PromiseResponse<T> {
+    reject: (reason?: any) => void;
+    resolve: PromiseResolve<T>;
+}
+
 
 export interface AsyncTransport<LocalMethods extends Methods, RemoteMethods extends Methods> {
     getConnectionStatus(): AsyncConnectionStatus;
-    onConnected(): Promise<void>;
+    readonly onConnected: Promise<void>;
+    readonly onInited: Promise<(keyof RemoteMethods)[]>;
 
-    onInit?: (remoteMethodNames: (keyof RemoteMethods)[]) => void;
     onRemoteError?: (payload: ErrorObject, messageId: number) => void;
     onCall?: <T extends keyof LocalMethods>(methodName: T, payload: Parameters<LocalMethods[T]>, messageId: number) => void;
     onReturn?: <T extends keyof RemoteMethods>(methodName: T, payload: ReturnType<RemoteMethods[T]>, messageId: number) => void;

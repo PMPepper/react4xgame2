@@ -1,7 +1,7 @@
 //TODO how to handle transferable types?
 
 import { ErrorObject } from "serialize-error";
-import { AsyncConnectionStatus, AsyncTransport, Methods } from "./types";
+import { AsyncConnectionStatus, AsyncTransport, Methods, PromiseResponse } from "./types";
 
 type Message = {
     type: 'init' | 'call' | 'return' | 'error';
@@ -10,29 +10,49 @@ type Message = {
     id?: number
 };
 
+
+
 export default class WorkerTransport<LocalMethods extends Methods, RemoteMethods extends Methods> implements AsyncTransport<LocalMethods, RemoteMethods> {
     readonly worker: Worker;
+    readonly onConnected: Promise<void>;
+    readonly onInited: Promise<(keyof RemoteMethods)[]>;
 
-    onInit?: (remoteMethodNames: (keyof RemoteMethods)[]) => void;
     onRemoteError?: (payload: ErrorObject, messageId: number) => void;
     onCall?: <T extends keyof LocalMethods>(methodName: T, payload: Parameters<LocalMethods[T]>, messageId: number) => void;
     onReturn?: <T extends keyof RemoteMethods>(methodName: T, payload: ReturnType<RemoteMethods[T]>, messageId: number) => void;
+
+    _inited?: PromiseResponse<(keyof RemoteMethods)[]>
+    
 
     constructor(worker:Worker) {//inside a worker, this is 'globalThis'
         this.worker = worker;
 
         worker.addEventListener('message', this.onmessage);
+
+        this.onConnected = Promise.resolve();//workers are always connected
+
+        this.onInited = new Promise<(keyof RemoteMethods)[]>((resolve, reject) => {
+            this._inited = {resolve, reject};
+        });
     }
+    
 
     onmessage = ({data: {type, methodName, payload, id}}: MessageEvent<Message>) => {
         switch(type) {
             case 'init':
-                return this.onInit?.(payload);
+                this._inited?.resolve(payload)
+                this._inited = undefined;
+                return
             case 'call':
                 return this.onCall?.(methodName, payload, id);
             case 'return':
                 return this.onReturn?.(methodName, payload, id);
             case 'error':
+                if(this._inited) {//if not yet inited, reject the inited promise
+                    this._inited.reject(payload);
+                    return;
+                }
+
                 return this.onRemoteError?.(payload, id);
         }
     }
@@ -66,10 +86,6 @@ export default class WorkerTransport<LocalMethods extends Methods, RemoteMethods
             payload,
             id: messageId
         });
-    }
-
-    onConnected(): Promise<void> {
-        return Promise.resolve();//Workers are always connected
     }
 
     getConnectionStatus(): AsyncConnectionStatus {

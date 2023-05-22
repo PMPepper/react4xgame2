@@ -4,7 +4,7 @@ import Performance from "classes/Performance";
 import { ClientToServerConnector, ServerToClientsConnector } from "types/game/shared/game";
 import { ServerMessageHandlers, ServerMessageTypes } from "./server/ServerComms";
 //import AsyncConnection from "AsyncConnection";
-import getAsyncConnection, {AsyncConnectionType} from "AsyncConnection/cls"
+import AsyncConnection, {AsyncConnectionType} from "AsyncConnection"
 import WorkerTransport from "AsyncConnection/WorkerTransport";
 import Client from "./Client";
 
@@ -22,9 +22,9 @@ export default class WorkerConnector implements ClientToServerConnector {
     asyncConnection: AsyncConnectionType<WorkerServerRemoteMethods>//Awaited<ReturnType<typeof AsyncConnection<WorkerServer, {send: WorkerConnector['onmessage']}>>> | undefined;
 
     constructor() {
-        const transport = new WorkerTransport(new Worker(new URL('./server/worker.ts', import.meta.url)));
+        const transport = new WorkerTransport<LocalMethods, WorkerServerRemoteMethods>(new Worker(new URL('./server/worker.ts', import.meta.url)));
 
-        this.asyncConnection = getAsyncConnection<WorkerServerRemoteMethods, LocalMethods>(transport, {send: this.onmessage});
+        this.asyncConnection = new AsyncConnection<WorkerServerRemoteMethods, LocalMethods>(transport, {send: this.onmessage});
     }
 
     onmessage = (type, data) => {
