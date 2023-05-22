@@ -1,4 +1,3 @@
-//TODO LocalMethods typing? Is there any point?
 //TODO better use of promises
 //TODO worker transferable support
 //TODO make this the main method of AsyncConnection
@@ -21,7 +20,7 @@ export type AsyncConnectionType<RemoteMethods extends Methods> = {
 }
 
 
-//TODO is there any point in the LocalMethods parameter?
+//The class
 export default class AsyncConnection<RemoteMethods extends Methods, LocalMethods extends Methods | undefined = undefined> implements AsyncConnectionType<RemoteMethods> {
     call: AllPromised<Readonly<RemoteMethods>>;
     isReady: Promise<void>;
@@ -29,7 +28,7 @@ export default class AsyncConnection<RemoteMethods extends Methods, LocalMethods
     //Internal
     inited: boolean = false;
     idCount: number = 0;
-    transport: AsyncTransport<LocalMethods, RemoteMethods>;
+    transport: AsyncTransport<RemoteMethods>;
 
     //the methods the other end of the connection expose for us - we get this from the initialisation message
     remoteMethodNames: Set<keyof RemoteMethods>;
@@ -38,7 +37,7 @@ export default class AsyncConnection<RemoteMethods extends Methods, LocalMethods
     replyHandlers: Record<number, PromiseResponse<any>>;
     
 
-    constructor(transport: AsyncTransport<LocalMethods, RemoteMethods>, localMethods?: LocalMethods) {
+    constructor(transport: AsyncTransport<RemoteMethods>, localMethods?: LocalMethods) {
         this.transport = transport;
         this.remoteMethodNames = new Set<keyof RemoteMethods>();
         this.replyHandlers = {};
@@ -143,12 +142,12 @@ export default class AsyncConnection<RemoteMethods extends Methods, LocalMethods
             }
         };
 
-        transport.onCall = async <T extends keyof LocalMethods>(methodName: T, payload, id) => {
+        transport.onCall = async (methodName: string, payload: any, id: number) => {
             if(!localMethodNames.has(methodName)) {
                 throw new Error('[AsyncConnection] Unknown method: ' + methodName.toString());
             }
 
-            let result: ReturnType<LocalMethods[T]> | undefined = undefined;
+            let result: any = undefined;
 
             try {
                 //Attempt to call the local method with the supplied arguments
@@ -185,7 +184,7 @@ export default class AsyncConnection<RemoteMethods extends Methods, LocalMethods
         
 
         //Send initialise method
-        transport.sendInitMessage(Array.from(localMethodNames))
+        transport.sendInitMessage(Array.from(localMethodNames as Set<string>))
 
         try {
             await this.isReady;

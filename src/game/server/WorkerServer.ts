@@ -26,7 +26,7 @@ export default class WorkerServer implements ServerToClientsConnector {
     asyncConnection: AsyncConnectionType<RemoteMethods>;
 
     constructor(worker: Worker) {
-        const transport = new WorkerTransport<LocalMethods, RemoteMethods>(worker);
+        const transport = new WorkerTransport<RemoteMethods>(worker);
 
         this.asyncConnection = new AsyncConnection<RemoteMethods, LocalMethods>(transport, {send: this.onmessage})
 

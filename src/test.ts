@@ -8,9 +8,11 @@ export default async function doTest() {
     // const testWorker = new Worker(new URL('./test-worker.ts', import.meta.url));
     // const transport = new WorkerTransport(testWorker);
 
+    type RemoteMethods = {hello: (name: string) => string};
+
     //WebSocket test/example
     const socket = new WebSocket('ws://localhost:8081');
-    const transport = new WebSocketTransport<typeof exposeMethods, {hello: (name: string) => string}>(socket);
+    const transport = new WebSocketTransport<RemoteMethods>(socket);
 
     const exposeMethods = {
         shout: (message: string) => console.log(message.toUpperCase()+'!')
@@ -18,7 +20,7 @@ export default async function doTest() {
 
     
     try {
-        const connector = new AsyncConnection<{hello: (name: string) => string}, typeof exposeMethods>(transport, exposeMethods);
+        const connector = new AsyncConnection<RemoteMethods, typeof exposeMethods>(transport, exposeMethods);
         console.log('awaiting connection...');
         await connector.isReady
         console.log('...connection established');

@@ -18,9 +18,8 @@ function log(...message: any) {
 }
 
 export default class WebSocketTransport<
-    LocalMethods extends Methods, 
     RemoteMethods extends Methods
-> implements AsyncTransport<LocalMethods, RemoteMethods> {
+> implements AsyncTransport<RemoteMethods> {
     readonly socket: WebSocket;
     readonly codec: Codec<Message, string>;
     _inited: PromiseResponse<(keyof RemoteMethods)[]>;
@@ -30,7 +29,7 @@ export default class WebSocketTransport<
     readonly onInited: Promise<(keyof RemoteMethods)[]>;
 
     onRemoteError?: (payload: ErrorObject, messageId: number) => void;
-    onCall?: <T extends keyof LocalMethods>(methodName: T, payload: Parameters<LocalMethods[T]>, messageId: number) => void;
+    onCall?: (methodName: string, payload: any, messageId: number) => void;
     onReturn?: <T extends keyof RemoteMethods>(methodName: T, payload: ReturnType<RemoteMethods[T]>, messageId: number) => void;
 
     constructor(socket: WebSocket, codec: Codec<any, string> = defaultCodec) {
@@ -124,7 +123,7 @@ export default class WebSocketTransport<
         this.socket.send(await this.codec.encode(message));
     }
 
-    async sendInitMessage(payload: (keyof LocalMethods)[]): Promise<void> {
+    async sendInitMessage(payload: string[]): Promise<void> {
         return this.sendMessage({
             type: 'init',
             payload
@@ -148,7 +147,7 @@ export default class WebSocketTransport<
         })
     }
 
-    async sendReturnMessage<T extends keyof LocalMethods>(methodName: T, payload: ReturnType<LocalMethods[T]>, messageId: number): Promise<void> {
+    async sendReturnMessage(methodName: string, payload: any, messageId: number): Promise<void> {
         return this.sendMessage({
             type: 'return',
             methodName: methodName as string,

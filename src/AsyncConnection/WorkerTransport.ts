@@ -12,13 +12,13 @@ type Message = {
 
 
 
-export default class WorkerTransport<LocalMethods extends Methods, RemoteMethods extends Methods> implements AsyncTransport<LocalMethods, RemoteMethods> {
+export default class WorkerTransport<RemoteMethods extends Methods> implements AsyncTransport<RemoteMethods> {
     readonly worker: Worker;
     readonly onConnected: Promise<void>;
     readonly onInited: Promise<(keyof RemoteMethods)[]>;
 
     onRemoteError?: (payload: ErrorObject, messageId: number) => void;
-    onCall?: <T extends keyof LocalMethods>(methodName: T, payload: Parameters<LocalMethods[T]>, messageId: number) => void;
+    onCall?: (methodName: string, payload: any, messageId: number) => void;
     onReturn?: <T extends keyof RemoteMethods>(methodName: T, payload: ReturnType<RemoteMethods[T]>, messageId: number) => void;
 
     _inited?: PromiseResponse<(keyof RemoteMethods)[]>
@@ -57,7 +57,7 @@ export default class WorkerTransport<LocalMethods extends Methods, RemoteMethods
         }
     }
 
-    sendInitMessage(payload: (keyof LocalMethods)[]): void {
+    sendInitMessage(payload: string[]): void {
         this.worker.postMessage({
             type: 'init',
             payload
@@ -79,7 +79,7 @@ export default class WorkerTransport<LocalMethods extends Methods, RemoteMethods
             id: messageId
         })
     }
-    sendReturnMessage<T extends keyof LocalMethods>(methodName: T, payload: ReturnType<LocalMethods[T]>, messageId: number): void {
+    sendReturnMessage(methodName: string, payload: any, messageId: number): void {
         this.worker.postMessage({
             type: 'return',
             methodName,

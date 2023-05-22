@@ -12,17 +12,17 @@ export interface PromiseResponse<T> {
 }
 
 
-export interface AsyncTransport<LocalMethods extends Methods, RemoteMethods extends Methods> {
+export interface AsyncTransport<RemoteMethods extends Methods> {
     getConnectionStatus(): AsyncConnectionStatus;
     readonly onConnected: Promise<void>;
     readonly onInited: Promise<(keyof RemoteMethods)[]>;
 
     onRemoteError?: (payload: ErrorObject, messageId: number) => void;
-    onCall?: <T extends keyof LocalMethods>(methodName: T, payload: Parameters<LocalMethods[T]>, messageId: number) => void;
+    onCall?: (methodName: string, payload: any, messageId: number) => void;
     onReturn?: <T extends keyof RemoteMethods>(methodName: T, payload: ReturnType<RemoteMethods[T]>, messageId: number) => void;
 
     //init has no methodName or id, all others do
-    sendInitMessage(payload: (keyof LocalMethods)[]): void;
+    sendInitMessage(payload: string[]): void;
 
     sendErrorMessage(payload: ErrorObject, messageId: number): void;
 
@@ -32,9 +32,9 @@ export interface AsyncTransport<LocalMethods extends Methods, RemoteMethods exte
         messageId: number
     ): void;
 
-    sendReturnMessage<T extends keyof LocalMethods>(
-        methodName: T, 
-        payload: ReturnType<LocalMethods[T]>, 
+    sendReturnMessage(
+        methodName: string, 
+        payload: any, 
         messageId: number
     ): void
 }
