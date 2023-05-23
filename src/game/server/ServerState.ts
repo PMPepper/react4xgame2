@@ -409,7 +409,7 @@ export default class ServerState {
     return newEntity as unknown as AllEntityTypes<true>[T];
   }
 
-  _addFactionEntity(factionId: number, entityId: number, props) {//TODO props
+  _addFactionEntity(factionId: number, entityId: number, props) {//TODO type props
     //record that this factionEntity needs to be supplied to the client for this faction
     this.factionEntitiesLastUpdated[factionId][entityId] = this.gameTime;
 
