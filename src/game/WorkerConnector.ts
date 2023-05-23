@@ -1,6 +1,5 @@
 //The client side part of the WorkerConnector
 
-import Performance from "classes/Performance";
 import { ClientToServerConnector } from "types/game/shared/game";
 import { ServerMessageHandlers, ServerMessageTypes } from "./server/ServerComms";
 import AsyncConnection, {AsyncConnectionType} from "AsyncConnection"
@@ -39,13 +38,13 @@ export default class WorkerConnector implements ClientToServerConnector {
 
 
 
-const dec = new TextDecoder();
+// const dec = new TextDecoder();
 
-function fromBinary(data) {
-    if(data instanceof ArrayBuffer) {
-        const decoded = JSON.parse(dec.decode(new Uint8Array(data)));
-        return decoded;
-    }
+// function fromBinary(data) {
+//     if(data instanceof ArrayBuffer) {
+//         const decoded = JSON.parse(dec.decode(new Uint8Array(data)));
+//         return decoded;
+//     }
 
-    return data;
-}
+//     return data;
+// }

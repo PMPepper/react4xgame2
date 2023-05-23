@@ -133,3 +133,33 @@ const TestComponent = polymorphicForwardRef<{wobble: number}, 'div'>(({wibble, a
 //     </article>
 // }
 
+
+
+////
+
+// interface ComponentProps {
+//     // Define the specific properties required for the component
+//     id: string;
+//     name: string;
+//     // ...
+//   }
+  
+//   function doSomething<T extends React.ElementType<ComponentProps>>(Component: T) {
+//     // Use the properties of the component
+//     // ...
+//   }
+  
+//   // Example usage
+//   const ValidComponent: React.FC<ComponentProps> = ({ id, name }) => {
+//     // Component implementation
+//     return null;
+//   };
+  
+//   doSomething(ValidComponent);
+  
+//   const InvalidComponent: React.FC = () => {
+//     // Component implementation
+//     return null;
+//   };
+  
+//   doSomething(InvalidComponent); // This will result in a TypeScript error < it does not.
