@@ -1,8 +1,8 @@
-import isElementHidden from './is-element-hidden';
+import isElementAvailableToUser from './is-element-available-to-user';
 
 
-export default function isFocusable(elem: HTMLElement, keyboardOnly: boolean = false): boolean {
-  if(!elem || isElementHidden(elem)) {
+export default function isFocusable(elem?: Element, keyboardOnly: boolean = false): boolean {
+  if(!elem || !isElementAvailableToUser(elem)) {
     return false;
   }
 
