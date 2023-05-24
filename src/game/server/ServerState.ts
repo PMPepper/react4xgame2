@@ -8,11 +8,11 @@ import calculatePopulationWorkers from 'game/utils/calculatePopulationWorkers';
 import { AvailableMinerals, ClientState, FactionEntity } from 'types/game/shared/game';
 import { AllEntityTypes, Entity, EntityFaction, EntitySystemBody, EntityTypes } from 'types/game/shared/entities';
 import { isEntityOfType } from 'types/game/server/entities';
-import { ConstructionProjectDefinition, ResearchDefinition, StructureDefinition, SystemBodyDefinition, SystemBodyTypes, TechnologyDefinition } from 'types/game/shared/definitions';
+import { ConstructionProjectDefinition, ConstructionProjectIdType, MineralIdType, ResearchAreaIdType, ResearchDefinition, ResearchIdType, StructureDefinition, StructureIdType, SystemBodyDefinition, SystemBodyTypes, TechnologyDefinition, TechnologyIdType } from 'types/game/shared/definitions';
 import { FacetColony, FacetMovement, FacetResearchGroup, Facets, isFacetType } from 'types/game/shared/facets';
 import { ENTITY_TYPES } from 'game/Consts';
 import { MapOmit } from 'types/utils';
-import { IMovementOrbit, isFacetMovementOrbit, isOrbitType } from 'types/game/shared/movement';
+import { IMovementOrbit, isFacetMovementOrbit } from 'types/game/shared/movement';
 
 //Consts
 const entityIdProps = new Set(ENTITY_TYPES.map(entityType => `${entityType}Id`));
@@ -26,22 +26,22 @@ export default class ServerState {
   clients: Record<number, ClientState>;
   
   factions: Record<number, EntityFaction<true>>;//e.g. The in-game factions Humans, martians (factions are also entities)
-  minerals: string[];
+  minerals: Record<MineralIdType, string>;
   structures: Record<string, StructureDefinition>;
   constructionProjects: Record<string, ConstructionProjectDefinition>;
-  researchAreas: string[];
+  researchAreas: Record<ResearchAreaIdType, string>;
   research: Record<string, ResearchDefinition>;
   technology: Record<string, TechnologyDefinition>;
   systemBodyTypeMineralAbundance: Record<SystemBodyTypes, Record<number, number>>;
     
   gameConfig: {
-    minerals: string[], 
-    structures: Record<string, StructureDefinition>, 
-    constructionProjects: Record<string, ConstructionProjectDefinition>, 
-    researchAreas: string[], 
-    research: Record<string, ResearchDefinition>, 
-    technology: Record<string, TechnologyDefinition>, 
-    systemBodyTypeMineralAbundance: Record<SystemBodyTypes, Record<number, number>>
+    minerals: Record<MineralIdType, string>, 
+    structures: Record<StructureIdType, StructureDefinition>, 
+    constructionProjects: Record<ConstructionProjectIdType, ConstructionProjectDefinition>, 
+    researchAreas: Record<ResearchAreaIdType, string>, 
+    research: Record<ResearchIdType, ResearchDefinition>, 
+    technology: Record<TechnologyIdType, TechnologyDefinition>, 
+    systemBodyTypeMineralAbundance: Record<SystemBodyTypes, Record<MineralIdType, number>>
   };
 
   entities: Record<number, Entity>;
@@ -54,7 +54,7 @@ export default class ServerState {
   factionEntitiesLastUpdated: Record<number, Record<number, number>>;
 
   
-  constructor(minerals: string[], structures: Record<string, StructureDefinition>, constructionProjects: Record<string, ConstructionProjectDefinition>, researchAreas: string[], research: Record<string, ResearchDefinition>, technology: Record<string, TechnologyDefinition>, systemBodyTypeMineralAbundance: Record<SystemBodyTypes, Record<number, number>>) {
+  constructor(minerals: Record<MineralIdType, string>, structures: Record<string, StructureDefinition>, constructionProjects: Record<string, ConstructionProjectDefinition>, researchAreas: Record<ResearchAreaIdType, string>, research: Record<string, ResearchDefinition>, technology: Record<string, TechnologyDefinition>, systemBodyTypeMineralAbundance: Record<SystemBodyTypes, Record<number, number>>) {
     this.minerals = minerals;
     this.structures = structures;
     this.constructionProjects = constructionProjects;
@@ -109,7 +109,7 @@ export default class ServerState {
     return ids.map(id => (entities[id]));
   }
 
-  createFaction(name: string) {
+  createFaction(name: string, startingResearch: string[] = []) {
     const faction = this._newEntity('faction', {faction: {
       name,
       colonyIds: [],
@@ -122,6 +122,11 @@ export default class ServerState {
 
     //record factions separately (in addition to being an entity)
     this.factions[faction.id] = faction;
+
+    //TODO handle starting research
+    startingResearch.forEach((researchId) => {
+      this.addResearchToFaction(faction.id, researchId);
+    });
 
     return faction;
   }
@@ -328,6 +333,29 @@ export default class ServerState {
     });
 
     this.modifiedEntity(colonyId, 'colony');
+  }
+
+  addResearchToFaction(factionId: number, researchId: string): void {
+    const faction = this.getEntityById(factionId, 'faction');
+
+    if(!faction) {
+      throw new Error('cannot add research, invalid colonyId');
+    }
+
+    const research = this.research[researchId];
+
+    faction.faction.research[researchId] = true;//mark this technology as unlocked
+
+    //now mark technologies as unlocked
+    research.unlockTechnologyIds.forEach(technologyId => {
+      if(!this.technology[technologyId]) {
+        throw new Error(`Unknown technology '${technologyId}'`);
+      }
+
+      faction.faction.technology[technologyId] = true;
+    });
+
+    this.modifiedEntity(factionId, 'faction');
   }
 
   modifiedEntity(entityId: number, ...facets: Facets[]) {

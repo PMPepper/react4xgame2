@@ -1,6 +1,6 @@
 export const DAY_ANNUAL_FRACTION = 1/365.25
 
-export const ALL_SYSTEM_BODY_TYPES = ['star', 'planet', 'moon', 'asteroid'] as const;
+export const ALL_SYSTEM_BODY_TYPES = ['star', 'planet', 'moon', 'asteroid', 'gasGiant', 'dwarfPlanet'] as const;
 export const ALL_ORBIT_TYPES = ['orbitRegular'] as const;
 
 export const ALL_FACETS = ['colony', 'mass', 'availableMinerals', 'movement', 'render', 'faction', 'systemBody', 'species', 'population', 'researchGroup'] as const;

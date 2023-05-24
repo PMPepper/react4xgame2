@@ -19,7 +19,7 @@ export default {
     const systemBody = entities[colony.systemBodyId]
     const species = entities[population.speciesId];
     const faction = entities[population.factionId];
-    const technologyModifiers = getTechnologyModifiers(faction.faction.technology)
+    const technologyModifiers = getTechnologyModifiers(faction.faction.technology, gameConfig.technology)
 
     //Growth
     calculatePopulationGrowth(init, population, colony, systemBody, species)

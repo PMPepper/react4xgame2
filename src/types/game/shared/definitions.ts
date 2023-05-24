@@ -1,7 +1,50 @@
+import {ReadonlyDeep, SetRequired} from 'type-fest';
 import { ALL_SYSTEM_BODY_TYPES } from "game/Consts";
-import { CapabilityTypes } from "./game";
+import { CapabilityTypes, OrbitTypes } from "./game";
+import { TDate } from 'types/dates';
+import { PartialExcept } from 'types/utils';
 
-export type SystemBodyTypes = keyof typeof ALL_SYSTEM_BODY_TYPES;
+export type SystemBodyTypes = typeof ALL_SYSTEM_BODY_TYPES[number];
+
+/**
+ * A mineral type ID
+ */
+export type MineralIdType = string;
+/**
+ * A structure type ID
+ */
+export type StructureIdType = string;
+/**
+ * A construction project type ID
+ */
+export type ConstructionProjectIdType = string;
+/**
+ * A research area ID
+ */
+export type ResearchAreaIdType = string;
+/**
+ * A research ID
+ */
+export type ResearchIdType = string;
+/**
+ * A technology ID
+ */
+export type TechnologyIdType = string;
+
+/**
+ * A species ID
+ */
+export type SpeciesId = string;
+/**
+ * A species ID
+ */
+export type SystemId = string;
+
+
+//TODO more orbit types need definitions
+export type OrbitDefinition = {
+    type: OrbitTypes
+};
 
 export type SystemBodyDefinition = {
     name: string,
@@ -13,6 +56,10 @@ export type SystemBodyDefinition = {
     tidalLock: boolean,
     luminosity: number;
     albedo: number;
+
+
+    parent?: string,
+    orbit?: OrbitDefinition
 };
 
 export type SystemDefinition = {
@@ -22,22 +69,27 @@ export type SystemDefinition = {
 
 export type SpeciesDefinition = {
     name: string,
-    growthRate: number,//optional?
-    miningRate: number,//optional?
-    researchRate: number,//optional?
-    constructionRate: number,//optional?
-    workerMod?: number,
-    crewMod?: number,
-    lifeSupportMod?: number
+    growthRate: number,
+    miningRate: number,
+    researchRate: number,
+    constructionRate: number,
+    workerMod: number,
+    crewMod: number,
+    lifeSupportMod: number
+
+    productionRate: number;
+    support: number;
 };
 
 export type StartingSystemDefinition = {
     type: 'known',
     name?: string,
+
+    bodyNamesMap?: Record<string, string>;//{[systemBodyDefinition.name]: faction name for this system body}
 };
 
-export type Structures = Record<number, number>;
-export type Minerals = Record<number, number>;
+export type Structures = Record<StructureIdType, number>;
+export type Minerals = Record<MineralIdType, number>;
 
 export type StartingPopulationDefinition = {
     species: 'Humans',
@@ -59,20 +111,21 @@ export type FactionDefintion = {
     startingSystems: Record<string, StartingSystemDefinition>,
     startingColonies: StartingColonyDefinition[],
 };
+export type IConstructionDefinition = {
+    name: string;
+    bp: number;
+    minerals: Minerals;
+}
 
 export type StructureDefinition = {
-    bp: number;
     capabilities: Capabilities;
     mass: number;
-    minerals: Minerals;
-    name: string;
     requireTechnologyIds: string[];
     upgrade: number[];
     workers: number;
-};
+} & IConstructionDefinition;
 
 export type Capabilities = Partial<Record<CapabilityTypes, number>>
-
 export type ModifyCapabilities = Partial<Record<CapabilityTypes, number>>
 
 export type TechnologyDefinition = {
@@ -80,33 +133,52 @@ export type TechnologyDefinition = {
     modifyCapabilities?: ModifyCapabilities;
 };
 
-export type ResearchDefinition = {
-    area: number;
+export type ResearchDefinition<ResearchAreaIds extends ResearchAreaIdType = ResearchAreaIdType, ResearchIds extends ResearchIdType = ResearchIdType, TechnologyIds extends TechnologyIdType = TechnologyIdType> = {
+    area: ResearchAreaIds;
     cost: number;
     description: string;
     name: string;
-    requireResearchIds: string[];
-    unlockTechnologyIds: string[];
+    requireResearchIds: ResearchIds[];
+    unlockTechnologyIds: TechnologyIds[];
 };
 
 export type ConstructionProjectDefinition = {
-    bp: number;
-    minerals: Minerals;
-    name: string;
-    producedStructures: Record<number, number>;
-    requireTechnologyIds?: string[];
-    requiredStructures: Structures
-};
+    producedStructures?: Record<StructureIdType, number>;
+    requireTechnologyIds?: TechnologyIdType[];
+    requiredStructures?: Structures;
 
-//TODO I think a bunch is missing from this..
-//Actually, this gets combined with a default set of values
-//So really I need to define the 'final' set, and the required + optional
-export type GameDefinition = {
-    type: 'new',
-    gameName: 'flobble',
-    startDate: '2000-01-01T00:00:00',
-    systems: Record<string, SystemDefinition>,
-    species: Record<string, SpeciesDefinition>,
+    shipyard?: {
+        isMilitary: boolean,
+        capacity: number,
+        slipways: number
+    }
+} & IConstructionDefinition;
+
+
+
+type Equations = 'ex1' | 'ex2';//TODO actually define this list of equations
+type EquationType = string;
+
+
+type GameDefinitionTypes = 'new';
+
+
+
+
+//This is the full set of data the createWorldFromDefinition will require
+type BaseGameDefinition<
+    MineralIds extends MineralIdType = MineralIdType, 
+    StructureIds extends StructureIdType = StructureIdType, 
+    ConstructionProjectIds extends ConstructionProjectIdType = ConstructionProjectIdType,
+    ResearchAreaIds extends ResearchAreaIdType = ResearchAreaIdType,
+    ResearchIds extends ResearchIdType = ResearchIdType,
+    TechnologyIds extends TechnologyIdType = TechnologyIdType,
+> = {
+    type: GameDefinitionTypes,
+    gameName: string,
+    startDate: TDate,
+    systems: Record<SystemId, SystemDefinition>,
+    species: Record<SpeciesId, SpeciesDefinition>,
     factions: FactionDefintion[],
   
     //TODO
@@ -120,4 +192,41 @@ export type GameDefinition = {
     swarmers: number,
     invaders: number,//probably will be more fine-tuned
     sentinels: number,
+
+
+    //Not actually required
+    //baseSpecies: Omit<SpeciesDefinition, 'name'>;//GameDefinitionOptions will merge species with this value, so they can be partially optional
+
+
+    //This is what is currently coming from the baseGameDefinition
+    equations: Record<Equations, EquationType>;
+    
+    minerals: Record<MineralIds, string>;//Am I going to the the 'numeric' template type?
+    startingWorldMinerals: Record<MineralIds, {quantity: [number, number], access: [number, number]}>,
+    systemBodyTypeMineralAbundance: Record<SystemBodyTypes, Record<MineralIds, number>>;
+
+    structures: Record<StructureIds, StructureDefinition>;
+    constructionProjects: Record<ConstructionProjectIds, ConstructionProjectDefinition>;
+
+    researchAreas: Record<ResearchAreaIds, string>;//<<Id: name - should the name actually be handled by the language system, separately? Also, ReserachAreaIds could just be string, and this researchAreaIds[]
+    research: Record<ResearchIds, ResearchDefinition<ResearchAreaIds, ResearchIds, TechnologyIds>>;
+    technology: Record<TechnologyIds, TechnologyDefinition>
 }
+
+
+
+//This is the set of required and optional parameters needed to create a game
+// export type GameDefinitionOptions = Partial<Omit<GameDefinition, 'species' | 'type' | 'gameName' | 'startDate'>> & {
+//     type: GameDefinitionTypes;
+//     gameName: string;
+//     startDate: TDate;
+//     systems: Record<SystemId, SystemDefinition>;
+//     species: Record<SpeciesId, SetRequired<Partial<SpeciesDefinition>, 'name'>>;
+// };
+
+export type GameDefinition = ReadonlyDeep<BaseGameDefinition>;
+
+export type GameDefinitionOptions = PartialExcept<Omit<BaseGameDefinition, 'species'>, 'type' | 'gameName' | 'startDate' | 'systems' | 'factions'> & {species: Record<SpeciesId, SetRequired<Partial<SpeciesDefinition>, 'name'>>;}
+
+
+

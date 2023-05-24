@@ -4,7 +4,7 @@ import find from 'helpers/object/find';
 import { fromState, mergeState, calculateSystemBodyPositions } from './ClientState';
 import { Store } from 'redux';
 import { GameConfiguration, ClientGameState, ClientRole, ClientToServerConnector, ClientState } from 'types/game/shared/game';
-import { GameDefinition } from 'types/game/shared/definitions';
+import { GameDefinitionOptions } from 'types/game/shared/definitions';
 import { Entity } from 'types/game/client/entities';
 import { PickKeysMatching } from 'types/utils';
 import { ServerPhase } from 'game/server/Server';
@@ -87,7 +87,7 @@ export default class Client {
 
   //contact the server and create a new game with this definition
   //server must be in initialising state
-  createWorld(definition:GameDefinition) {
+  createWorld(definition:GameDefinitionOptions) {
     console.log('[CLIENT] createWorld: ', definition);
 
     return this.connector.sendMessageToServer('createWorld', definition);

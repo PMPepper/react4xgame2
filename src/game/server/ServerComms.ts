@@ -11,6 +11,7 @@ import createWorldFromDefinition from './createWorldFromDefinition';
 import { ClientRole, ClientState, ServerToClientsConnector, GameConfiguration } from "types/game/shared/game";
 import { KeysWithValsOfType } from 'types/utils';
 import { EntityFaction } from 'types/game/shared/entities';
+import { GameDefinitionOptions } from 'types/game/shared/definitions';
 
 type ServerMethods = KeysWithValsOfType<ServerComms, (data: any, clientId: number) => any>;
 type ServerPrvateMethods = Extract<keyof ServerComms, `_${string}`>;
@@ -176,7 +177,7 @@ export default class ServerComms {
     //////////////////////
 
     //-initialising server
-    createWorld(definition, clientId: number) {
+    createWorld(definition: GameDefinitionOptions, clientId: number) {
         if(this.server.phase !== 'INITIALISING') {
             throw new Error('Can only create world while Server is in "initialising" phase');
         }

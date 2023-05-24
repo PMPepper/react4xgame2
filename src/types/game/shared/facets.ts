@@ -38,8 +38,8 @@ export type FacetRender<TServer extends boolean> = Combine<Facet<TServer>, {
 export type FacetFaction<TServer extends boolean> = Combine<Facet<TServer>, {
     colonyIds: number[];
     name: string;
-    research: Record<string, ResearchDefinition>;
-    technology: Record<string, TechnologyDefinition>;
+    research: Record<string, boolean>;
+    technology: Record<string, boolean>;
 }>;
 
 export type FacetSystemBody<TServer extends boolean> = Combine<Facet<TServer>, {

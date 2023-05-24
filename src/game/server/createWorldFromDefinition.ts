@@ -9,12 +9,26 @@ import forEach from 'helpers/object/forEach';
 
 //Data
 import defaultGameDefinition from '../data/defaultGameDefinition';
+import { GameDefinition, GameDefinitionOptions, SpeciesDefinition } from 'types/game/shared/definitions';
+import { WritableDeep } from 'type-fest';
 
 
 //The function
-export default function createWorldFromDefinition(definition) {
+export default function createWorldFromDefinition(userDefinition: GameDefinitionOptions): ServerState {
   //merge in the default game definition
-  definition = {...defaultGameDefinition, ...definition};
+  const {baseSpecies: baseSpeciesDefinition, ...gameDefinitionDefaults} = defaultGameDefinition as WritableDeep<typeof defaultGameDefinition>;
+  const {species: userSpeciesDefinitions} = userDefinition;
+
+  const species = map(userSpeciesDefinitions, (userSpeciesDefinition) => ({
+    ...baseSpeciesDefinition, ...userSpeciesDefinition
+  } as SpeciesDefinition))
+
+  const definition: WritableDeep<GameDefinition> = {...gameDefinitionDefaults, ...userDefinition, species};
+
+  // Type '{ species: Record<string, SpeciesDefinition>; type: "new"; gameName: string; startDate: TDate; systems: Record<string, SystemDefinition>; ... 15 more ...; technology: Record<...> | WritableObjectDeep<...>; }' is not assignable to type 'WritableObjectDeep<ReadonlyObjectDeep<BaseGameDefinition<string, string, string, string, string, string>>>'.
+  // Types of property 'systemBodyTypeMineralAbundance' are incompatible.
+  //   Type 'Record<"star" | "planet" | "moon" | "asteroid" | "gasGiant" | "dwarfPlanet", Record<string, number>> | WritableObjectDeep<{ readonly star: { readonly "1": 0; }; }>' is not assignable to type 'WritableObjectDeep<ReadonlyObjectDeep<Record<"star" | "planet" | "moon" | "asteroid" | "gasGiant" | "dwarfPlanet", Record<string, number>>>>'.
+  //     Type 'WritableObjectDeep<{ readonly star: { readonly "1": 0; }; }>' is missing the following properties from type 'WritableObjectDeep<ReadonlyObjectDeep<Record<"star" | "planet" | "moon" | "asteroid" | "gasGiant" | "dwarfPlanet", Record<string, number>>>>': planet, moon, asteroid, gasGiant, dwarfPlanet
 
   //TODO
   const constructionProjects = JSON.parse(JSON.stringify(definition.constructionProjects));
@@ -112,16 +126,14 @@ export default function createWorldFromDefinition(definition) {
 
   //Create the species
   Object.keys(definition.species).forEach(id => {
-    const speciesDefinition = definition.species[id];
-
-    const entity = state._newEntity('species', {species: {...definition.baseSpecies, ...speciesDefinition}});
+    const entity = state._newEntity('species', {species: definition.species[id]});
 
     speciesByDefinitionId[id] = entity;
   })
 
   //create the factions
   definition.factions.forEach(factionDefinition => {
-    const faction = state.createFaction(factionDefinition.name, factionDefinition.startingResearch);
+    const faction = state.createFaction(factionDefinition.name, factionDefinition.startingResearch as unknown as string[]);
 
     factionsByDefinitionName[factionDefinition.name] = faction;
 

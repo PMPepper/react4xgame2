@@ -1,7 +1,7 @@
 import Client, { ClientMessageHandlers, ClientMessageType } from "game/Client";
 import { ALL_ORBIT_TYPES, FACTION_CLIENT_TYPES } from "game/Consts";
 import { ServerMessageHandlers, ServerMessageTypes } from "game/server/ServerComms";
-import { ConstructionProjectDefinition, ResearchDefinition, StructureDefinition, TechnologyDefinition } from "./definitions";
+import { ConstructionProjectDefinition, ConstructionProjectIdType, MineralIdType, ResearchAreaIdType, ResearchDefinition, ResearchIdType, StructureDefinition, StructureIdType, TechnologyDefinition, TechnologyIdType } from "./definitions";
 import { Entity, EntityFaction } from "./entities";
 
 
@@ -44,13 +44,13 @@ export type FactionEntity = {
 
 export type GameConfiguration<TServer extends boolean> = {
     clients: Record<number, ClientState>;
-    constructionProjects: Record<string, ConstructionProjectDefinition>;
+    constructionProjects: Record<ConstructionProjectIdType, ConstructionProjectDefinition>;
     factions: Record<number, EntityFaction<TServer>>;
-    minerals: Record<number, string>;
-    research: Record<string, ResearchDefinition>;
-    researchAreas: Record<number, string>;
-    structures: Record<number, StructureDefinition>;
-    technology: Record<string, TechnologyDefinition>;
+    minerals: Record<MineralIdType, string>;
+    research: Record<ResearchIdType, ResearchDefinition>;
+    researchAreas: Record<ResearchAreaIdType, string>;
+    structures: Record<StructureIdType, StructureDefinition>;
+    technology: Record<TechnologyIdType, TechnologyDefinition>;
 };
 
 export type ClientGameState = {

@@ -1,7 +1,7 @@
-import { GameDefinition } from "types/game/shared/definitions";
+import { GameDefinitionOptions } from "types/game/shared/definitions";
 import Client from "./Client";
 
-export function startGame(gameDefinition: GameDefinition, client: Client) {
+export function startGame(gameDefinition: GameDefinitionOptions, client: Client) {
   return client.createWorld(gameDefinition)
     .then(() => {
       console.log('[Game] createWorld complete');

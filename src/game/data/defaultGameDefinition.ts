@@ -3,8 +3,23 @@
 const config = {
   //TODO define equations here
   equations: {
-    
+    ex1: 'a + b',
+    ex2: 'a * b'
   },
+
+  //TODO
+  //To be implemented
+  //system generation properties
+  numSystems: 10,
+  wrecks: 0.1,
+  ruins: 0.02,
+
+  //TODO
+  //To be implemented
+  //threats
+  swarmers: 0.1,
+  invaders: 0.1,//probably will be more fine-tuned
+  sentinels: 0.1,
 
   baseSpecies: {
     growthRate: 1.05,//per annum (base rate, affected by conditions)
@@ -12,6 +27,7 @@ const config = {
     productionRate: 1,
     researchRate: 1,
     miningRate: 1,
+    constructionRate: 1,
 
     //How many workers are required to operate a facility
     workerMod: 1,
@@ -51,6 +67,20 @@ const config = {
     "12": {quantity: [200000, 250000], access: [0.5, 1]},
   },
   systemBodyTypeMineralAbundance: {
+    "star": {
+      "1": 0,//coru
+      "2": 0,//vend
+      "3": 0,//trit
+      "4": 0,//dura
+      "5": 0,//neu
+      "6": 0,//corbo
+      "7": 0,//galli
+      "8": 0,//boro
+      "9": 0,//merc
+      "10": 0,
+      "11": 0,//uri
+      "12": 0,//sori
+    },
     "planet": {
       "1": 1,//coru
       "2": 1,//vend
@@ -132,6 +162,7 @@ const config = {
       capabilities: {
         construction: 1
       },
+      upgrade: [],
       //upgrade: [3],
       requireTechnologyIds: [],
     },
@@ -144,6 +175,7 @@ const config = {
       capabilities: {
         mining: 1
       },
+      upgrade: [],
       //upgrade: [4],
       requireTechnologyIds: [],
     },
@@ -160,6 +192,7 @@ const config = {
       capabilities: {
         construction: 10
       },
+      upgrade: [],
       requireTechnologyIds: ['pe'],
     },
     "4": {
@@ -174,6 +207,7 @@ const config = {
       capabilities: {
         mining: 10
       },
+      upgrade: [],
       requireTechnologyIds: ['pe'],
     },
     "5": {
@@ -200,10 +234,11 @@ const config = {
       capabilities: {
         research: 100
       },
+      upgrade: [],
       requireTechnologyIds: ['pe'],
     },
   },
-  constructionProjects: {//TODO only shipyweard tasks?
+  constructionProjects: {//TODO only shipyard tasks?
     "msy": {
       name: 'Military shipyard',
       bp: 20000,
@@ -279,7 +314,7 @@ const config = {
       requireTechnologyIds: ['pe'],
     },
   },
-  researchAreas: {
+  researchAreas: {//TODO should this actually be handled
     "1": "Biology",
     "2": "Industrial",
     "3": "Defensive systems",
@@ -295,7 +330,7 @@ const config = {
       name: "Mining rate 1",
       description: "Increase mining production by 20%",
       cost: 100,
-      area: 2,
+      area: "2",
       requireResearchIds: [],
       unlockTechnologyIds: ['m1']
     },
@@ -303,7 +338,7 @@ const config = {
       name: "Mining rate 2",
       description: "Increase mining production by 20%",
       cost: 100,
-      area: 2,
+      area: "2",
       requireResearchIds: ['m1'],
       unlockTechnologyIds: ['m2']
     },
@@ -311,7 +346,7 @@ const config = {
       name: "Mining rate 3",
       description: "Increase mining production by 20%",
       cost: 100,
-      area: 2,
+      area: "2",
       requireResearchIds: ['m2'],
       unlockTechnologyIds: ['m3']
     },
@@ -319,7 +354,7 @@ const config = {
       name: "Mining rate 4",
       description: "Increase mining production by 20%",
       cost: 100,
-      area: 2,
+      area: "2",
       requireResearchIds: ['m3'],
       unlockTechnologyIds: ['m4']
     },
@@ -327,7 +362,7 @@ const config = {
       name: "Mining rate 5",
       description: "Increase mining production by 20%",
       cost: 100,
-      area: 2,
+      area: "2",
       requireResearchIds: ['m4'],
       unlockTechnologyIds: ['m5']
     },
@@ -335,7 +370,7 @@ const config = {
       name: "Construction rate 1",
       description: "Increase construction rate by 20%",
       cost: 100,
-      area: 2,
+      area: "2",
       requireResearchIds: [],
       unlockTechnologyIds: ['c1']
     },
@@ -343,7 +378,7 @@ const config = {
       name: "Construction rate 2",
       description: "Increase construction rate by 20%",
       cost: 100,
-      area: 2,
+      area: "2",
       requireResearchIds: ['c1'],
       unlockTechnologyIds: ['c2']
     },
@@ -351,7 +386,7 @@ const config = {
       name: "Construction rate 3",
       description: "Increase construction rate by 20%",
       cost: 100,
-      area: 2,
+      area: "2",
       requireResearchIds: ['c2'],
       unlockTechnologyIds: ['c3']
     },
@@ -359,7 +394,7 @@ const config = {
       name: "Construction rate 4",
       description: "Increase construction rate by 20%",
       cost: 100,
-      area: 2,
+      area: "2",
       requireResearchIds: ['c3'],
       unlockTechnologyIds: ['c4']
     },
@@ -367,7 +402,7 @@ const config = {
       name: "Construction rate 5",
       description: "Increase construction rate by 20%",
       cost: 100,
-      area: 2,
+      area: "2",
       requireResearchIds: ['c4'],
       unlockTechnologyIds: ['c5']
     },
@@ -375,7 +410,7 @@ const config = {
       name: "Research rate 1",
       description: "Increase research speed by 20%",
       cost: 100,
-      area: 2,
+      area: "2",
       requireResearchIds: [],
       unlockTechnologyIds: ['r1']
     },
@@ -383,7 +418,7 @@ const config = {
       name: "Research rate 2",
       description: "Increase research speed by 20%",
       cost: 100,
-      area: 2,
+      area: "2",
       requireResearchIds: ['r1'],
       unlockTechnologyIds: ['r2']
     },
@@ -391,7 +426,7 @@ const config = {
       name: "Research rate 3",
       description: "Increase research speed by 20%",
       cost: 100,
-      area: 2,
+      area: "2",
       requireResearchIds: ['r2'],
       unlockTechnologyIds: ['r3']
     },
@@ -399,7 +434,7 @@ const config = {
       name: "Research rate 4",
       description: "Increase research speed by 20%",
       cost: 100,
-      area: 2,
+      area: "2",
       requireResearchIds: ['r3'],
       unlockTechnologyIds: ['r4']
     },
@@ -407,7 +442,7 @@ const config = {
       name: "Research rate 5",
       description: "Increase research speed by 20%",
       cost: 100,
-      area: 2,
+      area: "2",
       requireResearchIds: ['r4'],
       unlockTechnologyIds: ['r5']
     },
@@ -415,7 +450,7 @@ const config = {
       name: 'Post-Einstein technology',
       description: "Unlock the potential of Post-Einsteinium (PE) physics to create technology vastly superior to anything previously thought possible.",
       cost: 5000,
-      area: 2,
+      area: "2",
       requireResearchIds: [],
       unlockTechnologyIds: ['pe']
     },
@@ -423,7 +458,7 @@ const config = {
       name: 'Test 1',
       description: "A test technology.",
       cost: 5000,
-      area: 2,
+      area: "2",
       requireResearchIds: [],
       unlockTechnologyIds: []
     },
@@ -431,7 +466,7 @@ const config = {
       name: 'Test 2',
       description: "Another test technology.",
       cost: 5000,
-      area: 2,
+      area: "2",
       requireResearchIds: [],
       unlockTechnologyIds: []
     },
@@ -439,7 +474,7 @@ const config = {
       name: "PE Drive",
       description: "Utilise PE physics to create a fundamentally new form of propulsion and gain access to the far reaches of our solar system",
       cost: 500,
-      area: 8,
+      area: "8",
       requireResearchIds: ['pe'],
       unlockTechnologyIds: ['e1', 'fe1']
     }
