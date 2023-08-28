@@ -19,3 +19,9 @@ export type MapOmit<Type, OmitProp extends string | number | symbol> = {
 
 
 export type PartialExcept<Type, ExceptKeys extends keyof Type> = Pick<Type, ExceptKeys> & Partial<Omit<Type, ExceptKeys>>;
+
+export type KeysOfValue<T, TCondition> = {
+    [K in keyof T]: T[K] extends TCondition
+      ? K
+      : never;
+  }[keyof T];

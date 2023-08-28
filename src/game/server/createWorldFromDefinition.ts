@@ -11,6 +11,7 @@ import forEach from 'helpers/object/forEach';
 import defaultGameDefinition from '../data/defaultGameDefinition';
 import { GameDefinition, GameDefinitionOptions, SpeciesDefinition } from 'types/game/shared/definitions';
 import { WritableDeep } from 'type-fest';
+import fastSimpleClone from 'helpers/app/fastSimpleClone';
 
 
 //The function
@@ -24,14 +25,7 @@ export default function createWorldFromDefinition(userDefinition: GameDefinition
   } as SpeciesDefinition))
 
   const definition: WritableDeep<GameDefinition> = {...gameDefinitionDefaults, ...userDefinition, species};
-
-  // Type '{ species: Record<string, SpeciesDefinition>; type: "new"; gameName: string; startDate: TDate; systems: Record<string, SystemDefinition>; ... 15 more ...; technology: Record<...> | WritableObjectDeep<...>; }' is not assignable to type 'WritableObjectDeep<ReadonlyObjectDeep<BaseGameDefinition<string, string, string, string, string, string>>>'.
-  // Types of property 'systemBodyTypeMineralAbundance' are incompatible.
-  //   Type 'Record<"star" | "planet" | "moon" | "asteroid" | "gasGiant" | "dwarfPlanet", Record<string, number>> | WritableObjectDeep<{ readonly star: { readonly "1": 0; }; }>' is not assignable to type 'WritableObjectDeep<ReadonlyObjectDeep<Record<"star" | "planet" | "moon" | "asteroid" | "gasGiant" | "dwarfPlanet", Record<string, number>>>>'.
-  //     Type 'WritableObjectDeep<{ readonly star: { readonly "1": 0; }; }>' is missing the following properties from type 'WritableObjectDeep<ReadonlyObjectDeep<Record<"star" | "planet" | "moon" | "asteroid" | "gasGiant" | "dwarfPlanet", Record<string, number>>>>': planet, moon, asteroid, gasGiant, dwarfPlanet
-
-  //TODO
-  const constructionProjects = JSON.parse(JSON.stringify(definition.constructionProjects));
+  const constructionProjects = fastSimpleClone(definition.constructionProjects);
 
   //now add constuction project for each type of structure
   forEach(definition.structures, (structure, id) => {

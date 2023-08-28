@@ -16,7 +16,7 @@ export default {
             return;
         }
 
-        let hasProduction = false;
+        //let hasProduction = false;
 
         //reduce minerals by colony mining activities
         forEach(gameConfig.minerals, (mineralName, mineralId) => {
@@ -30,9 +30,9 @@ export default {
                 return miningProduction * systemBodyMinerals.access * DAY_ANNUAL_FRACTION;
             }).reduce((a, b) => a+b, 0));
 
-            if(totalDailyProduction > 0) {
-                hasProduction = true;
-            }
+            // if(totalDailyProduction > 0) {
+            //     hasProduction = true;
+            // }
 
             //technically allows extracion of more minerals than there are, but it's minor, and would be a big job to fix for a very small edge case
             systemBody.availableMinerals[mineralId].quantity -= totalDailyProduction;

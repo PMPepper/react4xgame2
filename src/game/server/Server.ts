@@ -33,8 +33,6 @@ export default class Server {
   isPaused: boolean = false;
   realElapsedTime: number = 0;//used to track sub-second time intervals, as gameTick only fires once per second
 
-  
-
   //Array of arrays, second level arrays contain processor that can run in parallel
   entityProcessors:EntityProcessor[][] = [[populationFactory], [colonyFactory], [mineralDepletionFactory]];
 
@@ -138,8 +136,9 @@ export default class Server {
   }
 
   _advanceTime(isInit: boolean, ticksToAdvanceBy: number = 0) {
-    const {entities, gameConfig, entityIds, entitiesByType, entitiesLastUpdated, factionEntities} = this.state!;
-    const {entityProcessors} = this;
+    const {entityProcessors, state} = this;
+    const {entities, gameConfig, entityIds, entitiesByType, entitiesLastUpdated, factionEntities} = state!;
+    
 
     const advanceToTime = isInit ?
       0
@@ -149,13 +148,13 @@ export default class Server {
     //DEV performance testing
     //const startTime = performance.now()
 
-    while(isInit || this.state!.gameTime < advanceToTime) {
-      const lastTime = this.state!.gameTime;
+    while(isInit || state!.gameTime < advanceToTime) {
+      const lastTime = state!.gameTime;
 
       //update game time (if applicable)
-      this.state!.gameTime = isInit ? lastTime : Math.min(lastTime + 1, advanceToTime);
+      state!.gameTime = isInit ? lastTime : Math.min(lastTime + 1, advanceToTime);
 
-      const time = this.state!.gameTime;
+      const time = state!.gameTime;
       const isDayStep = Math.floor(lastTime / 86400) !== Math.floor(time / 86400)
 
       //Iterate though entity processor sets

@@ -1,6 +1,6 @@
 import {GRAVITATIONAL_CONSTANT} from './consts';
 
-export default function orbitPeriod(orbitRadius, orbitingBodyMass, orbitedBodyMass) {
+export default function orbitPeriod(orbitRadius: number, orbitingBodyMass: number, orbitedBodyMass: number) {
   if(isNaN(orbitRadius) || orbitRadius < 0 || isNaN(orbitingBodyMass) || orbitingBodyMass < 0 || isNaN(orbitedBodyMass) || orbitedBodyMass < 0) {
     throw new Error('Invalid orbitPeriod values');
   }

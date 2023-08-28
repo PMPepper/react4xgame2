@@ -1,5 +1,5 @@
 
-export default function every(object, testFunc) {
+export default function every<T extends {}>(object: T, testFunc: <K extends keyof T>(value: T[K], key: K, obj: T) => boolean) {
     for(let i = 0, keys = Object.keys(object), key = null; i < keys.length; i++) {
       key = keys[i];
   
