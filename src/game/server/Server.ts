@@ -73,10 +73,10 @@ export default class Server {
             clearInterval(this._tickId);
             this._tickId = undefined;
         } else {
-            const start = Date.now();
+            //const start = Date.now();
             
             this._onTick(targetInterval);
-            const end = Date.now();
+            //const end = Date.now();
 
             //this._lastTime = start;
         }

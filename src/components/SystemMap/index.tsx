@@ -1,6 +1,6 @@
+import React from 'react';
 //TODO set limits on zoom/scroll
-import {useRef, useCallback, useMemo, useEffect, memo} from 'react';
-import objectpool from 'objectpool';
+import {useRef, useCallback, useMemo, useEffect} from 'react';
 
 
 import defaultStyles from './systemMap.module.scss';
@@ -20,6 +20,9 @@ import {getColoniesBySystemBody, getRenderableEntitiesInSystem} from 'game/Clien
 
 //constants
 import {startFadeRadius, startFadeOrbitRadius} from 'components/game/GameConsts';
+
+import {circlePool, textPool, positionsPool} from './primitives'
+
 
 const normalScrollSpeed = 200;//pixels per second
 const fastScrollSpeed = 500;//pixels per second
@@ -53,7 +56,7 @@ export default (function SystemMap({
     x: initialX, y: initialY, zoom: initialZoom, tx: initialX, ty: initialY, tzoom: initialZoom, 
     following: null, followingTime: 0, lastFollowing: null, isMouseDragging: false, lastClientState: null,
     entityScreenPositions: [], renderPrimitives: [], mouseClientX: null, mouseClientY: null,
-    mouseDownWorldCoords: {x: 0, y: 0}, dragMouseX: 0, dragMouseY: 0
+    mouseDownWorldCoords: {x: 0, y: 0}, dragMouseX: 0, dragMouseY: 0, windowSize: null
   });
 
   //calculated values
@@ -72,7 +75,7 @@ export default (function SystemMap({
 
   //Callbacks
   const screenToWorld = useCallback(
-    (screenX, screenY, options) => {
+    (screenX: number, screenY: number, options?: {x?: number, y?: number, zoom?: number}) => {
       const {windowSize} = ref.current;
 
       const x = options && ('x' in options) ? options.x : ref.current.x;
@@ -116,7 +119,7 @@ export default (function SystemMap({
   );
 
   const endDragging = useCallback(
-    (e) => {
+    (e?: MouseEvent) => {
       e?.preventDefault();
 
       ref.current.isMouseDragging = false;
@@ -449,54 +452,3 @@ export function getSystemBodyVisibleMaxZoom(systemBodyEntity) {
 
 
 
-//define object pools + generators
-const circlePool = objectpool.generate({t: 'circle', id: null, x: 0, y: 0, r: 0, opacity: 0, type: null, subType: null}, {count: 250, regenerate: 1});
-const textPool = objectpool.generate({t: 'text', text: null, id: null, x: 0, y: 0, opacity: 0, type: null, subType: null}, {count: 250, regenerate: 1});
-
-export function circle(id, x, y, r, opacity, type, subType) {
-  const circle = circlePool.get();
-
-  circle.id = id;
-  circle.x = x;
-  circle.y = y;
-  circle.r = r;
-  circle.opacity = opacity;
-  circle.type = type;
-  circle.subType = subType;
-
-  return circle;
-}
-
-export function text(id, textVal, x, y, opacity, type, subType) {
-  const text = textPool.get();
-
-  text.id = id;
-  text.text = textVal;
-  text.x = x;
-  text.y = y;
-  text.opacity = opacity;
-  text.type = type;
-  text.subType = subType;
-
-  return text;
-}
-
-//entity position pool
-const positionsPool = objectpool.generate(
-  {id: null, x: 0, y: 0, r: 0},
-  {
-    count: 250,
-    regenerate: 1
-  }
-);
-
-export function position(id, x, y, r) {
-  const position = positionsPool.get();
-
-  position.id = id;
-  position.x = x;
-  position.y = y;
-  position.r = r;
-
-  return position;
-}

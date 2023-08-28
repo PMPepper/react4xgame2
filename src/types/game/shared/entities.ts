@@ -14,6 +14,16 @@ export interface Entity {
 // Entities //
 //////////////
 
+export interface EntityFleet<TServer extends boolean> extends Entity {
+    type: 'fleet';
+    position: Position | null
+    movement: FacetMovement<TServer> | null;
+    factionId: number;
+    systemId: number;
+
+    //TODO ships
+}
+
 export interface EntityColony<TServer extends boolean> extends Entity {
     type: 'colony';
 
@@ -104,13 +114,14 @@ export interface IMobileEntity<TServer extends boolean> extends IPositionedEntit
 /////////////////
 
 export type AllEntityTypes<TServer extends boolean> = {
-    colony: EntityColony<TServer>, 
-    faction: EntityFaction<TServer>,
-    system: EntitySystem,
-    systemBody: EntitySystemBody<TServer>,
-    species: EntitySpecies<TServer>,
-    population: EntityPopulation<TServer>,
-    researchGroup: EntityResearchGroup<TServer>,
+    colony: EntityColony<TServer>;
+    faction: EntityFaction<TServer>;
+    system: EntitySystem;
+    systemBody: EntitySystemBody<TServer>;
+    species: EntitySpecies<TServer>;
+    population: EntityPopulation<TServer>;
+    researchGroup: EntityResearchGroup<TServer>;
+    fleet: EntityFleet<TServer>;
 };
 
 

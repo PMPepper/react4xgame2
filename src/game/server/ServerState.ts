@@ -5,7 +5,7 @@ import getSystemBodyPosition from 'helpers/app/getSystemBodyPosition';
 import * as utils from './utils';
 
 import calculatePopulationWorkers from 'game/utils/calculatePopulationWorkers';
-import { AvailableMinerals, ClientState, FactionEntity } from 'types/game/shared/game';
+import { AvailableMinerals, ClientState, FactionEntity, Position } from 'types/game/shared/game';
 import { AllEntityTypes, Entity, EntityFaction, EntitySystemBody, EntityTypes } from 'types/game/shared/entities';
 import { isEntityOfType } from 'types/game/server/entities';
 import { ConstructionProjectDefinition, ConstructionProjectIdType, MineralIdType, ResearchAreaIdType, ResearchDefinition, ResearchIdType, StructureDefinition, StructureIdType, SystemBodyDefinition, SystemBodyTypes, TechnologyDefinition, TechnologyIdType } from 'types/game/shared/definitions';
@@ -132,8 +132,6 @@ export default class ServerState {
   }
 
   createSystemBody(systemId: number, bodyDefinition: SystemBodyDefinition, movement?: FacetMovement<true>, availableMinerals?: AvailableMinerals) {
-    
-
     const body = this._newEntity('systemBody', {
       systemId,
       mass: {
@@ -284,6 +282,17 @@ export default class ServerState {
     calculatePopulationWorkers(entity, this.getEntityById(speciesId, 'species'), colony ? this.getEntityById(colony.systemBodyId, 'systemBody') : null, colony);
 
     return entity;
+  }
+
+  createFleet(factionId: number, systemId: number, position: Position, movement: FacetMovement<true>) {
+    const fleet = this._newEntity('fleet', {
+      factionId,
+      systemId,
+      position,
+      movement,
+    });
+
+    return fleet;
   }
 
   addPopulationToColony(colonyId: number, populationId: number) {//is this used? No, but might get used later
