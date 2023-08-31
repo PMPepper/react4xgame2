@@ -21,7 +21,7 @@ import {getColoniesBySystemBody, getRenderableEntitiesInSystem} from 'game/Clien
 //constants
 import {startFadeRadius, startFadeOrbitRadius} from 'components/game/GameConsts';
 
-import {circlePool, textPool, positionsPool} from './primitives'
+import {pools, positionsPool} from './primitives'
 
 
 const normalScrollSpeed = 200;//pixels per second
@@ -395,17 +395,9 @@ export default (function SystemMap({
 
   //return previous primitives to the pool
   renderPrimitives.forEach(primitive => {
-    switch (primitive.t) {
-      case 'circle':
-        circlePool.release(primitive);
-        break;
-      case 'text':
-        textPool.release(primitive);
-        break;
-      default:
-        debugger;//shouldn't happen!
-    }
+    pools[primitive.t].release(primitive);
   });
+  
   renderPrimitives.length = 0;
 
   //reset entityScreenPositions to pool
@@ -429,8 +421,6 @@ export default (function SystemMap({
   />
 });
 
-
-
 //TODO only works with circular orbits (all I have right now)
 export function getSystemBodyVisibleMaxZoom(systemBodyEntity) {
   const parent = systemBodyEntity.movement && systemBodyEntity.movement.orbitingId;
@@ -449,6 +439,4 @@ export function getSystemBodyVisibleMaxZoom(systemBodyEntity) {
 
   return radiusMaxZoom;
 }
-
-
 

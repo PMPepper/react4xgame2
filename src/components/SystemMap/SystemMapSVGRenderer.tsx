@@ -3,7 +3,8 @@ import {scaleLength} from 'components/game/GameConsts';
 
 //Helpers
 import formatDistanceSI from 'helpers/string/format-distance-si';
-import { RenderCircle, RenderText, SystemMapRendererProps } from './types';
+import { SystemMapRendererProps } from './types';
+import { RenderCircle, RenderRectangle, RenderText } from './primitives';
 
 
 
@@ -44,6 +45,19 @@ export default function SystemMapSVGRenderer({renderPrimitives, styles, x, y, zo
               >
                 {text.text}
               </text>;
+            }
+            case 'rectangle': {
+              const rectangle = primitive as RenderRectangle;
+
+              return <rect
+                className={`${styles[rectangle.type]} ${styles[rectangle.subType]}`}
+                x1={rectangle.x}
+                y1={rectangle.y}
+                x2={rectangle.x + rectangle.width}
+                y2={rectangle.y + rectangle.height}
+                key={rectangle.id}
+                opacity={rectangle.opacity}
+              />
             }
             default:
               debugger;//shouldn't happen!

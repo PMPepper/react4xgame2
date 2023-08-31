@@ -1,11 +1,11 @@
 import * as RenderFlags from '../renderFlags';
-import {circle, text, position} from '../primitives';
+import {circle, text, position, RenderPrimitive, RenderPosition} from '../primitives';
 import {
   outOfBoundsVCull, outOfBoundsHCull, startFadeRadius, fullyFadeRadius,
   startFadeOrbitRadius, fullyFadeOrbitRadius, startFadeLargeOrbit,
   fullyFadeLargeOrbit, systemBodyTypeMinRadius
 } from 'components/game/GameConsts';
-import { RenderPosition, RenderPrimitive, SystemMapOptions } from '../types';
+import { SystemMapOptions } from '../types';
 import { Entity, EntityColony, EntitySystemBody } from 'types/game/shared/entities';
 import { FactionEntity } from 'types/game/shared/game';
 import { isEntityOfType } from 'types/game/base/entityTypeGuards';
@@ -136,5 +136,5 @@ export default function systemBodyRenderer(
   }
 
   //record position
-  entityScreenPositions.push(position(entity.id.toString(), cx, cy, displayBody ? r : 0));
+  entityScreenPositions.push(position(entity.id, cx, cy, displayBody ? r : 0));
 }
