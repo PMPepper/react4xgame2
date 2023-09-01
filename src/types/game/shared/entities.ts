@@ -1,5 +1,5 @@
 import { ENTITY_TYPES } from "game/Consts";
-import { FacetAvailableMinerals, FacetColony, FacetFaction, FacetMass, FacetMovement, FacetPopulation, FacetRender, FacetResearchGroup, Facets, FacetSpecies, FacetSystemBody } from "./facets";
+import { FacetAvailableMinerals, FacetColony, FacetFaction, FacetFleet, FacetMass, FacetMovement, FacetPopulation, FacetRender, FacetResearchGroup, Facets, FacetSpecies, FacetSystemBody } from "./facets";
 import { Position } from "./game";
 
 export type EntityTypes = typeof ENTITY_TYPES[number];
@@ -16,12 +16,15 @@ export interface Entity {
 
 export interface EntityFleet<TServer extends boolean> extends Entity {
     type: 'fleet';
+
+    fleet: FacetFleet<TServer>;
+
     position: Position | null
     movement: FacetMovement<TServer> | null;
     factionId: number;
     systemId: number;
 
-    //TODO ships
+    render: FacetRender<TServer>;
 }
 
 export interface EntityColony<TServer extends boolean> extends Entity {

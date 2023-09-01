@@ -9,7 +9,7 @@ import { AvailableMinerals, ClientState, FactionEntity, Position } from 'types/g
 import { AllEntityTypes, Entity, EntityFaction, EntitySystemBody, EntityTypes } from 'types/game/shared/entities';
 import { isEntityOfType } from 'types/game/server/entities';
 import { ConstructionProjectDefinition, ConstructionProjectIdType, MineralIdType, ResearchAreaIdType, ResearchDefinition, ResearchIdType, StructureDefinition, StructureIdType, SystemBodyDefinition, SystemBodyTypes, TechnologyDefinition, TechnologyIdType } from 'types/game/shared/definitions';
-import { FacetColony, FacetMovement, FacetResearchGroup, Facets, isFacetType } from 'types/game/shared/facets';
+import { FacetColony, FacetFleet, FacetMovement, FacetResearchGroup, Facets, isFacetType } from 'types/game/shared/facets';
 import { ENTITY_TYPES } from 'game/Consts';
 import { MapOmit } from 'types/utils';
 import { IMovementOrbit, isFacetMovementOrbit } from 'types/game/shared/movement';
@@ -284,15 +284,15 @@ export default class ServerState {
     return entity;
   }
 
-  createFleet(factionId: number, systemId: number, position: Position, movement: FacetMovement<true>) {
-    const fleet = this._newEntity('fleet', {
+  createFleet(factionId: number, fleet: FacetFleet<true>, systemId: number, position: Position, movement: FacetMovement<true>) {
+    return this._newEntity('fleet', {
+      fleet,
       factionId,
       systemId,
       position,
       movement,
+      render: {type: 'fleet'}
     });
-
-    return fleet;
   }
 
   addPopulationToColony(colonyId: number, populationId: number) {//is this used? No, but might get used later

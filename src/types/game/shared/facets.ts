@@ -31,8 +31,10 @@ export type FacetMovement<TServer extends boolean> = Combine<Facet<TServer>, {
     type: MovementTypes,
 }>;
 
+export type EntityRenderTypes = 'systemBody' | 'fleet';//TODO are there more? This probably needs more adding to it
+
 export type FacetRender<TServer extends boolean> = Combine<Facet<TServer>, {
-    type: 'systemBody';//TODO are there more? This probably needs more adding to it
+    type: EntityRenderTypes;
 }>;
 
 export type FacetFaction<TServer extends boolean> = Combine<Facet<TServer>, {
@@ -82,6 +84,12 @@ export type FacetPopulation<TServer extends boolean> = Combine<Facet<TServer>, {
 export type FacetResearchGroup<TServer extends boolean> = Combine<Facet<TServer>, {
     structures: any;//TODO
     projects: any;//TODO
+}>;
+
+export type FacetFleet<TServer extends boolean> = Combine<Facet<TServer>, {
+    name: string;
+
+    //TODO ships, etc
 }>;
 
 
