@@ -1,26 +1,8 @@
-import { SystemBodyTypes } from "types/game/shared/definitions";
 import { Entity, EntityColony } from "types/game/shared/entities";
 import { FactionEntity } from "types/game/shared/game";
 import { RenderPosition, RenderPrimitive } from "./primitives";
+import { SystemMapDisplayOptions } from "redux/reducers/systemMapOptions";
 
-
-
-// export interface RenderCircle extends RenderPrimitiveBase {
-//   r: number;
-// }
-
-// export interface RenderText extends RenderPrimitiveBase {
-//   text: string;
-// }
-
-// export type RenderPrimitive = RenderCircle | RenderText;
-
-// export type RenderPosition = {
-//     id: number;
-//     x: number;
-//     y: number;
-//     position: number;
-// }
 
 
 export type SystemMapRendererProps = {
@@ -34,18 +16,6 @@ export type SystemMapRendererProps = {
   options: any;//TODO at some point this will be implemented
 } & JSX.IntrinsicElements['div'];
 
-
-export type SystemMapSystemBodyOptions = {
-    body: number;//renderFlags
-    label: number;//renderFlags
-    orbit: number;//renderFlags
-};
-
-export type SystemMapOptions = {
-    highlightColonies: boolean;
-    bodies: Record<SystemBodyTypes, SystemMapSystemBodyOptions>;
-}
-
 export type EntityRenderer = (
     renderPrimitives: RenderPrimitive[], 
     entityScreenPositions: RenderPosition[], 
@@ -55,5 +25,5 @@ export type EntityRenderer = (
     entities: Record<number, Entity>, 
     factionEntities: Record<number, FactionEntity>, 
     colonies: Record<number, EntityColony<false>>, 
-    options: SystemMapOptions
+    options: SystemMapDisplayOptions
 ) => void;

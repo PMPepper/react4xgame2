@@ -87,3 +87,5 @@ export type BuildQueueItem = {
     assignToPopulationId: number,
     takeFromPopulationId: number
 };
+
+export type RelationshipTypes = 'self' | 'allied' | 'neutral' | 'enemy';

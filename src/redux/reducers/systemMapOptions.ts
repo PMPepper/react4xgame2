@@ -1,8 +1,39 @@
 import { createSlice } from '@reduxjs/toolkit';
 
 import * as RenderFlags from 'components/SystemMap/renderFlags';
+import { SystemBodyTypes } from 'types/game/shared/definitions';
+import { RelationshipTypes } from 'types/game/shared/game';
 
-const initialState = {
+export type SystemMapSystemBodyOptions = {
+  body: number;//renderFlags
+  label: number;//renderFlags
+  orbit: number;//renderFlags
+};
+
+export type SystemMapDisplayOptions = {
+  highlightColonies: boolean;
+  highlightMinerals: boolean;
+  bodies: Record<SystemBodyTypes, SystemMapSystemBodyOptions>;
+  fleets: Record<RelationshipTypes, boolean>;
+}
+
+export type SystemMapControlsOptions = {
+  fast: number,
+  scrollUp: number[],
+  scrollRight: number[],
+  scrollDown: number[],
+  scrollLeft: number[],
+  zoomIn: number[],
+  zoomOut: number[],
+};
+
+export type SystemMapOptionsType = {
+  display: SystemMapDisplayOptions;
+  controls: SystemMapControlsOptions;
+  mouseEdgeScrolling: number;
+};
+
+const initialState: SystemMapOptionsType = {
     display: {
       highlightColonies: true,
       highlightMinerals: true,
@@ -37,7 +68,13 @@ const initialState = {
           label: RenderFlags.ALL,
           orbit: RenderFlags.ALL
         },
-      }
+      },
+      fleets: {
+        self: true,
+        allied: true,
+        neutral: true,
+        enemy: true,
+      },
     },
     controls: {//16, 33, 34, 37, 38, 39, 40, 87, 68, 83, 65
       fast: 16,

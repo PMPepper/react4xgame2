@@ -1,7 +1,7 @@
 import { Entity, EntityColony, isEntityOfType } from "types/game/client/entities";
 import { RenderPosition, RenderPrimitive } from "../primitives";
 import { FactionEntity } from "types/game/shared/game";
-import { SystemMapOptions } from "../types";
+import { SystemMapDisplayOptions } from "redux/reducers/systemMapOptions";
 
 export default function fleetRenderer(
     renderPrimitives: RenderPrimitive[], 
@@ -11,11 +11,12 @@ export default function fleetRenderer(
     entity: Entity, entities: Record<number, Entity>, 
     factionEntities: Record<number, FactionEntity>, 
     colonies: Record<number, EntityColony<false>>, 
-    options: SystemMapOptions
+    options: SystemMapDisplayOptions
   ) {
     if(!isEntityOfType(entity, 'systemBody')) {
       throw new Error('Incorrect entity type');
     }
   
     //TODO
+    const displayFleet = options.fleets
 }

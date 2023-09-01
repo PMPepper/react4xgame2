@@ -5,12 +5,12 @@ import {
   startFadeOrbitRadius, fullyFadeOrbitRadius, startFadeLargeOrbit,
   fullyFadeLargeOrbit, systemBodyTypeMinRadius
 } from 'components/game/GameConsts';
-import { SystemMapOptions } from '../types';
 import { Entity, EntityColony, EntitySystemBody } from 'types/game/shared/entities';
 import { FactionEntity } from 'types/game/shared/game';
 import { isEntityOfType } from 'types/game/base/entityTypeGuards';
 import { isFacetMovementOrbit } from 'types/game/shared/movement';
 import { FacetMovementOrbitRegular } from 'types/game/shared/movement';
+import { SystemMapDisplayOptions } from 'redux/reducers/systemMapOptions';
 
 
 export default function systemBodyRenderer(
@@ -21,7 +21,7 @@ export default function systemBodyRenderer(
   entity: Entity, entities: Record<number, Entity>, 
   factionEntities: Record<number, FactionEntity>, 
   colonies: Record<number, EntityColony<false>>, 
-  options: SystemMapOptions
+  options: SystemMapDisplayOptions
 ) {
   if(!isEntityOfType(entity, 'systemBody')) {
     throw new Error('Incorrect entity type');
