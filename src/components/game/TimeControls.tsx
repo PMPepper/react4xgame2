@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import React, { useMemo } from 'react';
 import { Trans } from '@lingui/macro';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { solid } from '@fortawesome/fontawesome-svg-core/import.macro';
@@ -8,17 +8,23 @@ import Button from 'components/ui/Button';
 import Time from 'components/format/Time';
 
 //Hooks
-import { useContextSelector } from 'components/SelectableContext';
+import { useClientStateContext } from './ClientStateContext';
 
 //Other
 import styles from './TimeControls.module.scss';
+import { GameSpeeds } from 'types/game/shared/game';
+
+type TimeControlsProps = {
+  setIsPaused: (isPaused: boolean) => void;
+  setDesiredSpeed: (desiredSpeed: GameSpeeds) => void;
+};
 
 
 //The component
-export default function TimeControls({setIsPaused, setDesiredSpeed}) {
-    const isPaused = useContextSelector(state => state.isPaused);
-    const desiredGameSpeed = useContextSelector(state => state.desiredGameSpeed);
-    const gameTime = useContextSelector(state => state.gameTime);
+export default function TimeControls({setIsPaused, setDesiredSpeed}: TimeControlsProps) {
+    const isPaused = useClientStateContext(state => state.isPaused);
+    const desiredGameSpeed = useClientStateContext(state => state.desiredGameSpeed);
+    const gameTime = useClientStateContext(state => state.gameTime);
 
     const gameTimeDate = useMemo(
       () => {

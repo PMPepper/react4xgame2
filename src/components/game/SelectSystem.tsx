@@ -1,9 +1,7 @@
-
-import { useSelector, useDispatch } from 'react-redux';
+import React from 'react';
 import { Trans } from '@lingui/macro';
 
 //Hooks
-import { useContextSelector } from 'components/SelectableContext';
 
 //Helpers
 import sortOnPropNatsort from 'helpers/sorting/sort-on-prop-natsort';
@@ -13,16 +11,19 @@ import {set as setSelectedColonyId} from 'redux/reducers/selectedSystemId';
 
 //Other
 import styles from './SelectSystem.module.scss';
+import { useClientStateContext } from './ClientStateContext';
+import useAppSelector from 'hooks/useAppSelector';
+import useAppDispatch from 'hooks/useAppDispatch';
 
 
 //The component
 export default function SelectSystem() {
     //Redux
-    const selectedSystemId = useSelector(state => state.selectedSystemId);
-    const dispatch = useDispatch();
+    const selectedSystemId = useAppSelector(state => state.selectedSystemId);
+    const dispatch = useAppDispatch();
 
     //Client state
-    const knownSystems = useContextSelector(state => state.knownSystems) || [];
+    const knownSystems = useClientStateContext(state => state.knownSystems) || [];
 
     //Callbacks
     const onChangeSelectedSystemId = (evt) => dispatch(setSelectedColonyId(+evt.target.value))
@@ -37,6 +38,5 @@ export default function SelectSystem() {
                     .map(({id, name}) => <option key={id} value={id}>{name}</option>)
             }</select>
         </label>
-        
     </div>
 }

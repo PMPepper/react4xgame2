@@ -1,6 +1,6 @@
 import { ALL_FACETS } from "game/Consts";
-import { Minerals, ResearchDefinition, SystemBodyTypes, TechnologyDefinition } from "./definitions";
-import { CapabilityTypes, AvailableMinerals, BuildQueueItem, OrbitTypes, MovementTypes } from "./game";
+import { Minerals, SystemBodyTypes } from "./definitions";
+import { CapabilityTypes, AvailableMinerals, BuildQueueItem, MovementTypes } from "./game";
 import { Combine } from "types/utils";
 
 export type Facets = typeof ALL_FACETS[number];

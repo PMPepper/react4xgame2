@@ -14,8 +14,8 @@ import Entity from "components/game/Entity";
 
 //Hooks
 import { useGameConfig } from "components/game/Game";
-import { useContextSelector } from "components/SelectableContext";
 import useGetEntitiesByIds from "components/game/Game/useGetEntitiesByIds";
+import {useClientStateContext} from "components/game/ClientStateContext";
 
 //Consts
 import { DAY_ANNUAL_FRACTION } from 'game/Consts';
@@ -171,8 +171,8 @@ const productionTableGroups = [
 export default function MiningTab({selectedColonyId}) {
     const {minerals, structures} = useGameConfig();//structures? technologies?
 
-    const colony = useContextSelector(state => state.entities[selectedColonyId]);
-    const colonySystemBody = useContextSelector(state => state.entities[colony?.systemBodyId]);
+    const colony = useClientStateContext(state => state.entities[selectedColonyId]);
+    const colonySystemBody = useClientStateContext(state => state.entities[colony?.systemBodyId]);
 
 
     const colonyPopulations = useGetEntitiesByIds(colony.populationIds);

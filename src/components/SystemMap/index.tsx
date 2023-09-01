@@ -1,5 +1,5 @@
-import React from 'react';
 //TODO set limits on zoom/scroll
+import React from 'react';
 import {useRef, useCallback, useMemo, useEffect} from 'react';
 
 
@@ -12,7 +12,6 @@ import useWindowSize from 'hooks/useWindowSize';
 import useKeyboardInput from 'hooks/useKeyboardInput';
 import useAnimationFrame from 'hooks/useAnimationFrame';
 import useForceUpdate from 'hooks/useForceUpdate';
-import {useGetContextState} from 'components/SelectableContext';
 
 //Helpers
 import flatten from 'helpers/array/flatten';
@@ -21,7 +20,14 @@ import {getColoniesBySystemBody, getRenderableEntitiesInSystem} from 'game/Clien
 //constants
 import {startFadeRadius, startFadeOrbitRadius} from 'components/game/GameConsts';
 
-import {pools, positionsPool} from './primitives'
+import { RenderPosition, RenderPrimitive, pools, positionsPool} from './primitives'
+import { SystemMapOptionsType } from 'redux/reducers/systemMapOptions';
+import { SystemMapRendererProps } from './types';
+import { Entity, EntitySystemBody } from 'types/game/shared/entities';
+import { FacetMovementOrbitRegular, isFacetMovementOrbit } from 'types/game/shared/movement';
+import { useGetClientState } from 'components/game/ClientStateContext';
+import { ClientGameState } from 'types/game/shared/game';
+import { isPositionedEntity } from 'types/game/client/entities';
 
 
 const normalScrollSpeed = 200;//pixels per second
@@ -42,17 +48,58 @@ const zoomEaseThreshold = 0.0001;
 //this is to catch up with fast objects
 const followExtraEaseTime = 0.5;
 
+export type SystemMapRendererType = React.ComponentType<SystemMapRendererProps>;
+
+export type SystemMapOnContextMenuHandler = (evt: React.MouseEvent<HTMLDivElement>, x: number, y: number, clickedEntityIds: number[]) => void;
+
+export type SystemMapProps = {
+  options: SystemMapOptionsType;
+  systemId: number;
+  following: number | null;
+  setFollowing: (followingEntityId: number | null) => void;
+  initialX?: number;
+  initialY?: number;
+  initialZoom?: number;
+  cx?: number;
+  cy?: number; 
+  onContextMenu?: SystemMapOnContextMenuHandler; 
+  renderComponent?: SystemMapRendererType;
+  styles?: Record<string, string>;//TODO better typing
+}
+
+type SystemMapStateRef = {
+  x: number;
+  y: number;
+  zoom: number;
+  tx: number;
+  ty: number;
+  tzoom: number; 
+  following: number | null
+  followingTime: number
+  lastFollowing: number | null
+  isMouseDragging: boolean
+  lastClientState: ClientGameState | null,
+  entityScreenPositions: RenderPosition[];
+  renderPrimitives: RenderPrimitive[];
+  mouseClientX: number
+  mouseClientY: number,
+  mouseDownWorldCoords: {x: number, y: number}
+  dragMouseX: number;
+  dragMouseY: number;
+  windowSize: null | {width: number, height: number}
+};
+
 
 //The component
 export default (function SystemMap({
   options, systemId, following, setFollowing, initialX = 0, initialY = 0, initialZoom = 1/1000000000, cx = 0.5, cy = 0.5, 
-  onContextMenu = null, 
+  onContextMenu, 
   renderComponent:RenderComponent = SystemMapSVGRenderer, styles = defaultStyles
-}) {
-  const getClientState = useGetContextState();
+}: SystemMapProps) {
+  const getClientState = useGetClientState();
   const clientState = getClientState();
 
-  const ref = useRef({
+  const ref = useRef<SystemMapStateRef>({
     x: initialX, y: initialY, zoom: initialZoom, tx: initialX, ty: initialY, tzoom: initialZoom, 
     following: null, followingTime: 0, lastFollowing: null, isMouseDragging: false, lastClientState: null,
     entityScreenPositions: [], renderPrimitives: [], mouseClientX: null, mouseClientY: null,
@@ -107,7 +154,7 @@ export default (function SystemMap({
 
   //event handlers
   const onDragMove = useCallback(
-    (e) => {
+    (e: MouseEvent) => {
       e.preventDefault();
 
       ref.current.isMouseDragging = true;
@@ -131,7 +178,7 @@ export default (function SystemMap({
   );
 
   const onMouseDown = useCallback(
-    (e) => {
+    (e: React.MouseEvent<HTMLDivElement>) => {
       ref.current.dragMouseX = e.clientX;
       ref.current.dragMouseY = e.clientY;
 
@@ -144,7 +191,7 @@ export default (function SystemMap({
   )
 
   const onMouseMove = useCallback(
-    (e) => {
+    (e: React.MouseEvent<HTMLDivElement>) => {
       ref.current.mouseClientX = e.clientX;
       ref.current.mouseClientY = e.clientY;
     },
@@ -152,7 +199,7 @@ export default (function SystemMap({
   );
 
   const onMouseLeave = useCallback(
-    (e) => {
+    () => {
       ref.current.mouseClientX = null;
       ref.current.mouseClientY = null;
     },
@@ -160,7 +207,7 @@ export default (function SystemMap({
   );
 
   const onClick = useCallback(
-    (e) => {
+    (e: React.MouseEvent<HTMLDivElement>) => {
       const clickX = e.clientX;
       const clickY = e.clientY
 
@@ -181,7 +228,7 @@ export default (function SystemMap({
   );
 
   const onWheel = useCallback(
-    (e) => {
+    (e: React.WheelEvent<HTMLDivElement>) => {
       const wheelZoomSpeed = isKeyDown(options.controls.fast) ? fastWheelZoomSpeed : normalWheelZoomSpeed;
 
       if(e.deltaY < 0) {
@@ -194,7 +241,7 @@ export default (function SystemMap({
   );
 
   const onFrameUpdate = useCallback(
-    (elapsedTime) => {
+    (elapsedTime: number) => {
       const clientState = getClientState();
 
       //const {props, state, mouseClientX, mouseClientY, isMouseDragging} = this;
@@ -252,7 +299,7 @@ export default (function SystemMap({
             const followEntity = clientState.entities[following];
 
             //This is an entity that has a position, so can be followed...
-            if(followEntity.position) {
+            if(isPositionedEntity(followEntity)) {
               ref.current.tx = followEntity.position.x;
               ref.current.ty = followEntity.position.y;
               isFollowing = true;
@@ -351,7 +398,9 @@ export default (function SystemMap({
     () => {
       //if following a new system body, set appropriate zoom level
       if(following) {
-        ref.current.tzoom = Math.max(ref.current.tzoom, getSystemBodyVisibleMaxZoom(clientState.entities[following]));
+        const followingEntity = clientState.entities[following];
+
+        ref.current.tzoom = Math.max(ref.current.tzoom, getFollowingEntityMaxZoom(followingEntity));
       }
     },
     //I explicitly do NOT want this to execute every time clientState.entities changes. 
@@ -371,7 +420,7 @@ export default (function SystemMap({
       onMouseLeave,
       onClick,
       onWheel,
-      onContextMenu: onContextMenu ? (e) => {
+      onContextMenu: onContextMenu ? (e: React.MouseEvent<HTMLDivElement>) => {
         const {clientX, clientY} = e;
 
         onContextMenu(e, clientX, clientY, ref.current.entityScreenPositions.filter(({x, y, r}) => {
@@ -379,7 +428,7 @@ export default (function SystemMap({
 
           return d <= Math.max(5, r) ** 2;
         }).map(({id}) => id));
-      } : null
+      } : undefined
     }),
     // all the other props are 100% memoised, so will never become 'stale'
     [onContextMenu]//eslint-disable-line react-hooks/exhaustive-deps
@@ -395,7 +444,7 @@ export default (function SystemMap({
 
   //return previous primitives to the pool
   renderPrimitives.forEach(primitive => {
-    pools[primitive.t].release(primitive);
+    pools[primitive.t].release(primitive as any);
   });
   
   renderPrimitives.length = 0;
@@ -421,16 +470,26 @@ export default (function SystemMap({
   />
 });
 
+export function getFollowingEntityMaxZoom(entity: Entity) {
+  return 0;//TODO if this is a system body, use getSystemBodyVisibleMaxZoom
+}
+
 //TODO only works with circular orbits (all I have right now)
-export function getSystemBodyVisibleMaxZoom(systemBodyEntity) {
-  const parent = systemBodyEntity.movement && systemBodyEntity.movement.orbitingId;
+export function getSystemBodyVisibleMaxZoom(systemBodyEntity: EntitySystemBody<false>) {
+  const parent = isFacetMovementOrbit(systemBodyEntity.movement) ? systemBodyEntity.movement.orbitingId : undefined;
   const systemBodyRadius = systemBodyEntity.systemBody.radius;
 
   const radiusMaxZoom = startFadeRadius / systemBodyRadius;
 
   //if you're orbiting something, check the max zoom before this starts to fade
   if(parent) {
-    const orbitRadius = systemBodyEntity.movement.radius;
+    //TODO handle orbits other than regular
+    const orbitRadius = (systemBodyEntity.movement as FacetMovementOrbitRegular<false>).radius;
+
+    if(orbitRadius === undefined) {
+      //TODO
+      debugger;
+    }
 
     const orbitRadiusMaxZoom = (startFadeOrbitRadius / orbitRadius) * 1.2;
 

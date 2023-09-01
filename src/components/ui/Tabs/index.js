@@ -116,7 +116,7 @@ Tabs.Tab.propTypes = {
 }
 
 
-const TabsRedux = Tabs.Redux = forwardRef(function TabsRedux({path, ...rest}, ref) {
+Tabs.Redux = forwardRef(function TabsRedux({path, ...rest}, ref) {
     const {state: selectedIndex, setSelectedIndex} = useTab(path);
 
     const props = combineProps(

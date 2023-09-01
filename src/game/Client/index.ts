@@ -3,7 +3,7 @@ import {set as setSelectedSystemId} from 'redux/reducers/selectedSystemId';
 import find from 'helpers/object/find';
 import { fromState, mergeState, calculateSystemBodyPositions } from './ClientState';
 import { Store } from 'redux';
-import { GameConfiguration, ClientGameState, ClientRole, ClientToServerConnector, ClientState } from 'types/game/shared/game';
+import { GameConfiguration, ClientGameState, ClientRole, ClientToServerConnector, ClientState, GameSpeeds } from 'types/game/shared/game';
 import { GameDefinitionOptions } from 'types/game/shared/definitions';
 import { Entity } from 'types/game/client/entities';
 import { PickKeysMatching } from 'types/utils';
@@ -114,7 +114,7 @@ export default class Client {
   }
 
   //in game messages
-  setDesiredSpeed = (speed: number) => {
+  setDesiredSpeed = (speed: GameSpeeds) => {
     console.log('[CLIENT] setDesiredSpeed: ', speed);
 
     return this.connector.sendMessageToServer('setDesiredSpeed', speed)

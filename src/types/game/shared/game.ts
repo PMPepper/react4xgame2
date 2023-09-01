@@ -20,13 +20,15 @@ export interface ServerToClientsConnector {
 export type ClientType = 'local' | 'remote' | 'ai';
 export type ClientRole = typeof FACTION_CLIENT_TYPES[number];
 
+export type GameSpeeds = 1 | 2 | 3| 4 | 5;
+
 export interface ClientState {
     id: number;
     name: string;
 
     factionId: number | null;
     factions: Record<number, ClientRole>;//{[factionId]: ClientRole}
-    gameSpeed: number;
+    gameSpeed: GameSpeeds;
     isPaused: boolean;
     ready: boolean;
     type: {//TODO define more client types e.g. AI, remote, etc

@@ -1,5 +1,5 @@
-import { useMemo, useState } from 'react';
-import { shallowEqual, useSelector } from 'react-redux';
+import React, { useMemo, useState } from 'react';
+import { shallowEqual } from 'react-redux';
 import { Trans } from "@lingui/macro";
 
 //Components
@@ -17,16 +17,19 @@ import TestTab from './TestTab';
 
 //Hooks
 import useGetColoniesBySystemBody from "game/Client/hooks/useGetColoniesBySystemBody";
-import { useContextSelector } from 'components/SelectableContext';
 
 //Other
 import classes from './ColonyWindow.module.scss';
+import useAppSelector from 'hooks/useAppSelector';
+import { useEqualityClientStateContext } from '../ClientStateContext';
+import { isEntityOfType } from 'types/game/base/entityTypeGuards';
+import { EntitySystemBody } from 'types/game/shared/entities';
 
 
 //The component
 export default function ColonyWindow() {
 
-    const selectedSystemId = useSelector(state => state.selectedSystemId);
+    const selectedSystemId = useAppSelector(state => state.selectedSystemId);
     const coloniesList = useGetColoniesList(selectedSystemId);
 
     //Internal state
@@ -62,7 +65,7 @@ export default function ColonyWindow() {
 
 
 //internal helpers
-function useGetColoniesList(selectedSystemId) {
+function useGetColoniesList(selectedSystemId: number) {
     const colonies = useGetColoniesBySystemBody(selectedSystemId);
 
     const systemBodyIds = useMemo(
@@ -88,9 +91,9 @@ function useGetColoniesList(selectedSystemId) {
 }
 
 //requires that all system bodies are in the same system to work, otherwise the resuls are undefined
-function useSortSystemBodiesByPosition(systemBodyIds) {
-    const systemBodies = useContextSelector(
-        state => systemBodyIds.map((id) => state.entities[id]),
+function useSortSystemBodiesByPosition(systemBodyIds: number[]) {
+    const systemBodies = useEqualityClientStateContext(
+        state => systemBodyIds.map((id) => state.entities[id]).filter((entity) => isEntityOfType(entity, 'systemBody')) as EntitySystemBody<false>[],
         shallowEqual
     );
 
@@ -100,7 +103,7 @@ function useSortSystemBodiesByPosition(systemBodyIds) {
     )
 }
 
-function systemBodyPositionCollator(a, b) {
+function systemBodyPositionCollator(a: EntitySystemBody<false>, b: EntitySystemBody<false>) {
     const positionA = a.systemBody.position;
     const positionB = b.systemBody.position;
 

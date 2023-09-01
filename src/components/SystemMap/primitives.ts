@@ -115,13 +115,13 @@ export class RenderPosition {
     id: number;
     x: number;
     y: number;
-    position: number;
+    r: number;
 
-    init(id: number, x: number, y: number, position: number) {
+    init(id: number, x: number, y: number, radius: number) {
         this.id = id;
         this.x = x;
         this.y = y;
-        this.position = position;
+        this.r = radius;
 
         return this;
     }
@@ -130,6 +130,6 @@ export class RenderPosition {
 //entity position pool
 export const positionsPool = new Pool(RenderPosition, {preAllocate: 250});
 
-export function position(id: number, x: number, y: number, position: number): RenderPosition {
-  return positionsPool.get().init(id, x, y, position);
+export function position(id: number, x: number, y: number, radius: number): RenderPosition {
+  return positionsPool.get().init(id, x, y, radius);
 }

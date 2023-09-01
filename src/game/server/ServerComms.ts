@@ -8,7 +8,7 @@ import forEach from 'helpers/object/forEach';
 import Server, { ServerPhase } from "./Server";
 import createWorldFromDefinition from './createWorldFromDefinition';
 
-import { ClientRole, ClientState, ServerToClientsConnector, GameConfiguration } from "types/game/shared/game";
+import { ClientRole, ClientState, ServerToClientsConnector, GameConfiguration, GameSpeeds } from "types/game/shared/game";
 import { KeysWithValsOfType } from 'types/utils';
 import { EntityFaction } from 'types/game/shared/entities';
 import { GameDefinitionOptions } from 'types/game/shared/definitions';
@@ -318,11 +318,11 @@ export default class ServerComms {
     //-in game
     
 
-    setDesiredSpeed(newDesiredSpeed, clientId: number) {
+    setDesiredSpeed(newDesiredSpeed: GameSpeeds, clientId: number) {
         this._checkPhase('RUNNING');
         this._checkValidClient(clientId);
 
-        this.clients[clientId].gameSpeed = Math.max(1, Math.min(5, newDesiredSpeed|0))
+        this.clients[clientId].gameSpeed = Math.max(1, Math.min(5, newDesiredSpeed|0)) as GameSpeeds;
     }
 
     setIsPaused(newIsPaused: boolean, clientId: number) {

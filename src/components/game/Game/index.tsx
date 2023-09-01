@@ -1,5 +1,4 @@
-import { useCallback, useEffect, useState, useMemo, useContext, createContext } from 'react';
-import { useSelector, useDispatch } from 'react-redux'
+import React, { useCallback, useEffect, useState, useMemo, useContext, createContext } from 'react';
 import { Trans, t } from '@lingui/macro';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { solid } from '@fortawesome/fontawesome-svg-core/import.macro';
@@ -7,10 +6,10 @@ import { solid } from '@fortawesome/fontawesome-svg-core/import.macro';
 import styles from './Game.module.scss';
 
 //Components
-import SelectableContext from 'components/SelectableContext';
+import {ClientStateContextProvider} from 'components/game/ClientStateContext';
 import WindowManager from 'components/WindowManager';
-import SystemMap from 'components/SystemMap';
-import FPSStats, {PerformanceStats, ExternalPerformanceStats} from 'components/dev/FPSStats';
+import SystemMap, { SystemMapOnContextMenuHandler } from 'components/SystemMap';
+//import FPSStats, {PerformanceStats, ExternalPerformanceStats} from 'components/dev/FPSStats';
 import TimeControls from 'components/game/TimeControls';
 import SelectSystem from 'components/game/SelectSystem';
 import ContextMenu from 'components/ui/ContextMenu';
@@ -29,8 +28,13 @@ import useWindowSize from 'hooks/useWindowSize';
 import mean from 'helpers/math/mean';
 import roundTo from 'helpers/math/round-to';
 
+//Types
+import { GameConfiguration } from 'types/game/shared/game';
+import useAppSelector from 'hooks/useAppSelector';
+import useAppDispatch from 'hooks/useAppDispatch';
+
 //Contexts
-const GameConfigContext = createContext();
+const GameConfigContext = createContext<GameConfiguration<false>>(undefined);
 GameConfigContext.displayName = 'GameConfigContext';
 
 export function useGameConfig() {
@@ -52,11 +56,11 @@ export default function Game({
   client
 }) {
   //Redux
-  const selectedSystemId = useSelector(state => state.selectedSystemId);
-  const systemMapFollowing = useSelector(state => state.systemMapFollowing);
-  const systemMapOptions = useSelector(state => state.systemMapOptions);
+  const selectedSystemId = useAppSelector(state => state.selectedSystemId);
+  const systemMapFollowing = useAppSelector(state => state.systemMapFollowing);
+  const systemMapOptions = useAppSelector(state => state.systemMapOptions);
 
-  const dispatch = useDispatch();
+  const dispatch = useAppDispatch();
 
   //Calculated values
   const windowSize = useWindowSize();
@@ -64,7 +68,7 @@ export default function Game({
   //Internal state
   const [clientState, setClientState] = useState(() => client.gameState);
   //const [setClientState, setClientStateValues] = useMeasureSetFrequency(_setClientState);//intercept calls to setClientState to measure their frequency
-  const [contextMenuState, setContextMenuState] = useState();
+  const [contextMenuState, setContextMenuState] = useState<undefined | {position: {x: number, y: number}, entityIds: number[]}>(undefined);
 
   //Callbacks
   const setFollowing = useCallback(
@@ -72,7 +76,7 @@ export default function Game({
     [dispatch]
   );
 
-  const onSystemMapContextMenu = useCallback(
+  const onSystemMapContextMenu = useCallback<SystemMapOnContextMenuHandler>(
     (e, x, y, entityIds) => {
       e.preventDefault();
       setContextMenuState({position: {x, y}, entityIds});
@@ -129,10 +133,10 @@ export default function Game({
       <PerformanceStats name="updatingGame :: decode data" formatAvgValue={minMaxMean} style={{right: '155px'}} />
       <PerformanceStats name="updatingGame :: merge state" formatAvgValue={minMaxMean} style={{right: '230px'}} />
       <ExternalPerformanceStats name="server :: updatingGame :: toBinary" formatAvgValue={minMaxMean} style={{right: '305px'}} />*/}
-      <SelectableContext value={clientState}>
+      <ClientStateContextProvider value={clientState}>
         <Memo useChildren>{content}</Memo>
         {contextMenu && <Memo useChildren>{contextMenu}</Memo>}
-      </SelectableContext>
+      </ClientStateContextProvider>
     </GameConfigContext.Provider>
   </div>
 }

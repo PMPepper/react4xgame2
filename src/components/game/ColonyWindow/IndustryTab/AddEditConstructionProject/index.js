@@ -8,7 +8,6 @@ import Grid from "components/layout/Grid";
 
 //Hooks
 import { useGameConfig } from "components/game/Game";
-import { useContextSelector } from "components/SelectableContext";
 import useGetFaction from "components/game/Game/useGetFaction";
 
 //Helpers
