@@ -131,6 +131,13 @@ export default class ServerState {
     return faction;
   }
 
+  createSystem() {
+    return this._newEntity('system', {
+      systemBodyIds: [],
+      colonyIds: [],
+    });
+  }
+
   createSystemBody(systemId: number, bodyDefinition: SystemBodyDefinition, movement?: FacetMovement<true>, availableMinerals?: AvailableMinerals) {
     const body = this._newEntity('systemBody', {
       systemId,
@@ -446,7 +453,7 @@ export default class ServerState {
     return newEntity as unknown as AllEntityTypes<true>[T];
   }
 
-  _addFactionEntity(factionId: number, entityId: number, props) {//TODO type props
+  _addFactionEntity(factionId: number, entityId: number, {name, isSurveyed = false}: {name: string, isSurveyed?: boolean}) {
     //record that this factionEntity needs to be supplied to the client for this faction
     this.factionEntitiesLastUpdated[factionId][entityId] = this.gameTime;
 
@@ -454,7 +461,8 @@ export default class ServerState {
       intel: {},//what we believe about what other factions know about this entity
       id: entityId,
 
-      ...props
+      name,
+      isSurveyed
     };
   }
 

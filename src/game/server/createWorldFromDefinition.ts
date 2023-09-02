@@ -62,7 +62,7 @@ export default function createWorldFromDefinition(userDefinition: GameDefinition
     const systemDefinition = definition.systems[systemDefinitionId];
 
     //create system entity
-    const system = state._newEntity('system', {});
+    const system = state.createSystem();
 
     //update lookup hashes (used later)
     systemsByDefinitionId[systemDefinitionId] = system;
@@ -102,20 +102,10 @@ export default function createWorldFromDefinition(userDefinition: GameDefinition
       }
       systemBodiesBySystemBodyDefinitionName[bodyDefinition.name] = body;
 
+      system.systemBodyIds.push(body.id);
+
       return body;
     });
-
-    // //now sort out orbit order
-    // bodyChildren.forEach((orbiters, orbited) => {
-    //   orbiters.sort((a, b) => (a?.orbit?.radius ?? 0) - (b?.orbit?.radius ?? 0))
-
-    //   orbiters.forEach(({id}) => {
-    //     orbited.systemBody.children.push(id)
-    //   })
-    // });
-
-    //update system with body ids
-    system.systemBodyIds = bodies.map(body => body.id);
   });
 
   //Create the species
