@@ -10,7 +10,7 @@ export default function FormatDate({value, langCode = null, format = null}) {
   return formatDate(value, langCode, format);
 }
 
-if(process.env.NODE_ENV !== 'production') {
+if (import.meta.env.DEV) {
   FormatDate.propTypes = {
     value: PropTypes.instanceOf(Date),
     langCode: PropTypes.string,

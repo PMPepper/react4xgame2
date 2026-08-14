@@ -1,6 +1,6 @@
 {
     "compilerOptions": {
-      "jsx": "react",
+      "jsx": "react-jsx",
       "module": "esnext",
       "esModuleInterop": true,
       "target": "esnext",
@@ -9,9 +9,24 @@
       "sourceMap": true,
       "outDir": "dist",
       "baseUrl": "src",
+      "paths": {
+        "AsyncConnection": ["AsyncConnection/index.ts"],
+        "AsyncConnection/*": ["AsyncConnection/*"],
+        "assets/*": ["assets/*"],
+        "classes/*": ["classes/*"],
+        "components/*": ["components/*"],
+        "css/*": ["css/*"],
+        "game/*": ["game/*"],
+        "helpers/*": ["helpers/*"],
+        "hooks/*": ["hooks/*"],
+        "locales/*": ["locales/*"],
+        "prop-types/*": ["prop-types/*"],
+        "redux/*": ["redux/*"],
+        "types/*": ["types/*"]
+      },
       "lib": ["webworker", "es6", "scripthost", "dom"],
       "plugins": [{ "name": "typescript-plugin-css-modules" }]
     },
     "lib": ["es2017"],
-    "include": ["src"]
+    "include": ["src", "vite-env.d.ts"]
 }

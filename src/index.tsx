@@ -71,6 +71,6 @@ polyfills.then(() => {
     console.error('Failed fetching polyfills ', error);
   });*/
 
-if(process.env.NODE_ENV !== 'production') {
-  //module.hot.accept();
+if (import.meta.env.DEV) {
+  // HMR is handled by Vite automatically.
 }
